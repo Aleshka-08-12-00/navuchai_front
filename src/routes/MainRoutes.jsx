@@ -1,6 +1,8 @@
 
 import Dashboard from 'layout/Dashboard';
 import MainPage from 'pages/main-page/main-page';
+import ResultsPage from 'pages/results-page/results-page';
+
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -16,6 +18,10 @@ const MainRoutes = {
           path: '',
           element: <MainPage />
         },
+        {
+          path: '/Results',
+          element: <ResultsPage />
+        }
       ]
     },
   ]
