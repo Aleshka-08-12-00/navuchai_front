@@ -8,3 +8,11 @@
     font-size: 18px;
     font-weight: bold;
 }
+
+.clickable-row {
+    cursor: pointer; 
+  }
+  
+  .clickable-row:hover td{
+    background-color: #e6f4ff !important; 
+  }

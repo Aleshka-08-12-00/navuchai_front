@@ -25,7 +25,7 @@ const SearchInput: React.FC<SearchInputProps> = ({onSearch}) => {
   return (
     <Space direction="vertical">
       <Search
-        placeholder="input search text"
+        placeholder="Поиск по таблице..."
         onSearch={handleSearch}
         enterButton
         loading={loading}
