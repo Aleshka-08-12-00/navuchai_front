@@ -72,52 +72,6 @@ export default function DrawerContent() {
             }
           />
         </ListItemButton>
-        
-        <ListItemButton
-          onClick={handleResultClick}
-          sx={{
-            zIndex: 1201,
-            pl: 2.25,
-            py: 1,
-            '&:hover': {
-              bgcolor: 'primary.lighter'
-            },
-            '&.Mui-selected': {
-              bgcolor: 'primary.lighter',
-              borderRight: `2px solid ${theme.palette.primary.main}`,
-              color: iconSelectedColor,
-              '&:hover': {
-                color: iconSelectedColor,
-                bgcolor: 'primary.lighter'
-              }
-            }
-          }}
-        >
-          <ListItemIcon
-            sx={{
-              minWidth: 28,
-              color: 'text.primary',
-
-              borderRadius: 1.5,
-              width: 36,
-              height: 36,
-              alignItems: 'center',
-              justifyContent: 'center',
-              '&:hover': {
-                bgcolor: 'secondary.lighter'
-              }
-            }}
-          >
-            <DatasetIcon />
-          </ListItemIcon>
-          <ListItemText
-            primary={
-              <Typography variant="h6" sx={{ color: 'text.primary' }}>
-                Результаты тестов
-              </Typography>
-            }
-          />
-        </ListItemButton>
       </SimpleBar>
     </>
   );

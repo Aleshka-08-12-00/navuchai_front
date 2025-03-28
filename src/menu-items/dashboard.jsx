@@ -36,7 +36,7 @@ const dashboard = {
       code: 'anyCode'
     },
     {
-      id: '2',
+      id: '3',
       title: 'Результаты тестов',
       type: 'item',
       url: '/results',
