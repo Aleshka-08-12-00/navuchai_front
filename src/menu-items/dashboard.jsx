@@ -30,7 +30,7 @@ const dashboard = {
       id: '2',
       title: 'Участники',
       type: 'item',
-      url: '/',
+      url: '/respondents',
       icon: icons.PeopleAltIcon,
       breadcrumbs: false,
       code: 'anyCode'
