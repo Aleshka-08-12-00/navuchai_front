@@ -13,6 +13,8 @@ interface DataType {
 export default class Store {
   count: number = 3;
   searchQuery: string = "";
+  selectedUser: DataType | null = null;
+
   dataSource: DataType[] = [
     { key: 1, test_name: "Математика", last_name: "Иванов", first_name: "Алексей", total_score: 85, end_date: "2025-03-25", test_time: "14:30" },
     { key: 2, test_name: "Физика", last_name: "Петров", first_name: "Дмитрий", total_score: 92, end_date: "2025-03-24", test_time: "10:15" },
@@ -61,6 +63,27 @@ export default class Store {
       item.last_name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
       item.first_name.toLowerCase().includes(this.searchQuery.toLowerCase())
     );
+  }
+
+  getTimeInSeconds(timeString: string): number {
+    if (!timeString) return 0; // Защита от undefined/null
+
+    // Если строка времени не содержит секунды, добавляем ":00"
+    const normalizedTime = timeString.length === 5 ? `${timeString}:00` : timeString;
+
+    const timeParts = normalizedTime.split(':').map(part => parseInt(part, 10));
+
+    if (timeParts.length !== 3 || timeParts.some(isNaN)) {
+        console.error("Некорректный формат времени:", timeString);
+        return 0;
+    }
+
+    const [hours, minutes, seconds] = timeParts;
+    return hours * 3600 + minutes * 60 + seconds;
+}
+
+  setSelectedUser(user: DataType) {
+    this.selectedUser = user;
   }
 }
 

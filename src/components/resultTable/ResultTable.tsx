@@ -117,7 +117,10 @@ const ResultTable: React.FC = observer(() => {
         }}
         rowClassName={styles["clickable-row"]}
         onRow={(record) => ({
-          onClick: () => navigate(`/Results/${record.key}`)
+          onClick: () => {
+            store.setSelectedUser(record);
+            navigate(`/Results/${record.key}`)
+          }
         })}
         onChange={handleTableChange}
       />

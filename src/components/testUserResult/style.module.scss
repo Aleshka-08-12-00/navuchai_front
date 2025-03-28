@@ -39,17 +39,21 @@
                 &:hover {
                     background: #f4f6f9;
                 }
+
+                &:first-child {
+                    margin-left: 10px;
+                }
             }
         }
     }
 
     .respondent {
-        padding: 15px 0 25px;
+        padding: 15px 15px 25px;
 
         span {
             text-transform: uppercase;
             font-size: 12px;
-            font-weight: 400;
+            font-weight: 600;
         }
 
         .respondent-name {
@@ -61,9 +65,9 @@
             margin-top: 10px;           
         }
 
-        .user-name {
+        .title-card {
             text-transform: none;
-            font-size: 16px;
+            font-size: 24px;
             font-weight: 600;
         }
     }
