@@ -2,12 +2,14 @@
 import HomeIcon from '@mui/icons-material/Home';
 import AppsIcon from '@mui/icons-material/Apps';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
+import BarChartIcon from '@mui/icons-material/BarChart';
 
 // icons
 const icons = {
   HomeIcon,
   AppsIcon,
-  PeopleAltIcon
+  PeopleAltIcon,
+  BarChartIcon
 };
 
 // ==============================|| MENU ITEMS - DASHBOARD ||============================== //
@@ -40,7 +42,7 @@ const dashboard = {
       title: 'Результаты тестов',
       type: 'item',
       url: '/results',
-      icon: icons.PeopleAltIcon,
+      icon: icons.BarChartIcon,
       breadcrumbs: false,
       code: 'anyCode'
     },
