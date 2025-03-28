@@ -7,7 +7,7 @@ import styles from "./style.module.scss";
 import SearchInput from "./searchInput/SearchInput";
 import { store } from "../../store/store"; // Импорт MobX-стора
 import { useNavigate } from "react-router";
-import DropDownDowload from "./dropDownDowload/DropDownDowload";
+import DropDownDowload from "./dropDownDowload/dropDownDowload";
 
 
 type TableRowSelection<T extends object = object> = TableProps<T>["rowSelection"];
