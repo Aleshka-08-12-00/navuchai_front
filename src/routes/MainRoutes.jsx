@@ -22,11 +22,11 @@ const MainRoutes = {
         },
         {
 
-          path: '/Results',
+          path: '/results',
           element: <ResultsPage />,
         },
         {
-          path: '/Results/:id',
+          path: '/results/:id',
           element: <ResultsUserPage />,
         },
         {
