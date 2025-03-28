@@ -28,7 +28,7 @@ const TimeDisplay: React.FC<TimeDisplayProps> = observer(({ maxTime }) => {
   const formattedMaxTime = `${String(maxMinutes).padStart(2, '0')}:${String(maxSeconds).padStart(2, '0')}`;
 
   return (
-    <span style={{ color: timeInSeconds > maxTime ? "red" : "black" }}>
+    <span style={{ color: timeInSeconds > maxTime ? "red" : "#1677ff", fontSize: '18px',  fontWeight: '400' }}>
       {formattedTime} / {formattedMaxTime}
     </span>
   );

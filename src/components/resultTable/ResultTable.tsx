@@ -3,10 +3,12 @@ import { observer } from "mobx-react-lite";
 import { Button, Flex, Table } from "antd";
 import type { TableColumnsType, TableProps } from "antd";
 import styles from "./style.module.scss";
-import DropDownDowload from "./dropDownDowload/dropDownDowload";
+
 import SearchInput from "./searchInput/SearchInput";
 import { store } from "../../store/store"; // Импорт MobX-стора
 import { useNavigate } from "react-router";
+import DropDownDowload from "./dropDownDowload/DropDownDowload";
+
 
 type TableRowSelection<T extends object = object> = TableProps<T>["rowSelection"];
 

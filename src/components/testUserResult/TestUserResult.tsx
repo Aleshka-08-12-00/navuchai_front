@@ -1,7 +1,7 @@
-import React from 'react';
-import { Button, Col, Divider, Row } from 'antd';
+import React, { useState } from 'react';
+import { Button, Col, Divider, Progress, Row } from 'antd';
 import { useNavigate } from 'react-router';
-import { CheckCircleOutlined, FieldTimeOutlined, LeftOutlined, UserOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, CloseCircleOutlined, FieldTimeOutlined, LeftOutlined, MessageOutlined, ProjectOutlined, UserOutlined } from '@ant-design/icons';
 import { Link } from '@mui/material';
 import styles from './style.module.scss';
 import DownloadForOfflineOutlinedIcon from '@mui/icons-material/DownloadForOfflineOutlined';
@@ -12,16 +12,23 @@ import PieChartResult from './pieChartResult/PieChartResult';
 import { store } from '../../store/store';
 import TimeDisplay from './timeDisplay/TimeDisplay';
 
-const style: React.CSSProperties = { background: '#0092ff'};
+import TextArea from 'antd/es/input/TextArea';
+import { display, textAlign } from '@mui/system';
+import TimeLinear from './timeLiner/TimeLinear';
+import QuestionsTestTable from './questionsTestTable/QuestionsTestTable';
+
 
 const TestUserResult: React.FC = observer(() => {
     const navigate = useNavigate();
+    const [visible, setVisible] = useState(false);
+    const [value, setValue] = useState('');
+    const [hasFeedback, setHasFeedback] = useState(false);
 
     if (!store.selectedUser) {
         return <div>Выберите пользователя</div>;
       }
 
-    const { total_score, test_name, first_name, last_name, test_time } = store.selectedUser;
+    const { total_score, test_name, first_name, last_name, test_time, end_date } = store.selectedUser;
 
     const timeInSeconds = store.getTimeInSeconds(test_time);
     
@@ -31,16 +38,28 @@ const TestUserResult: React.FC = observer(() => {
 
     const resultGood = (total_score >= 50 && timeInSeconds <= 720) 
         ? 'Оценка удовлетворительная' 
-        : 'Оценка не удовлетворительная';
+        : 'Оценка неудовлетворительная';
 
     const resultColor = (total_score >= 50 && timeInSeconds <= 720) 
-        ? 'rgb(50, 220, 45)' 
+        ? '#1677ff' 
         : 'red';
+    
+    const toggleVisibility = () => {
+        setVisible(!visible);
+        if (!visible) {
+            setHasFeedback(false); // Скрыть "Отзывов нет", когда поле для ввода появляется
+        }
+    };
+    const handleSave = () => {
+        console.log('Отзыв сохранён:', value);
+        setVisible(false);  
+        setHasFeedback(true);
+    };
 
    return ( 
         <>
             <Divider orientation="left">
-                <Link onClick={() => navigate(-1)} className={styles.link}>
+                <Link onClick={() => navigate(-1)} className={styles.link} style={{textAlign: 'left'}}>
                     <LeftOutlined /> Вернуться к списку
                 </Link>
             </Divider>
@@ -99,9 +118,12 @@ const TestUserResult: React.FC = observer(() => {
                             <div className={styles.respondent} style={{ width: '60%' }}>
                                 <span>Результат</span>
                                 <div className={styles['respondent-name']}>
-                                    <CheckCircleOutlined 
-                                        style={{ fontSize: '30px', marginRight: '15px', color: resultColor }} 
-                                    />
+                                    { total_score >= 50 && timeInSeconds <= 720 
+                                    ? 
+                                        <CheckCircleOutlined style={{ fontSize: '30px', marginRight: '15px', color: resultColor }} />
+                                    :
+                                        <CloseCircleOutlined style={{ fontSize: '30px', marginRight: '15px', color: resultColor }}/>
+                                    }
                                     <span 
                                         className={styles['title-card']} 
                                         style={{ color: resultColor }}
@@ -130,29 +152,116 @@ const TestUserResult: React.FC = observer(() => {
                     <Col xs={24} sm={24} md={9} lg={9} style={{ marginLeft: 'auto' }} className={styles['gutter-row']} >
                         <div className={styles.respondent}>
                             <span>Время</span>
-                            <div style={{display: 'flex', alignItems: "center"}}>
-                                <div className={styles['respondent-name']}>
+                            <div style={{display: 'flex', flexDirection: 'column', flexWrap: 'wrap'}}>
+                                <div className={styles['respondent-name']} style={{display: 'flex', flexDirection: 'row', marginBottom: '10px'}}>
                                     <FieldTimeOutlined  style={{ fontSize: '30px', marginRight: '15px' }} />
+                                    <div>
+                                        <span className={styles['title-card']}>
+                                            Общее время
+                                        </span>
+                                    </div>
                                 </div>
-                                <div style={{marginTop: '10px'}}>
-                                    <span className={styles['title-card']}>Общее время</span>
-                                    <TimeDisplay maxTime={720}/>
+                                <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', marginLeft: '45px'}}>
+                                    <div>
+                                        <TimeDisplay maxTime={720}/>
+                                    </div>
+                                    <div style={{marginBottom: '10px'}}>
+                                        <TimeLinear timeInSeconds={timeInSeconds}/>
+                                    </div>
+                                    <div style={{display: 'flex', flexDirection: 'row'}}>
+                                        <span style={{textTransform: 'none', fontSize: '14px', fontWeight: '400'}}>
+                                            Дата: <span style={{fontWeight: "600", textTransform: 'none', fontSize: '16px'}}>{end_date}</span>
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </Col>
                 </Row>
 
+                <Col span={24} className={styles['gutter-row']}>
+                    <div className={styles.respondent}>
+                        <span>Баллы по категориям вопросов {`(3)`}</span>
+                        <div style={{display: 'flex', flexDirection: 'row', flexWrap: 'wrap', marginTop: '15px', alignItems: 'start'}}>
+                            <ProjectOutlined style={{fontSize: '30px'}}/>
+                            <div style={{display: 'flex', flexDirection: 'column', flexWrap: 'wrap', marginLeft: '15px', marginTop: '5px', margin: 'auto'}}>
+                                <div style={{display: 'flex', flexDirection: 'row', flexWrap: "wrap", justifyContent: "space-between", marginBottom: '15px'}}>
+                                    <div style={{marginRight: '30px'}}>
+                                        <Progress 
+                                            percent={68} 
+                                            size={[450, 25]} 
+                                            format={() => 'Категория №1'} 
+                                            strokeWidth={20} 
+                                            strokeColor="#1677ff"
+                                        />
+                                    </div>
+                                    <div>
+                                        <Progress 
+                                            percent={34} 
+                                            size={[450, 25]} 
+                                            format={() => `Категория №2`} 
+                                            strokeWidth={20} 
+                                            strokeColor="red"
+                                        />
+                                    </div>
+                                </div>
+                                <div>
+                                    <Progress 
+                                            percent={95} 
+                                            size={[450, 25]} 
+                                            format={() => 'Категория №3'} 
+                                            strokeWidth={20} 
+                                            strokeColor="#1677ff"
+                                        />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </Col>
 
-                {/* Остальные блоки */}
                 <Col span={24} className={styles['gutter-row']}>
-                    <div style={style}>Block 5</div>
+                    <div className={styles.respondent}>
+                        <span>отзывы</span>
+                        <div  style={{marginTop: '15px', display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px'}}>
+                            <div style={{display: 'flex', flexDirection: 'row', flexWrap: 'wrap'}}>
+                                {!hasFeedback && ( // Показываем "Отзывов нет", если нет отзыва
+                                    <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
+                                        <MessageOutlined style={{ fontSize: '18px', marginRight: '10px', color: '#1677ff' }} />
+                                        <span style={{ textTransform: 'none', fontSize: '16px', fontWeight: '400' }}>Отзывов нет</span>
+                                    </div>
+                                )}
+                            </div>
+                            <div>
+                                <Button color="primary" variant="outlined" onClick={toggleVisibility}>
+                                    {visible ? 'Скрыть поле' : 'Написать отзыв'}
+                                </Button>
+                                {visible && ( // Появляется только когда поле для ввода отзывов видно
+                                    <Button color="primary" variant="solid" onClick={handleSave} style={{ marginLeft: '10px' }}>
+                                        Сохранить
+                                    </Button>
+                                )}
+                            </div>
+                        </div>
+                        <div className={`${styles['textarea-container']} ${visible ? styles.show : styles.hide}`}>
+                                <TextArea
+                                    value={value}
+                                    onChange={(e) => setValue(e.target.value)}
+                                    placeholder="Введите отзыв..."
+                                    autoSize={{ minRows: 3, maxRows: 5 }}
+                                />
+                        </div>            
+                    </div>
                 </Col>
+
                 <Col span={24} className={styles['gutter-row']}>
-                    <div style={style}>Block 6</div>
-                </Col>
-                <Col span={24} className={styles['gutter-row']}>
-                    <div style={style}>Block 7</div>
+                    <div className={styles.respondent}>
+                        <div>
+                            <span>Вопросы {`(6)`}</span>
+                        </div>
+                        <div>
+                            <QuestionsTestTable />
+                        </div>
+                    </div>
                 </Col>
             </Row>
 

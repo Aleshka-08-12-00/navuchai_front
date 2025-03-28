@@ -66,20 +66,18 @@ export default class Store {
   }
 
   getTimeInSeconds(timeString: string): number {
-    if (!timeString) return 0; // Защита от undefined/null
+    if (!timeString) return 0;
 
-    // Если строка времени не содержит секунды, добавляем ":00"
-    const normalizedTime = timeString.length === 5 ? `${timeString}:00` : timeString;
+    const timeParts = timeString.split(':').map(part => parseInt(part, 10));
 
-    const timeParts = normalizedTime.split(':').map(part => parseInt(part, 10));
-
-    if (timeParts.length !== 3 || timeParts.some(isNaN)) {
+    if (timeParts.length !== 2 || timeParts.some(isNaN)) {
         console.error("Некорректный формат времени:", timeString);
         return 0;
     }
 
-    const [hours, minutes, seconds] = timeParts;
-    return hours * 3600 + minutes * 60 + seconds;
+    const [minutes, seconds] = timeParts;
+
+    return minutes * 60 + seconds; 
 }
 
   setSelectedUser(user: DataType) {

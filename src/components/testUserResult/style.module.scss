@@ -70,6 +70,21 @@
             font-size: 24px;
             font-weight: 600;
         }
+
+
+        .textarea-container {
+            overflow: hidden;
+            transition: max-height 0.5s ease-out;
+            max-height: 0; /* Начальная высота скрытого элемента */
+        }
+        
+        .textarea-container.show {
+            max-height: 300px; /* Пример максимальной высоты, можно настроить */
+        }
+        
+        .textarea-container.hide {
+            max-height: 0;
+        }
     }
 
     

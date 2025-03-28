@@ -2,7 +2,7 @@ import { ResponsivePie } from "@nivo/pie";
 
 const PieChartResult = ({ totalScore }: { totalScore: number }) => {
   const data = [
-    { id: "Набрано", value: totalScore, color: "green" },
+    { id: "Набрано", value: totalScore, color: "#1677ff" },
     { id: "Осталось", value: 100 - totalScore, color: "lightgray" },
   ];
 
