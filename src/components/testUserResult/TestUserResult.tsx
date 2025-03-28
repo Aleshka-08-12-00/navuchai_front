@@ -56,7 +56,7 @@ const TestUserResult: React.FC = observer(() => {
 
    return ( 
         <>
-            <Divider orientation="left">
+            <Divider orientation="start">
                 <Link onClick={() => navigate(-1)} className={styles.link} style={{textAlign: 'left'}}>
                     <LeftOutlined /> Вернуться к списку
                 </Link>
