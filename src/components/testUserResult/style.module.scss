@@ -1,0 +1,96 @@
+.link {
+    text-decoration: none;
+    cursor: pointer;
+    color: black;
+
+    &:hover {
+        color: #40a9ff; 
+        text-decoration: none;
+    }
+}
+
+.gutter-row {
+    width: 100%;
+    box-shadow: 3px 4px 10px rgba(201, 216, 225, .34);
+    background: #fff;
+    border-radius: 6px;
+
+    .actions-bar {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        line-height: 50px;
+        margin: 0;
+        align-items: center;
+
+        .actions-bar-right {
+            width: max-content;
+            height: 100%;
+            align-items: center;
+            justify-content: center;
+
+            .btnBackground {
+                align-items: center;
+                justify-content: center;
+                background: none;
+                padding: 1px 5px;
+    
+                &:hover {
+                    background: #f4f6f9;
+                }
+
+                &:first-child {
+                    margin-left: 10px;
+                }
+            }
+        }
+    }
+
+    .respondent {
+        padding: 15px 15px 25px;
+
+        span {
+            text-transform: uppercase;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .respondent-name {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-right: 5px; 
+            margin-top: 10px;           
+        }
+
+        .title-card {
+            text-transform: none;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+
+        .textarea-container {
+            overflow: hidden;
+            transition: max-height 0.5s ease-out;
+            max-height: 0; /* Начальная высота скрытого элемента */
+        }
+        
+        .textarea-container.show {
+            max-height: 300px; /* Пример максимальной высоты, можно настроить */
+        }
+        
+        .textarea-container.hide {
+            max-height: 0;
+        }
+    }
+
+    
+
+
+      
+}
+
+
