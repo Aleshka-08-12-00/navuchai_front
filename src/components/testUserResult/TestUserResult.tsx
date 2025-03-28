@@ -11,9 +11,7 @@ import { observer } from 'mobx-react-lite';
 import PieChartResult from './pieChartResult/PieChartResult';
 import { store } from '../../store/store';
 import TimeDisplay from './timeDisplay/TimeDisplay';
-
 import TextArea from 'antd/es/input/TextArea';
-import { display, textAlign } from '@mui/system';
 import TimeLinear from './timeLiner/TimeLinear';
 import QuestionsTestTable from './questionsTestTable/QuestionsTestTable';
 
@@ -47,7 +45,7 @@ const TestUserResult: React.FC = observer(() => {
     const toggleVisibility = () => {
         setVisible(!visible);
         if (!visible) {
-            setHasFeedback(false); // Скрыть "Отзывов нет", когда поле для ввода появляется
+            setHasFeedback(false);
         }
     };
     const handleSave = () => {
@@ -98,7 +96,6 @@ const TestUserResult: React.FC = observer(() => {
                     </div>
                 </Col>
 
-                {/* Тестируемый */}
                 <Col span={24} className={styles['gutter-row']}>
                     <div className={styles.respondent}>
                         <span>Тестируемый</span>
@@ -111,7 +108,6 @@ const TestUserResult: React.FC = observer(() => {
                     </div>
                 </Col>
 
-                {/* Результат */}
                 <Row style={{ width: '100%', display: 'flex', gap: '15px', flexWrap: 'wrap'  }}>
                     <Col xs={24} sm={24} md={14} lg={14} className={styles['gutter-row']}>
                         <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
@@ -224,7 +220,7 @@ const TestUserResult: React.FC = observer(() => {
                         <span>отзывы</span>
                         <div  style={{marginTop: '15px', display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px'}}>
                             <div style={{display: 'flex', flexDirection: 'row', flexWrap: 'wrap'}}>
-                                {!hasFeedback && ( // Показываем "Отзывов нет", если нет отзыва
+                                {!hasFeedback && (
                                     <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
                                         <MessageOutlined style={{ fontSize: '18px', marginRight: '10px', color: '#1677ff' }} />
                                         <span style={{ textTransform: 'none', fontSize: '16px', fontWeight: '400' }}>Отзывов нет</span>
@@ -235,7 +231,7 @@ const TestUserResult: React.FC = observer(() => {
                                 <Button color="primary" variant="outlined" onClick={toggleVisibility}>
                                     {visible ? 'Скрыть поле' : 'Написать отзыв'}
                                 </Button>
-                                {visible && ( // Появляется только когда поле для ввода отзывов видно
+                                {visible && ( 
                                     <Button color="primary" variant="solid" onClick={handleSave} style={{ marginLeft: '10px' }}>
                                         Сохранить
                                     </Button>
