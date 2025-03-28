@@ -2,7 +2,7 @@ import * as React from 'react';
 import { observer } from 'mobx-react-lite';
 import { Context } from '../..';
 
-const MainPage = observer(() => {
+const RespondentsPage = observer(() => {
   const { authStore } = React.useContext(Context);
  
 
@@ -12,10 +12,10 @@ const MainPage = observer(() => {
 
   return (
     <>
-      main page
+  Respondent
     </>
   );
 })
 
-export default MainPage;
+export default RespondentsPage;
 

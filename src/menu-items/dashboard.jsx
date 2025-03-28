@@ -1,9 +1,13 @@
 
 import HomeIcon from '@mui/icons-material/Home';
+import AppsIcon from '@mui/icons-material/Apps';
+import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 
 // icons
 const icons = {
   HomeIcon,
+  AppsIcon,
+  PeopleAltIcon
 };
 
 // ==============================|| MENU ITEMS - DASHBOARD ||============================== //
@@ -15,31 +19,23 @@ const dashboard = {
   children: [
     {
       id: '1',
-      title: 'Кабинет заказчика',
+      title: 'Мои тесты',
       type: 'item',
       url: '/',
-      icon: icons.HomeIcon,
+      icon: icons.AppsIcon,
       breadcrumbs: false,
-      code: 'page_customer_office'
+      code: 'anyCode'
     },
     {
       id: '2',
-      title: 'Кабинет HRD',
+      title: 'Участники',
       type: 'item',
-      url: '/',
-      icon: icons.HomeIcon,
+      url: '/respondents',
+      icon: icons.PeopleAltIcon,
       breadcrumbs: false,
-      code: 'page_hrd_office'
+      code: 'anyCode'
     },
-    {
-      id: '3',
-      title: 'Кабинет HR',
-      type: 'item',
-      url: '/',
-      icon: icons.HomeIcon,
-      breadcrumbs: false,
-      code: 'page_hr_office'
-    },
+ 
   ]
 };
 
