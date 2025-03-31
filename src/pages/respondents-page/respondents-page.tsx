@@ -37,7 +37,7 @@ const RespondentsPage = observer(() => {
       <Box sx={{ flexGrow: 1 }}>
         <Grid item xs={12} sx={{ mb: 2 }}>
           <div style={{ display: 'flex', alignItems: 'center', margin: 'auto', justifyContent: 'space-between' }}>
-            <Typography variant="h5">Списоки участников ({data.length})</Typography>
+            <Typography variant="h5">Список участников ({data.length})</Typography>
             <div >
               <Button
                 variant="contained"
