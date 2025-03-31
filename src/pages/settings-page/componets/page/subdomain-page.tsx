@@ -25,24 +25,24 @@ const SubdomainPage = observer(() => {
                     </Typography>
                     <div style={{ display: 'flex', alignItems: 'center', margin: 'auto', justifyContent: 'space-between', padding: 20 }}>
                         <Typography variant="h6" color="textSecondary" style={{ marginRight: 10 }} >
-                        Поддомен — это выделенный шлюз для ваших тестов. Его можно использовать как публичную
-                         ссылку для обмена с вашими респондентами и как способ доступа 
-                         к вашим тестам через личный код доступа или групповой пароль.
+                            Поддомен — это выделенный шлюз для ваших тестов. Его можно использовать как публичную
+                            ссылку для обмена с вашими респондентами и как способ доступа
+                            к вашим тестам через личный код доступа или групповой пароль.
                         </Typography>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', margin: 'auto', justifyContent: 'space-between', padding: 20 }}>
                         <Typography variant="h6" color="textSecondary" style={{ marginRight: 10 }} >
-                        Он идентичен для всех ваших тестов и будет отображать ваш логотип по умолчанию.
+                            Он идентичен для всех ваших тестов и будет отображать ваш логотип по умолчанию.
                         </Typography>
 
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', margin: 'auto', justifyContent: 'space-between', padding: 20 }}>
                         <Typography variant="h6" color="textSecondary" style={{ marginRight: 10 }} >
-                        Все пробные подписки ограничивают количество собираемых результатов.
+                            Все пробные подписки ограничивают количество собираемых результатов.
                         </Typography>
                     </div>
-                    <div style={{ display: 'flex',  padding: 20 }}>
-                    <TextField id="standard-basic"  variant="standard"  size="small" style={{marginRight: 10}}/>
+                    <div style={{ display: 'flex', padding: 20 }}>
+                        <TextField id="standard-basic" variant="standard" size="small" style={{ marginRight: 10 }} />
                         <Typography variant="h6" style={{ marginRight: 10 }} >
                             .navuchai.by
                         </Typography>

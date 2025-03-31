@@ -1,11 +1,11 @@
 module.exports = {
     apps : [{
-      name: 'hrm',
+      name: 'navuchai',
       script: 'npm run preview',
       args: 'serve',
       interpreter: 'none',
       env: {
-        PORT: 4174,
+        PORT: 3010,
         NODE_ENV: 'development'
       }
     }]
