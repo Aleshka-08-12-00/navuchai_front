@@ -3,13 +3,15 @@ import HomeIcon from '@mui/icons-material/Home';
 import AppsIcon from '@mui/icons-material/Apps';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import BarChartIcon from '@mui/icons-material/BarChart';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 // icons
 const icons = {
   HomeIcon,
   AppsIcon,
   PeopleAltIcon,
-  BarChartIcon
+  BarChartIcon,
+  SettingsIcon
 };
 
 // ==============================|| MENU ITEMS - DASHBOARD ||============================== //
@@ -43,6 +45,15 @@ const dashboard = {
       type: 'item',
       url: '/results',
       icon: icons.BarChartIcon,
+      breadcrumbs: false,
+      code: 'anyCode'
+    },
+    {
+      id: '4',
+      title: 'Личный кабинет',
+      type: 'item',
+      url: '/settings',
+      icon: icons.SettingsIcon,
       breadcrumbs: false,
       code: 'anyCode'
     },

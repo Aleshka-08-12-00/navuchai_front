@@ -30,12 +30,15 @@ import Store from './store/store';
 import AuthStore from './store/authStore';
 import { createContext } from 'react';
 import ReactDOM from 'react-dom/client';
+import SettingsStore from './store/settingsStore';
 const store = new Store();
 const authStore = new AuthStore();
+const settingsStore = new SettingsStore();
 
 const obStore = {
   store,
   authStore,
+  settingsStore,
 }
 
 export const Context = createContext(obStore);
