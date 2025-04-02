@@ -62,7 +62,7 @@ const MainPage = observer(() => {
       status: 'завершен',
       statusColor: 'warning',
       createDate: '2024.11.07',
-      testName: 'Тест на Алёшу',
+      testName: 'Тест на Валеру',
       testDescription: 'нет описания',
       procent: '21.1',
       completed: '31',
