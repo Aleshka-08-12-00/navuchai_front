@@ -1,9 +1,9 @@
-import logo from '../../../src/assets/images/logoHR.png';
+import logo from '../../../src/assets/images/logo.png';
 
 const Logo = () => {
   return (
     <>
-      <img src={logo} alt="HRSellwin" width="170" />
+      <img src={logo} alt="Navuchai" width="150" />
     </>
   );
 };
