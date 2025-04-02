@@ -5,6 +5,8 @@ import { Context } from '../..';
 import GeneralInformationPage from './componets/page/general-information-page';
 import YourTrialPage from './componets/page/your-trial-page';
 import SubdomainPage from './componets/page/subdomain-page';
+import { Box } from "@mui/material";
+import { Grid } from "@mui/material";
 
 const SettingsPage = observer(() => {
      const { settingsStore } = React.useContext(Context);
@@ -16,19 +18,23 @@ const SettingsPage = observer(() => {
 }, []);
 
   return (
-    <div style={{display: 'flex'}}>
-    <div style={{width: 250,  height: '100vw'}}>
-    <ContentSettingsMenu />
-    </div>
-    <div style={{paddingLeft: 15}}>
-        {settingsStore.idSettingsNumber === '41' && <GeneralInformationPage/>}
+   
+       <Box sx={{ flexGrow: 1 }}>
+        {/* <Grid item xs={12} sx={{ mb: 2 }}>
+          
+        </Grid> */}
+        <Grid container spacing={2}>
+            <Grid item xs={1} sm={1} md={1} lg={3}>
+            <ContentSettingsMenu />
+            </Grid>
+            <Grid item xs={11} sm={11} md={11} lg={9}>
+            {settingsStore.idSettingsNumber === '41' && <GeneralInformationPage/>}
         {settingsStore.idSettingsNumber === '42' && <YourTrialPage/>}
         {settingsStore.idSettingsNumber === '44' && <SubdomainPage/>}
-    </div>
+            </Grid>
+        </Grid>
+      </Box>
 
-   
-   
-    </div>
   );
 })
 

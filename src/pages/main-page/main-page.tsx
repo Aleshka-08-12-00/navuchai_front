@@ -11,7 +11,10 @@ import { faEllipsisV } from '@fortawesome/free-solid-svg-icons/faEllipsisV';
 import DonutLargeIcon from '@mui/icons-material/DonutLarge';
 
 import SvgIcon from '@mui/material/SvgIcon';
-import React from "react";
+import React, { useState } from "react";
+import ContentSettingsMainMenu from "./componets";
+import { Context } from "../..";
+import GeneralSettingsTestPage from "./page/general-settings-test-page";
 
 type FontAwesomeSvgIconProps = {
   icon: any;
@@ -42,6 +45,9 @@ const FontAwesomeSvgIcon = React.forwardRef<SVGSVGElement, FontAwesomeSvgIconPro
 
 
 const MainPage = observer(() => {
+    const [activeCard, setActiveCard] = useState(false)
+     const { settingsStore } = React.useContext(Context);
+
   const data = [
     {
       status: 'активный',
@@ -95,6 +101,17 @@ const MainPage = observer(() => {
   return (
     <>
       <Box sx={{ flexGrow: 1 }}>
+        {activeCard ?   <Grid container spacing={2}>
+            <Grid item xs={1} sm={1} md={1} lg={3}>
+            <ContentSettingsMainMenu />
+            </Grid>
+            <Grid item xs={11} sm={11} md={11} lg={9}>
+            {settingsStore.idSettingsNumber === '51' && <GeneralSettingsTestPage/>}
+      
+            </Grid>
+        </Grid> :
+        <>
+        
         <Grid item xs={12} sx={{ mb: 2 }}>
           <div style={{ display: 'flex', alignItems: 'center', margin: 'auto', justifyContent: 'space-between' }}>
             <Typography variant="h5">Мои тесты ({data.length})</Typography>
@@ -114,18 +131,14 @@ const MainPage = observer(() => {
                 style={{ textTransform: "none", backgroundColor: '#0bc279' }}
                 size="large"
                 startIcon={<AddBoxIcon />}
+                onClick={()=> setActiveCard(true)}
               >
                 Новый тест
               </Button>
             </div>
           </div>
-
         </Grid>
-
-
         <Grid container spacing={2}>
-
-
           {data && data.map((item: any, index: number) => (
             <Grid item xs={12} sm={6} md={6} lg={6}>
               <MainCard contentSX={{ p: 2.25, pt: 3.3 }}>
@@ -195,6 +208,9 @@ const MainPage = observer(() => {
             </Grid>
           ))}
         </Grid>
+        </>
+        }
+    
 
       </Box>
 

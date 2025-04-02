@@ -1,7 +1,7 @@
 module.exports = {
     apps : [{
       name: 'navuchai',
-      script: 'npm run preview',
+      script: 'npm run preview -- -- hosts',
       args: 'serve',
       interpreter: 'none',
       env: {
