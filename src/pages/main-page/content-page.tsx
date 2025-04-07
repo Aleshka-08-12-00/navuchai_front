@@ -9,7 +9,9 @@ import { Context } from "../..";
 import GeneralSettingsTestPage from "./page/general-settings-test-page";
 import RecordingComponent from "./page/video-page";
 import ConstructorPage from "./page/constructor-page/constructor-page";
-import TestStartPage from "./page/test-start-page";
+import TestStartPage from "./page/test-start-page/test-start-page";
+import GradingSummaryPage from "./page/grading-summary-page/grading-summary-page";
+import TimeSettingsPage from "./page/time-settings-page/time-settings-page";
 
 
 const ContentPage = observer(({testId}: any) => {
@@ -26,6 +28,8 @@ const ContentPage = observer(({testId}: any) => {
             {settingsStore.idSettingsNumber === '58' && <RecordingComponent/>}
             {settingsStore.idSettingsNumber === '52' && <ConstructorPage/>} 
             {settingsStore.idSettingsNumber === '55' && <TestStartPage/>}
+            {settingsStore.idSettingsNumber === '56' && <GradingSummaryPage/>}
+            {settingsStore.idSettingsNumber === '57' && <TimeSettingsPage/>}
       
             </Grid>
         </Grid> 
