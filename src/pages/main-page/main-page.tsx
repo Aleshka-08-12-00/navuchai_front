@@ -12,9 +12,10 @@ import DonutLargeIcon from '@mui/icons-material/DonutLarge';
 
 import SvgIcon from '@mui/material/SvgIcon';
 import React, { useState } from "react";
-import ContentSettingsMainMenu from "./componets";
 import { Context } from "../..";
-import GeneralSettingsTestPage from "./page/general-settings-test-page";
+import ContentPage from "./content-page";
+import { useNavigate } from "react-router";
+
 
 type FontAwesomeSvgIconProps = {
   icon: any;
@@ -45,11 +46,14 @@ const FontAwesomeSvgIcon = React.forwardRef<SVGSVGElement, FontAwesomeSvgIconPro
 
 
 const MainPage = observer(() => {
-    const [activeCard, setActiveCard] = useState(false)
-     const { settingsStore } = React.useContext(Context);
+    const [activeCard, setActiveCard] = useState(false);
+    const [testId, setTestId] = useState(0);
+    const { settingsStore } = React.useContext(Context);
+    const navigate = useNavigate();
 
   const data = [
     {
+      id: 1,
       status: 'активный',
       statusColor: 'success',
       createDate: '2025.03.02',
@@ -59,6 +63,7 @@ const MainPage = observer(() => {
       completed: '37',
     },
     {
+      id: 2,
       status: 'завершен',
       statusColor: 'warning',
       createDate: '2024.11.07',
@@ -68,6 +73,7 @@ const MainPage = observer(() => {
       completed: '31',
     },
     {
+      id: 3,
       status: 'настройка в процессе',
       statusColor: 'primary',
       createDate: '2025.04.04',
@@ -77,6 +83,7 @@ const MainPage = observer(() => {
       completed: '69',
     },
     {
+      id: 4,
       status: 'активный',
       statusColor: 'success',
       createDate: '2023.09.02',
@@ -86,6 +93,7 @@ const MainPage = observer(() => {
       completed: '28',
     },
     {
+      id: 5,
       status: 'активный',
       statusColor: 'success',
       createDate: '2023.09.02',
@@ -101,17 +109,8 @@ const MainPage = observer(() => {
   return (
     <>
       <Box sx={{ flexGrow: 1 }}>
-        {activeCard ?   <Grid container spacing={2}>
-            <Grid item xs={1} sm={1} md={1} lg={3}>
-            <ContentSettingsMainMenu />
-            </Grid>
-            <Grid item xs={11} sm={11} md={11} lg={9}>
-            {settingsStore.idSettingsNumber === '51' && <GeneralSettingsTestPage/>}
-      
-            </Grid>
-        </Grid> :
+     
         <>
-        
         <Grid item xs={12} sx={{ mb: 2 }}>
           <div style={{ display: 'flex', alignItems: 'center', margin: 'auto', justifyContent: 'space-between' }}>
             <Typography variant="h5">Мои тесты ({data.length})</Typography>
@@ -131,16 +130,17 @@ const MainPage = observer(() => {
                 style={{ textTransform: "none", backgroundColor: '#0bc279' }}
                 size="large"
                 startIcon={<AddBoxIcon />}
-                onClick={()=> setActiveCard(true)}
+                onClick={()=>  navigate(`/main-page/new-test`)}
               >
                 Новый тест
               </Button>
             </div>
           </div>
         </Grid>
+        {/* /main-page/test/:id */}
         <Grid container spacing={2}>
           {data && data.map((item: any, index: number) => (
-            <Grid item xs={12} sm={6} md={6} lg={6}>
+            <Grid item xs={12} sm={6} md={6} lg={6} style={{cursor: 'pointer'}} onClick={()=>  navigate(`/main-page/test/${item.id}`)}>
               <MainCard contentSX={{ p: 2.25, pt: 3.3 }}>
                 <>
                   <div style={{ display: 'flex', alignItems: 'center', margin: 'auto', justifyContent: 'space-between' }}>
@@ -209,7 +209,7 @@ const MainPage = observer(() => {
           ))}
         </Grid>
         </>
-        }
+        
     
 
       </Box>

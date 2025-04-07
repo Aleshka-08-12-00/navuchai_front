@@ -17,46 +17,62 @@ import {
     TextField,
     Typography
 } from '@mui/material';
-import { minWidth, Stack } from '@mui/system';
-import { Context } from '../../..';
-import MainCard from '../../../components/MainCard';
+import { Context } from '../../../..';
+import MainCard from '../../../../components/MainCard';
 import AddIcon from '@mui/icons-material/Add';
 import InfoIcon from '@mui/icons-material/Info';
 import DriveFolderUploadIcon from '@mui/icons-material/DriveFolderUpload';
+import JoditEditor from "jodit-react";
+import SingleChoice from './components/single-choice';
+import Descriptive from './components/descriptive';
+import TrueFalse from './components/true-false';
+import SurveyAnswers from './components/survey';
 
-const GeneralSettingsTestPage = observer(() => {
+const ConstructorPage = observer(() => {
     const { settingsStore } = React.useContext(Context);
+    const editor = React.useRef(null);
+    const [content, setContent] = React.useState("");
 
     const [age, setAge] = React.useState('');
+    const [answerType, setAnswerType] = React.useState('');
 
     const handleChange = (event: SelectChangeEvent) => {
         setAge(event.target.value);
     };
+    const handleChangeAnswerType = (event: SelectChangeEvent) => {
+        setAnswerType(event.target.value);
+    };
+
 
 
     React.useEffect(() => {
 
     }, []);
 
+    function newContent2(props: any) {
+        setContent(props)
+    }
+
     return (
         <div >
-            <Typography variant="h6" color="textSecondary" >
-                Основная информация
-            </Typography>
+
             <MainCard contentSX={{ p: 2.25, pt: 3.3 }}>
                 <>
-                    <Typography variant="h5"  >
-                        Начальные настройки
-                    </Typography>
-                    <FormControl sx={{ m: 1, minWidth: '80%' }} variant="standard">
-                        <InputLabel htmlFor="standard-adornment-amount">Название теста</InputLabel>
-                        <Input
-                            id="standard-adornment-amount"
-                            startAdornment={<InputAdornment position="start">Новое название</InputAdornment>}
+                    <div style={{ padding: 5 }}>
+                        <Typography variant="h6" color="textSecondary" >
+                            Текст вопроса:
+                        </Typography>
+                        <JoditEditor
+                            ref={editor}
+                            value={content}
+                            // config={config}
+                            onBlur={(newContent) => newContent2(newContent)}
                         />
-                    </FormControl>
+                    </div>
+
+
                     <FormControl variant="standard" sx={{ m: 1, minWidth: '62%', mt: 1 }}>
-                        <InputLabel id="demo-simple-select-standard-label">Нет категории</InputLabel>
+                        <InputLabel id="demo-simple-select-standard-label">Категория</InputLabel>
                         <Select
                             labelId="demo-simple-select-standard-label"
                             id="demo-simple-select-standard"
@@ -72,7 +88,9 @@ const GeneralSettingsTestPage = observer(() => {
                             <MenuItem value={30}>Тест по ГП</MenuItem>
                         </Select>
 
-                    </FormControl>  
+                    </FormControl>
+
+
                     <Button
                         variant="outlined"
                         color='success'
@@ -83,9 +101,44 @@ const GeneralSettingsTestPage = observer(() => {
                     >
                         Создать категорию
                     </Button>
-             
-
                     <FormControl variant="standard" sx={{ m: 1, minWidth: '80%', mt: 1 }}>
+                        <InputLabel id="demo-simple-select-standard-label">Тип ответа</InputLabel>
+                        <Select
+                            labelId="demo-simple-select-standard-label"
+                            id="demo-simple-select-standard"
+                            value={answerType}
+                            onChange={handleChangeAnswerType}
+                            label="Age"
+                        >
+                            {/* <MenuItem value="">
+                                                    <em>Нет категории</em>
+                                                </MenuItem> */}
+                            <MenuItem value={'short_answer'}>Короткий ответ</MenuItem>
+                            <MenuItem value={'true_false'}>ДА / НЕТ</MenuItem>
+                            <MenuItem value={'single_choice'}>Одиночный выбор</MenuItem>
+                            <MenuItem value={'multiple_choice'}>Множественный выбор</MenuItem>
+                            <MenuItem value={'descriptive'}>Описательный</MenuItem>
+                            <MenuItem value={'survey'}>Опрос</MenuItem>
+                        </Select>
+
+                    </FormControl>
+
+                  
+                    {answerType === 'single_choice' && <SingleChoice />}
+                    {answerType === 'descriptive' && <Descriptive />}
+                    {answerType === 'true_false' && <TrueFalse />}
+                    {answerType === 'survey' && <SurveyAnswers />}
+
+                 
+                    {/* <FormControl sx={{ m: 1, minWidth: '80%' }} variant="standard">
+                        <InputLabel htmlFor="standard-adornment-amount">Название теста</InputLabel>
+                        <Input
+                            id="standard-adornment-amount"
+                            startAdornment={<InputAdornment position="start">Новое название</InputAdornment>}
+                        />
+                    </FormControl> */}
+
+                    {/* <FormControl variant="standard" sx={{ m: 1, minWidth: '80%', mt: 1 }}>
                         <TextField
                             id="outlined-multiline-static"
                             label="Добавьте описание теста для идентификации. Оно будет видно только вам."
@@ -94,27 +147,11 @@ const GeneralSettingsTestPage = observer(() => {
                             defaultValue="Описание теста"
                         />
 
-                    </FormControl>
-                    <FormControl variant="standard" sx={{ m: 1, minWidth: '80%', mt: 1 }}>
-                        <InputLabel id="demo-simple-select-standard-label">Русский</InputLabel>
-                        <Select
-                            labelId="demo-simple-select-standard-label"
-                            id="demo-simple-select-standard"
-                            value={age}
-                            onChange={handleChange}
-                            label="Язык теста"
-                        >
-                            <MenuItem value="">
-                                <em>нет выбрано</em>
-                            </MenuItem>
-                            <MenuItem value={10}>Русский</MenuItem>
-                            <MenuItem value={20}>Английский</MenuItem>
-                            <MenuItem value={30}>Немецкий</MenuItem>
-                        </Select>
-                    </FormControl>
+                    </FormControl> */}
+
                 </>
             </MainCard>
-            <MainCard contentSX={{ p: 2.25, pt: 3.3 }} sx={{ mt: 3 }}>
+            {/* <MainCard contentSX={{ p: 2.25, pt: 3.3 }} sx={{ mt: 3 }}>
                 <>
                     <Typography variant="h5"  >
                         Логотип
@@ -131,7 +168,7 @@ const GeneralSettingsTestPage = observer(() => {
                             Логотип виден в онлайн- и печатной версии теста.
                         </Typography>
                     </div>
-                    <FormControl style={{marginTop: 20}}>
+                    <FormControl style={{ marginTop: 20 }}>
                         <FormLabel id="demo-radio-buttons-group-label">Выберите один из вариантов:</FormLabel>
                         <RadioGroup
                             aria-labelledby="demo-radio-buttons-group-label"
@@ -152,10 +189,24 @@ const GeneralSettingsTestPage = observer(() => {
                         Загрузить логотип
                     </Button>
                 </>
-            </MainCard>
+            </MainCard> */}
+            <Button
+                        variant='contained'
+                        color='success'
+                        style={{ textTransform: 'none', marginTop: 10 }}
+                    >
+                        сохранить
+                    </Button>
+                    <Button
+                        variant='contained'
+                        color='inherit'
+                        style={{ textTransform: 'none', marginTop: 10, marginLeft: 15 }}
+                    >
+                        выйти
+                    </Button>
         </div>
     );
 })
 
-export default GeneralSettingsTestPage;
+export default ConstructorPage;
 

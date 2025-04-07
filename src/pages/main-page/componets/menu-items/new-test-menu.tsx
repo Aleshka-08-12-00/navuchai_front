@@ -22,7 +22,7 @@ const icons = {
 
 // ==============================|| MENU ITEMS - DASHBOARD ||============================== //
 
-const settingsMenu = {
+const newTestMenu = {
   id: 'group-dashboard',
   title: 'Настройки теста',
   type: 'group',
@@ -31,72 +31,72 @@ const settingsMenu = {
       id: '51',
       title: 'Основная настройки',
       type: 'item',
-      url: '/',
+      url: '/main-page/new-test',
       icon: icons.SettingsIcon,
-      breadcrumbs: false,
+      breadcrumbs: true,
       code: 'anyCode'
     },
     {
       id: '52',
       title: 'Настройка вопросов',
       type: 'item',
-      // url: '/settings',
+      // url: '/main-page/new-tests',
       icon: icons.TuneIcon,
-      breadcrumbs: false,
+      breadcrumbs: true,
       code: 'anyCode'
     },
     {
       id: '53',
       title: 'Подача теста',
       type: 'item',
-      // url: '/settings',
+      // url: '/main-page/new-tests',
       icon: icons.AppsIcon,
-      breadcrumbs: false,
+      breadcrumbs: true,
       code: 'anyCode'
     },
     {
       id: '54',
       title: 'Доступ к тесту',
       type: 'item',
-      // url: '/settings',
+      // url: '/main-page/new-tests',
       icon: icons.VpnKeyIcon,
-      breadcrumbs: false,
+      breadcrumbs: true,
       code: 'anyCode'
     },
     {
       id: '55',
       title: 'Стартовая страница',
       type: 'item',
-      // url: '/settings',
+      // url: '/main-page/new-tests',
       icon: icons.HomeIcon,
-      breadcrumbs: false,
+      breadcrumbs: true,
       code: 'anyCode'
     },
     {
       id: '56',
       title: 'Оценка и резюме',
       type: 'item',
-      // url: '/settings',
+      // url: '/main-page/new-tests',
       icon: icons.StickyNote2Icon,
-      breadcrumbs: false,
+      breadcrumbs: true,
       code: 'anyCode'
     },
     {
       id: '57',
       title: 'Настройка времени',
       type: 'item',
-      // url: '/settings',
+      // url: '/main-page/new-tests',
       icon: icons.ManageHistoryIcon,
-      breadcrumbs: false,
+      breadcrumbs: true,
       code: 'anyCode'
     },
     {
       id: '58',
       title: 'Шаблон сертификата',
       type: 'item',
-      // url: '/settings',
+      // url: '/main-page/new-tests',
       icon: icons.EmojiEventsIcon,
-      breadcrumbs: false,
+      breadcrumbs: true,
       code: 'anyCode'
     },
     // {
@@ -130,4 +130,4 @@ const settingsMenu = {
   ]
 };
 
-export default settingsMenu;
+export default newTestMenu;

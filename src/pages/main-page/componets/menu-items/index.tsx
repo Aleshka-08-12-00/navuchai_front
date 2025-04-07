@@ -1,12 +1,12 @@
 // project import
 
-import settingsMenu from "./settings-menu";
+import newTestMenu from "./new-test-menu";
 
 
 // ==============================|| MENU ITEMS ||============================== //
 
-const menuItemsSettings = {
-  items: [settingsMenu]
+const newTestSettingsMenu = {
+  items: [newTestMenu]
 };
 
-export default menuItemsSettings;
+export default newTestSettingsMenu;

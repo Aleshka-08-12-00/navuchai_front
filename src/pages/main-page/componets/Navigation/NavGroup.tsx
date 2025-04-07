@@ -3,11 +3,13 @@ import PropTypes from 'prop-types';
 import List from '@mui/material/List';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 
 
 
 import NavItem from './NavItem';
 import { useGetMenuMaster } from '../../api/menu';
+import { Button } from '@mui/material';
 
 export default function NavGroup({ item }: any) {
   const { menuMaster } = useGetMenuMaster();
@@ -34,24 +36,34 @@ export default function NavGroup({ item }: any) {
   });
 
   return (
-    <List
-      subheader={
-        item.title &&
-        drawerOpen && (
-          <Box sx={{ pl: 3, mb: 1.5 }}>
-            <Typography
-              variant="h5"
-            >
-              {item.title}
-            </Typography>
-            {/* only available in paid version */}
-          </Box>
-        )
-      }
-      sx={{ mb: drawerOpen ? 1.5 : 0, py: 0, zIndex: 0 }}
-    >
-      {navCollapse}
-    </List>
+    <>
+      <List
+        subheader={
+          item.title &&
+          drawerOpen && (
+            <Box sx={{ pl: 3, mb: 1.5 }}>
+              <Typography
+                variant="h5"
+              >
+                {item.title}
+              </Typography>
+              {/* only available in paid version */}
+            </Box>
+          )
+        }
+        sx={{ mb: drawerOpen ? 1.5 : 0, py: 0, zIndex: 0 }}
+      >
+        {navCollapse}
+      </List>
+      <Button
+        startIcon={<PlayArrowIcon />}
+        style={{ width: '100%', textTransform: 'none' }} variant="contained"
+        color="success">
+        Активировать тест
+      </Button>
+
+    </>
+
   );
 }
 

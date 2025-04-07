@@ -27,7 +27,7 @@ const dashboard = {
       type: 'item',
       url: '/',
       icon: icons.AppsIcon,
-      breadcrumbs: false,
+      breadcrumbs: true,
       code: 'anyCode'
     },
     {
@@ -36,7 +36,7 @@ const dashboard = {
       type: 'item',
       url: '/respondents',
       icon: icons.PeopleAltIcon,
-      breadcrumbs: false,
+      breadcrumbs: true,
       code: 'anyCode'
     },
     {
@@ -45,7 +45,7 @@ const dashboard = {
       type: 'item',
       url: '/results',
       icon: icons.BarChartIcon,
-      breadcrumbs: false,
+      breadcrumbs: true,
       code: 'anyCode'
     },
     {
@@ -54,7 +54,7 @@ const dashboard = {
       type: 'item',
       url: '/settings',
       icon: icons.SettingsIcon,
-      breadcrumbs: false,
+      breadcrumbs: true,
       code: 'anyCode'
     },
  

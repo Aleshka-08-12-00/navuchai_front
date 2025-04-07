@@ -5,11 +5,11 @@ import Box from '@mui/material/Box';
 
 
 import NavGroup from './NavGroup';
-import menuItemsSettings from '../menu-items';
+
 
 // ==============================|| DRAWER CONTENT - NAVIGATION ||============================== //
 
-export default function Navigation() {
+export default function Navigation({menuItemsSettings}: any) {
   const navGroups = menuItemsSettings.items.map((item: any) => {
     switch (item.type) {
       case 'group':
