@@ -6,10 +6,10 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import { useParams } from "react-router-dom";
 import { Grid } from "@mui/material";
-import GeneralSettingsTestPage from "../main-page/page/general-settings-test-page";
+import GeneralSettingsTestPage from "../main-page/sub-page/general-settings-test-page";
 import ContentSettingsMainMenu from "../main-page/componets";
-import RecordingComponent from "../main-page/page/video-page";
-import ConstructorPage from "../main-page/page/constructor-page/constructor-page";
+import RecordingComponent from "../main-page/sub-page/video-page";
+import ConstructorPage from "../main-page/sub-page/constructor-page/constructor-page";
 
 
 

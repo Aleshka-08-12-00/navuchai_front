@@ -6,12 +6,12 @@ import { Grid } from "@mui/material";
 import React, { useState } from "react";
 import ContentSettingsMainMenu from "./componets";
 import { Context } from "../..";
-import GeneralSettingsTestPage from "./page/general-settings-test-page";
-import RecordingComponent from "./page/video-page";
-import ConstructorPage from "./page/constructor-page/constructor-page";
-import TestStartPage from "./page/test-start-page/test-start-page";
-import GradingSummaryPage from "./page/grading-summary-page/grading-summary-page";
-import TimeSettingsPage from "./page/time-settings-page/time-settings-page";
+import GeneralSettingsTestPage from "./sub-page/general-settings-test-page";
+import RecordingComponent from "./sub-page/video-page";
+import ConstructorPage from "./sub-page/constructor-page/constructor-page";
+import TestStartPage from "./sub-page/test-start-page/test-start-page";
+import GradingSummaryPage from "./sub-page/grading-summary-page/grading-summary-page";
+import TimeSettingsPage from "./sub-page/time-settings-page/time-settings-page";
 
 
 const ContentPage = observer(({testId}: any) => {

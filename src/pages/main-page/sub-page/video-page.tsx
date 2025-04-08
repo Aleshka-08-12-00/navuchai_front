@@ -1,6 +1,7 @@
+import { Button, Typography } from '@mui/material';
 import React, { useRef, useState } from 'react';
 
-const RecordingComponent: React.FC = () => {
+const RecordingComponent = ({ startVideoOne, startVideoTwo, setStartVideoOne, setStartVideoTwo }: any) => {
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const [screenRecorder, setScreenRecorder] = useState<MediaRecorder | null>(null);
     const [cameraRecorder, setCameraRecorder] = useState<MediaRecorder | null>(null);
@@ -25,6 +26,7 @@ const RecordingComponent: React.FC = () => {
 
             recorder.start();
             setScreenRecorder(recorder);
+            setStartVideoOne(!startVideoOne)
         } catch (error) {
             console.error('Error starting screen recording:', error);
         }
@@ -51,6 +53,7 @@ const RecordingComponent: React.FC = () => {
 
             recorder.start();
             setCameraRecorder(recorder);
+            setStartVideoTwo(!startVideoTwo)
         } catch (error) {
             console.error('Error starting camera recording:', error);
         }
@@ -82,13 +85,23 @@ const RecordingComponent: React.FC = () => {
 
     return (
         <div>
-            <h2>Screen and Camera Recorder</h2>
-            <video ref={videoRef} autoPlay style={{ width: '400px', height: '300px', marginBottom: '20px' }}></video>
-            <div>
-                <button onClick={startScreenRecording}>Start Screen Recording</button>
-                <button onClick={startCameraRecording}>Start Camera Recording</button>
-                <button onClick={stopRecording}>Stop Recording</button>
+            <Typography variant="h6" color="textSecondary" style={{ textAlign: 'center' }} >
+                Перед начом теста нажмите 'Начать запись экрана' и 'Начать запись камеры'
+            </Typography>
+            <div style={{ padding: 10, display: 'grid', alignItems: 'center', margin: 'auto', justifyContent: 'space-around' }}>
+                <Button variant='outlined' color='success' size="large" onClick={startScreenRecording} style={{ marginRight: 10, textTransform: 'none', width: 350, marginBottom: 10 }}>Начать запись экрана</Button>
+                <Button variant='outlined' color='success' size="large" onClick={startCameraRecording} style={{ marginRight: 10, textTransform: 'none', width: 350, marginBottom: 10 }}>Начать запись камеры</Button>
+                <Button variant='outlined' color='error' size="large" onClick={stopRecording} style={{ marginRight: 10, textTransform: 'none', width: 350, marginBottom: 10 }}> Остановить запись</Button>
             </div>
+            <video ref={videoRef} autoPlay style={{
+                width: '350px',
+                height: '300px',
+                display: 'flex',
+                alignItems: 'center',
+                margin: 'auto',
+                justifyContent: 'center',
+            }}></video>
+
         </div>
     );
 };

@@ -17,11 +17,14 @@ import SingleChoice from './components/single-choice';
 import Descriptive from './components/descriptive';
 import TrueFalse from './components/true-false';
 import SurveyAnswers from './components/survey';
+import DialogPopup from '../../../../components/DialogPopup';
 
 const ConstructorPage = observer(() => {
     const { settingsStore } = React.useContext(Context);
     const editor = React.useRef(null);
     const [content, setContent] = React.useState("");
+    const [openDialogClose, setOpenDialogClose] = React.useState(false);
+    const [openDialogSave, setOpenDialogSave] = React.useState(false);
 
     const [age, setAge] = React.useState('');
     const [answerType, setAnswerType] = React.useState('');
@@ -32,6 +35,14 @@ const ConstructorPage = observer(() => {
     const handleChangeAnswerType = (event: SelectChangeEvent) => {
         setAnswerType(event.target.value);
     };
+
+    const clickClose = () => {
+        setOpenDialogClose(!openDialogClose)
+    };
+    const clickSave = () => {
+        setOpenDialogSave(!openDialogSave)
+    };
+
 
 
 
@@ -120,6 +131,7 @@ const ConstructorPage = observer(() => {
                 variant='contained'
                 color='success'
                 style={{ textTransform: 'none', marginTop: 10 }}
+                onClick={() => clickSave()}
             >
                 сохранить
             </Button>
@@ -127,10 +139,22 @@ const ConstructorPage = observer(() => {
                 variant='contained'
                 color='inherit'
                 style={{ textTransform: 'none', marginTop: 10, marginLeft: 15 }}
+                onClick={() => clickClose()}
             >
                 выйти
             </Button>
+            <DialogPopup
+                title='Подтверждение'
+                mainText='Сохранить Ваши изменение?'
+                open={openDialogSave}
+                setOpen={setOpenDialogSave} />
+            <DialogPopup
+                title='Подтверждение'
+                mainText='Вы не сохранили изменения. Вы уверены, что хотите покинуть страницу?'
+                open={openDialogClose}
+                setOpen={setOpenDialogClose} />
         </div>
+
     );
 })
 

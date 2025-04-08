@@ -68,7 +68,19 @@ const TestDuration: React.FC = () => {
                             min={0}
                             max={24}
                             valueLabelDisplay="auto"
-                            sx={{ marginBottom: '20px' }}
+                            sx={{
+                                marginBottom: '20px',
+                                color: '#67d3f9', // Фиолетовый цвет
+                                '& .MuiSlider-thumb': {
+                                    backgroundColor: '#67d3f9', // Цвет бегунка
+                                },
+                                '& .MuiSlider-track': {
+                                    backgroundColor: '#67d3f9', // Цвет линии
+                                },
+                                '& .MuiSlider-rail': {
+                                    backgroundColor: '#dcdde1', // Цвет неактивной части
+                                },
+                            }}
                         />
 
                         <Typography variant="subtitle1">Minutes</Typography>
@@ -79,14 +91,26 @@ const TestDuration: React.FC = () => {
                             min={0}
                             max={59}
                             valueLabelDisplay="auto"
+                            sx={{
+                                color: '#67d3f9', // Фиолетовый цвет
+                                '& .MuiSlider-thumb': {
+                                    backgroundColor: '#67d3f9', // Цвет бегунка
+                                },
+                                '& .MuiSlider-track': {
+                                    backgroundColor: '#67d3f9', // Цвет линии
+                                },
+                                '& .MuiSlider-rail': {
+                                    backgroundColor: '#dcdde1', // Цвет неактивной части
+                                },
+                            }}
                         />
 
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
-                            <Button onClick={handleReset} variant="outlined">
-                                Reset
+                            <Button onClick={handleReset} variant="outlined" color='info'>
+                                Сбросить
                             </Button>
-                            <Button onClick={handleConfirmComplete} variant="contained" color="primary">
-                                Confirm
+                            <Button onClick={handleConfirmComplete} variant="contained" color='info'>
+                                Подтвердить
                             </Button>
                         </Box>
                     </Box>
@@ -113,8 +137,21 @@ const TestDuration: React.FC = () => {
                             min={0}
                             max={59}
                             valueLabelDisplay="auto"
-                            sx={{ marginBottom: '20px' }}
+                            sx={{
+                                marginBottom: '20px',
+                                color: '#67d3f9', // Фиолетовый цвет
+                                '& .MuiSlider-thumb': {
+                                    backgroundColor: '#67d3f9', // Цвет бегунка
+                                },
+                                '& .MuiSlider-track': {
+                                    backgroundColor: '#67d3f9', // Цвет линии
+                                },
+                                '& .MuiSlider-rail': {
+                                    backgroundColor: '#dcdde1', // Цвет неактивной части
+                                },
+                            }}
                         />
+
 
                         <Typography variant="subtitle1">Seconds</Typography>
                         <Slider
@@ -124,14 +161,27 @@ const TestDuration: React.FC = () => {
                             min={0}
                             max={59}
                             valueLabelDisplay="auto"
+                            sx={{
+                                color: '#67d3f9', // Фиолетовый цвет
+                                '& .MuiSlider-thumb': {
+                                    backgroundColor: '#67d3f9', // Цвет бегунка
+                                },
+                                '& .MuiSlider-track': {
+                                    backgroundColor: '#67d3f9', // Цвет линии
+                                },
+                                '& .MuiSlider-rail': {
+                                    backgroundColor: '#dcdde1', // Цвет неактивной части
+                                },
+                            }}
+
                         />
 
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
-                            <Button onClick={handleReset} variant="outlined">
-                                Reset
+                            <Button onClick={handleReset} variant="outlined" color='info'>
+                                Сбросить
                             </Button>
-                            <Button onClick={handleConfirmQuestion} variant="contained" color="primary">
-                                Confirm
+                            <Button onClick={handleConfirmQuestion} variant="contained" color='info'>
+                                Подтвердить
                             </Button>
                         </Box>
                     </Box>
