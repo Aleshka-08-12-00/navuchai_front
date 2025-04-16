@@ -2,12 +2,16 @@
 import HomeIcon from '@mui/icons-material/Home';
 import AppsIcon from '@mui/icons-material/Apps';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
+import BarChartIcon from '@mui/icons-material/BarChart';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 // icons
 const icons = {
   HomeIcon,
   AppsIcon,
-  PeopleAltIcon
+  PeopleAltIcon,
+  BarChartIcon,
+  SettingsIcon
 };
 
 // ==============================|| MENU ITEMS - DASHBOARD ||============================== //
@@ -23,7 +27,7 @@ const dashboard = {
       type: 'item',
       url: '/',
       icon: icons.AppsIcon,
-      breadcrumbs: false,
+      breadcrumbs: true,
       code: 'anyCode'
     },
     {
@@ -32,7 +36,25 @@ const dashboard = {
       type: 'item',
       url: '/respondents',
       icon: icons.PeopleAltIcon,
-      breadcrumbs: false,
+      breadcrumbs: true,
+      code: 'anyCode'
+    },
+    {
+      id: '3',
+      title: 'Результаты тестов',
+      type: 'item',
+      url: '/results',
+      icon: icons.BarChartIcon,
+      breadcrumbs: true,
+      code: 'anyCode'
+    },
+    {
+      id: '4',
+      title: 'Личный кабинет',
+      type: 'item',
+      url: '/settings',
+      icon: icons.SettingsIcon,
+      breadcrumbs: true,
       code: 'anyCode'
     },
     {

@@ -121,7 +121,7 @@ const ResultTable: React.FC = observer(() => {
         onRow={(record) => ({
           onClick: () => {
             store.setSelectedUser(record);
-            navigate(`/Results/${record.key}`)
+            navigate(`/results/${record.key}`)
           }
         })}
         onChange={handleTableChange}

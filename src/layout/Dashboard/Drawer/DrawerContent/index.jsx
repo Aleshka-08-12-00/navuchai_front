@@ -1,15 +1,12 @@
 import { ListItemButton, ListItemIcon, ListItemText, Typography } from '@mui/material';
-import DatasetIcon from '@mui/icons-material/Dataset';
 import Navigation from './Navigation';
 import SimpleBar from 'components/third-party/SimpleBar';
 import { LogoutOutlined } from '@ant-design/icons';
 import { useTheme } from '@mui/material/styles';
-import { useNavigate } from 'react-router-dom';
 
 // ==============================|| DRAWER CONTENT ||============================== //
 
 export default function DrawerContent() {
-  const navigate = useNavigate();
 
   const logout = () => {
     window.localStorage.removeItem('tokenHR');
@@ -19,9 +16,6 @@ export default function DrawerContent() {
   const theme = useTheme();
   const iconSelectedColor = 'primary.main';
 
-  const handleResultClick = () => {
-    navigate('/Results'); // Переход на страницу "/Results"
-  };
 
   return (
     <>
