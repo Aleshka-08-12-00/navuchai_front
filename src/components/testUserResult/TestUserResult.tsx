@@ -11,12 +11,15 @@ import { observer } from 'mobx-react-lite';
 import PieChartResult from './pieChartResult/PieChartResult';
 import { store } from '../../store/store';
 import TimeDisplay from './timeDisplay/TimeDisplay';
-import TextArea from 'antd/es/input/TextArea';
 import TimeLinear from './timeLiner/TimeLinear';
 import QuestionsTestTable from './questionsTestTable/QuestionsTestTable';
+import JoditEditor from 'jodit-react';
 
 
 const TestUserResult: React.FC = observer(() => {
+
+    
+
     const navigate = useNavigate();
     const [visible, setVisible] = useState(false);
     const [value, setValue] = useState('');
@@ -239,13 +242,16 @@ const TestUserResult: React.FC = observer(() => {
                             </div>
                         </div>
                         <div className={`${styles['textarea-container']} ${visible ? styles.show : styles.hide}`}>
-                                <TextArea
-                                    value={value}
-                                    onChange={(e) => setValue(e.target.value)}
-                                    placeholder="Введите отзыв..."
-                                    autoSize={{ minRows: 3, maxRows: 5 }}
-                                />
-                        </div>            
+                            <JoditEditor
+                                value={value}
+                                onBlur={(newContent) => setValue(newContent)}
+                                config={{
+                                    readonly: false,
+                                    height: 300,
+                                    placeholder: 'Напишите ваш отзыв здесь...',
+                                }}
+                            />
+                        </div>          
                     </div>
                 </Col>
 
