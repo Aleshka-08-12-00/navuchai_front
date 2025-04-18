@@ -18,6 +18,8 @@ import Descriptive from './components/descriptive';
 import TrueFalse from './components/true-false';
 import SurveyAnswers from './components/survey';
 import DialogPopup from '../../../../components/DialogPopup';
+import ShortAnswer from './components/short-answer';
+import MultipleChoice from './components/multiple-choice';
 
 const ConstructorPage = observer(() => {
     const { settingsStore } = React.useContext(Context);
@@ -112,12 +114,12 @@ const ConstructorPage = observer(() => {
                             {/* <MenuItem value="">
                                                     <em>Нет категории</em>
                                                 </MenuItem> */}
-                            <MenuItem value={'short_answer'}>Короткий ответ</MenuItem>
-                            <MenuItem value={'true_false'}>ДА / НЕТ</MenuItem>
-                            <MenuItem value={'single_choice'}>Одиночный выбор</MenuItem>
-                            <MenuItem value={'multiple_choice'}>Множественный выбор</MenuItem>
-                            <MenuItem value={'descriptive'}>Описательный</MenuItem>
-                            <MenuItem value={'survey'}>Опрос</MenuItem>
+                            <MenuItem value={'short_answer'}>Короткий ответ</MenuItem> {/* Готово */}
+                            <MenuItem value={'true_false'}>ДА / НЕТ</MenuItem> {/*Готово*/}
+                            <MenuItem value={'single_choice'}>Одиночный выбор</MenuItem> {/*Готово*/}
+                            <MenuItem value={'multiple_choice'}>Множественный выбор</MenuItem> {/* Готово */}
+                            <MenuItem value={'descriptive'}>Описательный</MenuItem> {/* Готово */}
+                            <MenuItem value={'survey'}>Опрос</MenuItem> {/*Готово*/}
                         </Select>
 
                     </FormControl>
@@ -125,6 +127,8 @@ const ConstructorPage = observer(() => {
                     {answerType === 'descriptive' && <Descriptive />}
                     {answerType === 'true_false' && <TrueFalse />}
                     {answerType === 'survey' && <SurveyAnswers />}
+                    {answerType === 'short_answer' && <ShortAnswer />}
+                    {answerType === 'multiple_choice' && <MultipleChoice />}
                 </>
             </MainCard>
             <Button
