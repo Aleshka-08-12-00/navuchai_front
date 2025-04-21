@@ -1,9 +1,15 @@
 
-export interface InterfaceCity {
+export interface InterfaceTests {
   id: number,
-  name: string,
-  is_application_city: boolean,
-  country_id: number,
-  created_at: string,
-  updated_at: string
+  access_timestamp: string,
+  category_id: number,
+  category_name: string,
+  creator_id: number,
+  creator_name: string,
+  description: string,
+  frozen: boolean,
+  locale: string,
+  status: string,
+  time_limit: number
+  title: string,
 }

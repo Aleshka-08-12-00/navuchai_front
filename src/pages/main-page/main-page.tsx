@@ -49,8 +49,15 @@ const FontAwesomeSvgIcon = React.forwardRef<SVGSVGElement, FontAwesomeSvgIconPro
 const MainPage = observer(() => {
   const [activeCard, setActiveCard] = useState(false);
   const [testId, setTestId] = useState(0);
-  const { settingsStore } = React.useContext(Context);
+  const { mainPageStore } = React.useContext(Context);
+  const {getTests, testsArray} = mainPageStore
+
+   React.useEffect(() => {
+    getTests()
+  }, []);
+
   const navigate = useNavigate();
+
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -73,58 +80,71 @@ const MainPage = observer(() => {
     };
 
   const data = [
-    {
-      id: 1,
-      status: 'активный',
-      statusColor: 'success',
-      createDate: '2025.03.02',
-      testName: 'Тест на знание языков',
-      testDescription: 'нет описания',
-      procent: '56.1',
-      completed: '37',
-    },
-    {
-      id: 2,
-      status: 'завершен',
-      statusColor: 'warning',
-      createDate: '2024.11.07',
-      testName: 'Тест на Валеру',
-      testDescription: 'нет описания',
-      procent: '21.1',
-      completed: '31',
-    },
-    {
-      id: 3,
-      status: 'настройка в процессе',
-      statusColor: 'primary',
-      createDate: '2025.04.04',
-      testName: 'Тест по охране труда',
-      testDescription: 'нет описания',
-      procent: '76.1',
-      completed: '69',
-    },
-    {
-      id: 4,
-      status: 'активный',
-      statusColor: 'success',
-      createDate: '2023.09.02',
-      testName: 'Тест на знание 1С',
-      testDescription: 'нет описания',
-      procent: '46.1',
-      completed: '28',
-    },
-    {
-      id: 5,
-      status: 'активный',
-      statusColor: 'success',
-      createDate: '2023.09.02',
-      testName: 'Тест на знание JS',
-      testDescription: 'нет описания',
-      procent: '46.1',
-      completed: '28',
-    },
+    {}
+    // {
+    //   id: 1,
+    //   status: 'активный',
+    //   statusColor: 'success',
+    //   createDate: '2025.03.02',
+    //   testName: 'Тест на знание языков',
+    //   testDescription: 'нет описания',
+    //   procent: '56.1',
+    //   completed: '37',
+    // },
+    // {
+    //   id: 2,
+    //   status: 'завершен',
+    //   statusColor: 'warning',
+    //   createDate: '2024.11.07',
+    //   testName: 'Тест на Валеру',
+    //   testDescription: 'нет описания',
+    //   procent: '21.1',
+    //   completed: '31',
+    // },
+    // {
+    //   id: 3,
+    //   status: 'настройка в процессе',
+    //   statusColor: 'primary',
+    //   createDate: '2025.04.04',
+    //   testName: 'Тест по охране труда',
+    //   testDescription: 'нет описания',
+    //   procent: '76.1',
+    //   completed: '69',
+    // },
+    // {
+    //   id: 4,
+    //   status: 'активный',
+    //   statusColor: 'success',
+    //   createDate: '2023.09.02',
+    //   testName: 'Тест на знание 1С',
+    //   testDescription: 'нет описания',
+    //   procent: '46.1',
+    //   completed: '28',
+    // },
+    // {
+    //   id: 5,
+    //   status: 'активный',
+    //   statusColor: 'success',
+    //   createDate: '2023.09.02',
+    //   testName: 'Тест на знание JS',
+    //   testDescription: 'нет описания',
+    //   procent: '46.1',
+    //   completed: '28',
+    // },
 
   ]
+  // id: number,
+  // access_timestamp: string,
+  // category_id: number,
+  // category_name: string,
+  // creator_id: number,
+  // creator_name: string,
+  // description: string,
+  // frozen: boolean,
+  // locale: string,
+  // status: string,
+  // time_limit: number
+  // title: string,
 
 
   return (
@@ -160,9 +180,9 @@ const MainPage = observer(() => {
           </Grid>
           {/* /main-page/test/:id */}
           <Grid container spacing={2}>
-            {data && data.map((item: any, index: number) => (
+            {testsArray && testsArray.map((item: any, index: number) => (
               <Grid item xs={12} sm={6} md={6} lg={6} 
-             
+             key={index}
                >
                 <MainCard contentSX={{ p: 2.25, pt: 3.3 }}>
                   <>
@@ -177,7 +197,7 @@ const MainPage = observer(() => {
                         {item.status}
                       </Button>
                       <Typography variant="h6" color="textSecondary" >
-                        создан: {item.createDate}
+                        создан: {item.access_timestamp}
                       </Typography>
                       <Box>
                         <IconButton aria-label="Example" onClick={handleOpenMenu}>
@@ -207,12 +227,12 @@ const MainPage = observer(() => {
 
                     <Stack sx={{ mt: 2, mb: 2 }} style={{ cursor: 'pointer' }}  onClick={() => navigate(`/main-page/test/${item.id}`)}>
                       <Typography variant="h4"  >
-                        {item.testName}
+                        {item.title}
                       </Typography>
                     </Stack>
                     <Stack sx={{ mb: 2 }} style={{ cursor: 'pointer' }}  onClick={() => navigate(`/main-page/test/${item.id}`)}>
                       <Typography variant="h6" color="textSecondary" >
-                        ({item.testDescription})
+                        ({item.description})
                       </Typography>
                     </Stack>
                     <div
