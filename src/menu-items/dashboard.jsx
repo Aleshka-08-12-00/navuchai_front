@@ -57,15 +57,6 @@ const dashboard = {
       breadcrumbs: true,
       code: 'anyCode'
     },
-    {
-      id: '3',
-      title: 'Результаты тестов',
-      type: 'item',
-      url: '/results',
-      icon: icons.PeopleAltIcon,
-      breadcrumbs: false,
-      code: 'anyCode'
-    },
  
   ]
 };
