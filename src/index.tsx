@@ -31,14 +31,17 @@ import AuthStore from './store/authStore';
 import { createContext } from 'react';
 import ReactDOM from 'react-dom/client';
 import SettingsStore from './store/settingsStore';
+import MainPageStore from './store/mainPageStore';
 const store = new Store();
 const authStore = new AuthStore();
 const settingsStore = new SettingsStore();
+const mainPageStore = new MainPageStore()
 
 const obStore = {
   store,
   authStore,
   settingsStore,
+  mainPageStore
 }
 
 export const Context = createContext(obStore);
