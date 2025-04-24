@@ -56,7 +56,7 @@ const TestUserResult: React.FC = observer(() => {
                 <Col span={24} className={styles['gutter-row']} style={{ paddingRight: 0 }}>
                     <Typography component="div" className={styles['actions-bar']} style={{ marginLeft: '15px'}}>
                         <Typography component="div" className={styles['actions-bar-left']}>
-                            <MuiLink component="button" className={styles.link} sx={{ fontSize: 18, fontWeight: 600}}>
+                            <MuiLink component="button" className={styles.link} sx={{ fontSize: 18, fontWeight: 400}}>
                                 {test_name}
                             </MuiLink>
                         </Typography>
@@ -64,13 +64,29 @@ const TestUserResult: React.FC = observer(() => {
                         <Typography component="div" className={styles['actions-bar-right']} style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
                             <Typography component="div" style={{ display: 'flex', borderRight: '1px solid rgb(80, 93, 107, 0.2)' }} className={styles.btnBackground}>
                                 <UserOutlined style={{ marginRight: '5px', color: '#505d6b' }} />
-                                <MuiLink component="button" sx={{ fontSize: 16, fontWeight: 400, color: '#505d6b', textDecoration: 'none', lineHeight: '50px'  }}>
+                                <MuiLink component="button" sx={{ 
+                                    fontSize: 16, 
+                                    fontWeight: 400, 
+                                    color: '#505d6b', 
+                                    textDecoration: 'none', 
+                                    lineHeight: '50px',
+                                    '&:hover': {
+                                        textDecoration: 'none',
+                                    },  }}>
                                     {last_name} {first_name}
                                 </MuiLink>
                             </Typography>
                             <Typography component="div" style={{ display: 'flex', borderRight: '1px solid rgb(80, 93, 107, 0.2)' }} className={styles.btnBackground}>
                                 <DownloadForOfflineOutlinedIcon style={{ marginRight: '5px', color: '#505d6b' }} />
-                                <MuiLink component="button" sx={{ fontSize: 16, fontWeight: 400, color: '#505d6b', textDecoration: 'none', lineHeight: '50px' }}>
+                                <MuiLink component="button" sx={{ 
+                                    fontSize: 16, 
+                                    fontWeight: 400, 
+                                    color: '#505d6b', 
+                                    textDecoration: 'none', 
+                                    lineHeight: '50px',
+                                    '&:hover': {
+                                        textDecoration: 'none',
+                                    }, }}>
                                     Скачать
                                 </MuiLink>
                             </Typography>
@@ -115,11 +131,11 @@ const TestUserResult: React.FC = observer(() => {
                                     ) : (
                                         <CloseCircleOutlined style={{ fontSize: '30px', marginRight: '15px', color: resultColor }} />
                                     )}
-                                    <Typography variant="h6" sx={{ color: resultColor }}>
+                                    <Typography variant="h3" sx={{ color: resultColor }}>
                                         {resultTest}
                                     </Typography>
                                 </Typography>
-                                <Typography variant="body1" sx={{ margin: '10px 0 0 46px', color: resultColor }}>
+                                <Typography variant="h4" sx={{ margin: '10px 0 0 46px', color: resultColor }}>
                                     {resultGood}
                                 </Typography>
                             </Typography>
@@ -154,14 +170,18 @@ const TestUserResult: React.FC = observer(() => {
                 <Col span={24} className={styles['gutter-row']}>
                     <Typography component="div" className={styles.respondent}>
                         <Typography variant="subtitle1">Баллы по категориям вопросов (3)</Typography>
-                        <Typography component="div" style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', marginTop: '15px', alignItems: 'start' }}>
-                            <ProjectOutlined style={{ fontSize: '30px' }} />
-                            <Typography component="div" style={{ display: 'flex', flexDirection: 'column', flexWrap: 'wrap', marginLeft: '15px', marginTop: '5px', margin: 'auto' }}>
-                                <Typography component="div" style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginBottom: '15px' }}>
-                                    <Progress percent={68} size={[450, 25]} format={() => 'Категория №1'} strokeWidth={20} strokeColor="rgb(22, 119, 255)" />
-                                    <Progress percent={34} size={[450, 25]} format={() => 'Категория №2'} strokeWidth={20} strokeColor="rgb(247, 100, 100)" />
+                        <Typography component="div" style={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'row', flexWrap: 'wrap', marginTop: '15px', alignItems: 'start' }}>
+                            <Typography component="div" style={{marginRight: '30px'}}>
+                                <ProjectOutlined style={{ fontSize: '30px' }} />
+                            </Typography>
+                            <Typography component="div" style={{display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginLeft: '5px', marginTop: '5px',  gap: '15px', width: '100%'}}>
+                                <Typography component="div" style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column', gap: '15px', minWidth: '250px'}}>
+                                    <Progress percent={68} format={() => 'Категория №1'} strokeWidth={20} strokeColor="rgb(22, 119, 255)" style={{ width: '100%' }}/>
+                                    <Progress percent={34} format={() => 'Категория №2'} strokeWidth={20} strokeColor="rgb(247, 100, 100)" style={{ width: '100%' }}/>
                                 </Typography>
-                                <Progress percent={95} size={[450, 25]} format={() => 'Категория №3'} strokeWidth={20} strokeColor="rgb(22, 119, 255)" />
+                                <Typography component="div" style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', minWidth: '250px'}}>
+                                    <Progress percent={95} format={() => 'Категория №3'} strokeWidth={20} strokeColor="rgb(22, 119, 255)" style={{ width: '100%' }}/>
+                                </Typography>
                             </Typography>
                         </Typography>
                     </Typography>
