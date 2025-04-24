@@ -54,9 +54,9 @@ const TestUserResult: React.FC = observer(() => {
 
             <Row gutter={[10, 10]}>
                 <Col span={24} className={styles['gutter-row']} style={{ paddingRight: 0 }}>
-                    <Typography component="div" className={styles['actions-bar']} style={{ marginLeft: '15px' }}>
+                    <Typography component="div" className={styles['actions-bar']} style={{ marginLeft: '15px'}}>
                         <Typography component="div" className={styles['actions-bar-left']}>
-                            <MuiLink component="button" className={styles.link} sx={{ fontSize: 18, fontWeight: 600 }}>
+                            <MuiLink component="button" className={styles.link} sx={{ fontSize: 18, fontWeight: 600}}>
                                 {test_name}
                             </MuiLink>
                         </Typography>
@@ -64,19 +64,27 @@ const TestUserResult: React.FC = observer(() => {
                         <Typography component="div" className={styles['actions-bar-right']} style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
                             <Typography component="div" style={{ display: 'flex', borderRight: '1px solid rgb(80, 93, 107, 0.2)' }} className={styles.btnBackground}>
                                 <UserOutlined style={{ marginRight: '5px', color: '#505d6b' }} />
-                                <MuiLink component="button" sx={{ fontSize: 16, fontWeight: 400, color: '#505d6b', textDecoration: 'none' }}>
+                                <MuiLink component="button" sx={{ fontSize: 16, fontWeight: 400, color: '#505d6b', textDecoration: 'none', lineHeight: '50px'  }}>
                                     {last_name} {first_name}
                                 </MuiLink>
                             </Typography>
                             <Typography component="div" style={{ display: 'flex', borderRight: '1px solid rgb(80, 93, 107, 0.2)' }} className={styles.btnBackground}>
                                 <DownloadForOfflineOutlinedIcon style={{ marginRight: '5px', color: '#505d6b' }} />
-                                <MuiLink component="button" sx={{ fontSize: 16, fontWeight: 400, color: '#505d6b', textDecoration: 'none' }}>
+                                <MuiLink component="button" sx={{ fontSize: 16, fontWeight: 400, color: '#505d6b', textDecoration: 'none', lineHeight: '50px' }}>
                                     Скачать
                                 </MuiLink>
                             </Typography>
                             <Typography component="div" style={{ display: 'flex' }} className={styles.btnBackground}>
                                 <EmailIcon style={{ marginRight: '5px', color: '#505d6b' }} />
-                                <MuiLink component="button" sx={{ fontSize: 16, fontWeight: 400, color: '#505d6b', textDecoration: 'none' }}>
+                                <MuiLink component="button" sx={{ 
+                                    fontSize: 16, 
+                                    fontWeight: 400, 
+                                    color: '#505d6b', 
+                                    textDecoration: 'none', 
+                                    lineHeight: '50px', 
+                                    '&:hover': {
+                                        textDecoration: 'none',
+                                    },  }}>
                                     Отправить
                                 </MuiLink>
                             </Typography>
