@@ -18,18 +18,31 @@ export default class AuthStore {
     objForShow: string[] = []
 
     async loginUser(loginData: ILoginUser) {
-        try {    
-          const response = await axios.post('http://172.16.0.97:8012/auth/login', loginData);
-    
-          const { access_token, token_type } = response.data;
-    
+        try {
+            const formData = new FormData();
+            formData.append('username', loginData.username);
+            formData.append('password', loginData.password);
+
+          const response = await axios.post(
+            'http://172.16.0.97:8012/auth/login',
+            formData,
+            {
+              headers: {
+                'Content-Type': 'multipart/form-data'
+              }
+            }
+          );
+      
+          const { access_token } = response.data;
+      
           localStorage.setItem('tokenNavuchai', access_token);
-    
+      
           this.setAuth(true);
-    
+      
           return response.data;
         } catch (error: any) {
           this.setAuth(false);
+      
           return null;
         }
       }

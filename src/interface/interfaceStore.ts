@@ -23,6 +23,7 @@ export interface IRegisterUser {
 }
 
 export interface ILoginUser {
+  grant_type: string;
   username: string;
   password: string;
 }
