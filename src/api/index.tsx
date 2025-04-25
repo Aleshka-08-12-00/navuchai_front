@@ -31,7 +31,7 @@ const fetchData = async (endpointKey: string, params: Params = {}, dynamicParams
     const response: AxiosResponse = await axios.get(url, {
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('tokenHR')}`
+        'Authorization': `Bearer ${localStorage.getItem('tokenNavuchai')}`
       }
     });
     console.log('Данные получены:', response.data);
@@ -48,7 +48,7 @@ const postData = async (endpointKey: string, data: any, dynamicParams: string | 
     const response: AxiosResponse = await axios.post(url, data, {
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('tokenHR')}`
+        'Authorization': `Bearer ${localStorage.getItem('tokenNavuchai')}`
       }
     });
     console.log('Данные отправлены и получен ответ:', response.data);
@@ -65,7 +65,7 @@ const putData = async (endpointKey: string, data: any, dynamicParams: string | n
       const response: AxiosResponse = await axios.put(url, data, {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('tokenHR')}`
+          'Authorization': `Bearer ${localStorage.getItem('tokenNavuchai')}`
         }
       });
       console.log('Данные отправлены и получен ответ:', response.data);
@@ -81,7 +81,7 @@ const putData = async (endpointKey: string, data: any, dynamicParams: string | n
       const response: AxiosResponse = await axios.delete(url, {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('tokenHR')}`
+          'Authorization': `Bearer ${localStorage.getItem('tokenNavuchai')}`
         }
       });
       console.log('Данные отправлены и получен ответ:', response.data);

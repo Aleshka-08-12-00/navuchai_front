@@ -1,12 +1,14 @@
 import { makeAutoObservable } from 'mobx';
 import { postData } from '../api';
 import { jwtDecode } from "jwt-decode";
+import { ILoginUser, IRegisterUser } from '../interface/interfaceStore';
+import axios from 'axios';
 
 export default class AuthStore {
 
     isAuth: boolean = false
     error: string = ''
-    userId: number = 0
+    userId: number = 2
     roleCode: string = ''
 
     constructor() {
@@ -15,21 +17,33 @@ export default class AuthStore {
 
     objForShow: string[] = []
 
-    async loginUser(login: string, password: string) {
-        this.error = ''
-        const dataObj = {
-            login: login,
-            password: password
+    async loginUser(loginData: ILoginUser) {
+        try {    
+          const response = await axios.post('http://172.16.0.97:8012/auth/login', loginData);
+    
+          const { access_token, token_type } = response.data;
+    
+          localStorage.setItem('tokenNavuchai', access_token);
+    
+          this.setAuth(true);
+    
+          return response.data;
+        } catch (error: any) {
+          this.setAuth(false);
+          return null;
         }
-        const result = await postData('postAuthLogin', dataObj);
-        //@ts-ignore
-        if(result && result.code ==='ERR_BAD_REQUEST' ){
-            //@ts-ignore
-            this.error = result.response.data.message
-        }else{
-            this.initAuth(result);
+      }
+
+    async registerUser(data: IRegisterUser) {
+        try {
+          const response = await axios.post('http://172.16.0.97:8012/auth/register', data);  
+          console.log('Registration successful:', response.data);
+          return response.data;
+        } catch (error: any) {
+          this.error = error.response?.data?.message || 'Ошибка при регистрации';
+          console.error('Registration error:', this.error);
+          return null
         }
-        // this.initAuth(result);
     }
 
 
@@ -80,3 +94,5 @@ export default class AuthStore {
     }
 
 }
+
+export const authStore = new AuthStore();

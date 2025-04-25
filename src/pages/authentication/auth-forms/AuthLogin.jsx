@@ -118,7 +118,21 @@ const AuthLogin = observer(() => {
                 <Grid item xs={12}>
                   <AnimateButton>
                     <Button
-                      onClick={() => authStore.loginUser(email, password)}
+                      onClick={
+                        async () => {
+
+                          const loginData = {
+                            username: email,
+                            password: password
+                          };
+                          console.log(loginData);
+                          const result = await authStore.loginUser(loginData);
+
+                          if (result) {
+                            navigate('/');
+                          }
+                        }
+                      }
                       disableElevation
                       disabled={isSubmitting}
                       fullWidth

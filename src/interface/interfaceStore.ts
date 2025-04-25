@@ -13,3 +13,16 @@ export interface InterfaceTests {
   time_limit: number
   title: string,
 }
+
+export interface IRegisterUser {
+  name: string;
+  username: string;
+  email: string;
+  password: string;
+  role_id: number;
+}
+
+export interface ILoginUser {
+  username: string;
+  password: string;
+}
