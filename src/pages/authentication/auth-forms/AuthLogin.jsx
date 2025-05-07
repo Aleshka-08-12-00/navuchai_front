@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-
+import { useNavigate } from 'react-router-dom';
 import { Button, FormHelperText, Grid, IconButton, InputAdornment, InputLabel, OutlinedInput, Stack } from '@mui/material';
 
 import { Formik } from 'formik';
@@ -41,6 +41,8 @@ const AuthLogin = observer(() => {
       authStore.loginUser(email, password);
     }
   };
+
+  const navigate = useNavigate();
 
   return (
     <>
@@ -118,7 +120,22 @@ const AuthLogin = observer(() => {
                 <Grid item xs={12}>
                   <AnimateButton>
                     <Button
-                      onClick={() => authStore.loginUser(email, password)}
+                      onClick={
+                        async () => {
+
+                          const loginData = {
+                            grant_type: 'password',
+                            username: email,
+                            password: password,
+                          };
+                          console.log(loginData);
+                          const result = await authStore.loginUser(loginData);
+                          console.log(result);
+                          if (result) {
+                            navigate('/main-page');
+                          }
+                        }
+                      }
                       disableElevation
                       disabled={isSubmitting}
                       fullWidth

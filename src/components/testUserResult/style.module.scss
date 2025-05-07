@@ -9,6 +9,10 @@
     }
 }
 
+.customDivider::before {
+    width: calc(0.05* 0%);
+}
+
 .gutter-row {
     width: 100%;
     box-shadow: 3px 4px 10px rgba(201, 216, 225, .34);
@@ -20,7 +24,6 @@
         flex-direction: row;
         flex-wrap: wrap;
         justify-content: space-between;
-        line-height: 50px;
         margin: 0;
         align-items: center;
 
@@ -38,6 +41,7 @@
     
                 &:hover {
                     background: #f4f6f9;
+                    text-decoration: none;
                 }
 
                 &:first-child {
@@ -51,8 +55,7 @@
         padding: 15px 15px 25px;
 
         span {
-            text-transform: uppercase;
-            font-size: 12px;
+            font-size: 16px;
             font-weight: 600;
         }
 
@@ -68,7 +71,7 @@
         .title-card {
             text-transform: none;
             font-size: 24px;
-            font-weight: 600;
+            font-weight: 400;
         }
 
 

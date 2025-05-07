@@ -6,7 +6,7 @@ const $api = axios.create({
   baseURL: API_URL,
   timeout: 60000, 
   headers: {
-    Authorization: `Bearer ${localStorage.getItem('tokenHR')}`
+    Authorization: `Bearer ${localStorage.getItem('tokenNavuchai')}`
   }
 });
 

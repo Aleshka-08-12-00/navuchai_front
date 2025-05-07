@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button, Col, Divider, Progress, Row } from 'antd';
 import { useNavigate } from 'react-router';
 import { CheckCircleOutlined, CloseCircleOutlined, FieldTimeOutlined, LeftOutlined, MessageOutlined, ProjectOutlined, UserOutlined } from '@ant-design/icons';
-import { Link } from '@mui/material';
+import { Typography, Link as MuiLink } from '@mui/material';
 import styles from './style.module.scss';
 import DownloadForOfflineOutlinedIcon from '@mui/icons-material/DownloadForOfflineOutlined';
 import EmailIcon from '@mui/icons-material/Email';
@@ -11,10 +11,9 @@ import { observer } from 'mobx-react-lite';
 import PieChartResult from './pieChartResult/PieChartResult';
 import { store } from '../../store/store';
 import TimeDisplay from './timeDisplay/TimeDisplay';
-import TextArea from 'antd/es/input/TextArea';
 import TimeLinear from './timeLiner/TimeLinear';
 import QuestionsTestTable from './questionsTestTable/QuestionsTestTable';
-
+import JoditEditor from 'jodit-react';
 
 const TestUserResult: React.FC = observer(() => {
     const navigate = useNavigate();
@@ -23,246 +22,213 @@ const TestUserResult: React.FC = observer(() => {
     const [hasFeedback, setHasFeedback] = useState(false);
 
     if (!store.selectedUser) {
-        return <div>Выберите пользователя</div>;
-      }
+        return <Typography>Выберите пользователя</Typography>;
+    }
 
     const { total_score, test_name, first_name, last_name, test_time, end_date } = store.selectedUser;
-
     const timeInSeconds = store.getTimeInSeconds(test_time);
-    
-    const resultTest = (total_score >= 50 && timeInSeconds <= 720) 
-        ? 'Тест пройден!' 
-        : 'Тест не пройден!';
 
-    const resultGood = (total_score >= 50 && timeInSeconds <= 720) 
-        ? 'Оценка удовлетворительная' 
-        : 'Оценка неудовлетворительная';
+    const passed = total_score >= 50 && timeInSeconds <= 720;
+    const resultTest = passed ? 'Тест пройден!' : 'Тест не пройден!';
+    const resultGood = passed ? 'Оценка удовлетворительная' : 'Оценка неудовлетворительная';
+    const resultColor = passed ? 'rgb(22, 119, 255)' : 'rgb(247, 100, 100)';
 
-    const resultColor = (total_score >= 50 && timeInSeconds <= 720) 
-        ? '#1677ff' 
-        : 'red';
-    
     const toggleVisibility = () => {
         setVisible(!visible);
-        if (!visible) {
-            setHasFeedback(false);
-        }
+        if (!visible) setHasFeedback(false);
     };
+
     const handleSave = () => {
         console.log('Отзыв сохранён:', value);
-        setVisible(false);  
+        setVisible(false);
         setHasFeedback(true);
     };
 
-   return ( 
+    return (
         <>
-            <Divider orientation="left">
-                <Link onClick={() => navigate(-1)} className={styles.link} style={{textAlign: 'left'}}>
+            <Divider orientation="start">
+                <MuiLink component="button" className={styles.link} sx={{ textAlign: 'left' }} onClick={() => navigate(-1)}>
                     <LeftOutlined /> Вернуться к списку
-                </Link>
+                </MuiLink>
             </Divider>
-            <Row gutter={[10, 10]}>
-                {/* Верхний блок */}
-                <Col span={24} className={styles['gutter-row']} style={{ paddingRight: 0 }}>
-                    <div className={styles['actions-bar']} style={{marginLeft: '15px'}}>
-                    {/* Левая часть */}
-                        <div className={styles['actions-bar-left']}>
-                            <Link className={styles.link} style={{ fontSize: '18px', fontWeight: 600 }} onClick={() => {}}>
-                                {test_name}
-                            </Link>
-                        </div>
 
-                    {/* Правая часть */}
-                        <div className={styles['actions-bar-right']} style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-                            <div style={{ display: 'flex', borderRight: '1px solid rgb(80, 93, 107, 0.2)' }} className={styles.btnBackground}>
+            <Row gutter={[10, 10]}>
+                <Col span={24} className={styles['gutter-row']} style={{ paddingRight: 0 }}>
+                    <Typography component="div" className={styles['actions-bar']} style={{ marginLeft: '15px'}}>
+                        <Typography component="div" className={styles['actions-bar-left']}>
+                            <MuiLink component="button" className={styles.link} sx={{ fontSize: 18, fontWeight: 400}}>
+                                {test_name}
+                            </MuiLink>
+                        </Typography>
+
+                        <Typography component="div" className={styles['actions-bar-right']} style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+                            <Typography component="div" style={{ display: 'flex', borderRight: '1px solid rgb(80, 93, 107, 0.2)' }} className={styles.btnBackground}>
                                 <UserOutlined style={{ marginRight: '5px', color: '#505d6b' }} />
-                                <Link style={{ fontSize: '16px', fontWeight: 400, color: '#505d6b', textDecoration: 'none' }} onClick={() => {}}>
+                                <MuiLink component="button" sx={{ 
+                                    fontSize: 16, 
+                                    fontWeight: 400, 
+                                    color: '#505d6b', 
+                                    textDecoration: 'none', 
+                                    lineHeight: '50px',
+                                    '&:hover': {
+                                        textDecoration: 'none',
+                                    },  }}>
                                     {last_name} {first_name}
-                                </Link>
-                            </div>
-                            <div style={{ display: 'flex', borderRight: '1px solid rgb(80, 93, 107, 0.2)' }} className={styles.btnBackground}>
+                                </MuiLink>
+                            </Typography>
+                            <Typography component="div" style={{ display: 'flex', borderRight: '1px solid rgb(80, 93, 107, 0.2)' }} className={styles.btnBackground}>
                                 <DownloadForOfflineOutlinedIcon style={{ marginRight: '5px', color: '#505d6b' }} />
-                                <Link style={{ fontSize: '16px', fontWeight: 400, color: '#505d6b', textDecoration: 'none' }} onClick={() => {}}>
+                                <MuiLink component="button" sx={{ 
+                                    fontSize: 16, 
+                                    fontWeight: 400, 
+                                    color: '#505d6b', 
+                                    textDecoration: 'none', 
+                                    lineHeight: '50px',
+                                    '&:hover': {
+                                        textDecoration: 'none',
+                                    }, }}>
                                     Скачать
-                                </Link>
-                            </div>
-                            <div style={{ display: 'flex' }} className={styles.btnBackground}>
+                                </MuiLink>
+                            </Typography>
+                            <Typography component="div" style={{ display: 'flex' }} className={styles.btnBackground}>
                                 <EmailIcon style={{ marginRight: '5px', color: '#505d6b' }} />
-                                <Link style={{ fontSize: '16px', fontWeight: 400, color: '#505d6b', textDecoration: 'none' }} onClick={() => {}}>
+                                <MuiLink component="button" sx={{ 
+                                    fontSize: 16, 
+                                    fontWeight: 400, 
+                                    color: '#505d6b', 
+                                    textDecoration: 'none', 
+                                    lineHeight: '50px', 
+                                    '&:hover': {
+                                        textDecoration: 'none',
+                                    },  }}>
                                     Отправить
-                                </Link>
-                            </div>
-                        </div>
-                    </div>
+                                </MuiLink>
+                            </Typography>
+                        </Typography>
+                    </Typography>
                 </Col>
 
                 <Col span={24} className={styles['gutter-row']}>
-                    <div className={styles.respondent}>
-                        <span>Тестируемый</span>
-                        <div className={styles['respondent-name']}>
+                    <Typography component="div" className={styles.respondent}>
+                        <Typography variant="subtitle1">Тестируемый</Typography>
+                        <Typography component="div" className={styles['respondent-name']}>
                             <AccountBoxOutlinedIcon style={{ fontSize: '30px', marginRight: '15px' }} />
-                            <span className={styles['title-card']}>
+                            <Typography variant="h6" className={styles['title-card']}>
                                 {last_name} {first_name}
-                            </span>
-                        </div>
-                    </div>
+                            </Typography>
+                        </Typography>
+                    </Typography>
                 </Col>
 
-                <Row style={{ width: '100%', display: 'flex', gap: '15px', flexWrap: 'wrap'  }}>
+                <Row style={{ width: '100%', display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
                     <Col xs={24} sm={24} md={14} lg={14} className={styles['gutter-row']}>
-                        <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
-                            <div className={styles.respondent} style={{ width: '60%' }}>
-                                <span>Результат</span>
-                                <div className={styles['respondent-name']}>
-                                    { total_score >= 50 && timeInSeconds <= 720 
-                                    ? 
+                        <Typography component="div" style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+                            <Typography component="div" className={styles.respondent} style={{ width: '60%' }}>
+                                <Typography variant="subtitle1">Результат</Typography>
+                                <Typography component="div" className={styles['respondent-name']}>
+                                    {passed ? (
                                         <CheckCircleOutlined style={{ fontSize: '30px', marginRight: '15px', color: resultColor }} />
-                                    :
-                                        <CloseCircleOutlined style={{ fontSize: '30px', marginRight: '15px', color: resultColor }}/>
-                                    }
-                                    <span 
-                                        className={styles['title-card']} 
-                                        style={{ color: resultColor }}
-                                    >
+                                    ) : (
+                                        <CloseCircleOutlined style={{ fontSize: '30px', marginRight: '15px', color: resultColor }} />
+                                    )}
+                                    <Typography variant="h3" sx={{ color: resultColor }}>
                                         {resultTest}
-                                    </span>
-                                </div>
-                                <span 
-                                    style={{ 
-                                        textTransform: 'none', 
-                                        fontSize: '20px', 
-                                        fontWeight: 400, 
-                                        margin: '10px 0 0 46px', 
-                                        color: resultColor, 
-                                    }}
-                                >
+                                    </Typography>
+                                </Typography>
+                                <Typography variant="h4" sx={{ margin: '10px 0 0 46px', color: resultColor }}>
                                     {resultGood}
-                                </span>
-                            </div>
-                            <div style={{ width: "40%" }}>
+                                </Typography>
+                            </Typography>
+                            <Typography component="div" style={{ width: '40%' }}>
                                 <PieChartResult totalScore={total_score} />
-                            </div>
-                        </div>
+                            </Typography>
+                        </Typography>
                     </Col>
 
-                    <Col xs={24} sm={24} md={9} lg={9} style={{ marginLeft: 'auto' }} className={styles['gutter-row']} >
-                        <div className={styles.respondent}>
-                            <span>Время</span>
-                            <div style={{display: 'flex', flexDirection: 'column', flexWrap: 'wrap'}}>
-                                <div className={styles['respondent-name']} style={{display: 'flex', flexDirection: 'row', marginBottom: '10px'}}>
-                                    <FieldTimeOutlined  style={{ fontSize: '30px', marginRight: '15px' }} />
-                                    <div>
-                                        <span className={styles['title-card']}>
-                                            Общее время
-                                        </span>
-                                    </div>
-                                </div>
-                                <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', marginLeft: '45px'}}>
-                                    <div>
-                                        <TimeDisplay maxTime={720}/>
-                                    </div>
-                                    <div style={{marginBottom: '10px'}}>
-                                        <TimeLinear timeInSeconds={timeInSeconds}/>
-                                    </div>
-                                    <div style={{display: 'flex', flexDirection: 'row'}}>
-                                        <span style={{textTransform: 'none', fontSize: '14px', fontWeight: '400'}}>
-                                            Дата: <span style={{fontWeight: "600", textTransform: 'none', fontSize: '16px'}}>{end_date}</span>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <Col xs={24} sm={24} md={9} lg={9} style={{ marginLeft: 'auto' }} className={styles['gutter-row']}>
+                        <Typography component="div" className={styles.respondent}>
+                            <Typography variant="subtitle1">Время</Typography>
+                            <Typography component="div" style={{ display: 'flex', flexDirection: 'column', flexWrap: 'wrap' }}>
+                                <Typography component="div" className={styles['respondent-name']} style={{ display: 'flex', flexDirection: 'row', marginBottom: '10px' }}>
+                                    <FieldTimeOutlined style={{ fontSize: '30px', marginRight: '15px' }} />
+                                    <Typography variant="h6">Общее время</Typography>
+                                </Typography>
+                                <Typography component="div" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', marginLeft: '45px' }}>
+                                    <TimeDisplay maxTime={720} />
+                                    <Typography component="div" style={{ marginBottom: '10px' }}>
+                                        <TimeLinear timeInSeconds={timeInSeconds} />
+                                    </Typography>
+                                    <Typography variant="body2">
+                                        Дата: <Typography component="span" sx={{ fontWeight: 600, fontSize: 16 }}>{end_date}</Typography>
+                                    </Typography>
+                                </Typography>
+                            </Typography>
+                        </Typography>
                     </Col>
                 </Row>
 
                 <Col span={24} className={styles['gutter-row']}>
-                    <div className={styles.respondent}>
-                        <span>Баллы по категориям вопросов {`(3)`}</span>
-                        <div style={{display: 'flex', flexDirection: 'row', flexWrap: 'wrap', marginTop: '15px', alignItems: 'start'}}>
-                            <ProjectOutlined style={{fontSize: '30px'}}/>
-                            <div style={{display: 'flex', flexDirection: 'column', flexWrap: 'wrap', marginLeft: '15px', marginTop: '5px', margin: 'auto'}}>
-                                <div style={{display: 'flex', flexDirection: 'row', flexWrap: "wrap", justifyContent: "space-between", marginBottom: '15px'}}>
-                                    <div style={{marginRight: '30px'}}>
-                                        <Progress 
-                                            percent={68} 
-                                            size={[450, 25]} 
-                                            format={() => 'Категория №1'} 
-                                            strokeWidth={20} 
-                                            strokeColor="#1677ff"
-                                        />
-                                    </div>
-                                    <div>
-                                        <Progress 
-                                            percent={34} 
-                                            size={[450, 25]} 
-                                            format={() => `Категория №2`} 
-                                            strokeWidth={20} 
-                                            strokeColor="red"
-                                        />
-                                    </div>
-                                </div>
-                                <div>
-                                    <Progress 
-                                            percent={95} 
-                                            size={[450, 25]} 
-                                            format={() => 'Категория №3'} 
-                                            strokeWidth={20} 
-                                            strokeColor="#1677ff"
-                                        />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <Typography component="div" className={styles.respondent}>
+                        <Typography variant="subtitle1">Баллы по категориям вопросов (3)</Typography>
+                        <Typography component="div" style={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'row', flexWrap: 'wrap', marginTop: '15px', alignItems: 'start', gap: '10px', width: '100%'}}>
+                            <Typography component="div" style={{marginRight: '30px'}}>
+                                <ProjectOutlined style={{ fontSize: '30px' }} />
+                            </Typography>
+                            <Typography component="div" style={{display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginLeft: '5px', marginTop: '5px',  gap: '15px', width: '94%'}}>
+                                <Typography component="div" style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column', gap: '15px', minWidth: '250px'}}>
+                                    <Progress percent={68} format={() => 'Категория №1'} strokeWidth={20} strokeColor="rgb(22, 119, 255)" style={{ width: '100%' }}/>
+                                    <Progress percent={34} format={() => 'Категория №2'} strokeWidth={20} strokeColor="rgb(247, 100, 100)" style={{ width: '100%' }}/>
+                                </Typography>
+                                <Typography component="div" style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', minWidth: '250px'}}>
+                                    <Progress percent={95} format={() => 'Категория №3'} strokeWidth={20} strokeColor="rgb(22, 119, 255)" style={{ width: '100%' }}/>
+                                </Typography>
+                            </Typography>
+                        </Typography>
+                    </Typography>
                 </Col>
 
                 <Col span={24} className={styles['gutter-row']}>
-                    <div className={styles.respondent}>
-                        <span>отзывы</span>
-                        <div  style={{marginTop: '15px', display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px'}}>
-                            <div style={{display: 'flex', flexDirection: 'row', flexWrap: 'wrap'}}>
+                    <Typography component="div" className={styles.respondent}>
+                        <Typography variant="subtitle1">Отзывы</Typography>
+                        <Typography component="div" style={{ marginTop: '15px', display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                            <Typography component="div" style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
                                 {!hasFeedback && (
-                                    <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
+                                    <Typography component="div" style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
                                         <MessageOutlined style={{ fontSize: '18px', marginRight: '10px', color: '#1677ff' }} />
-                                        <span style={{ textTransform: 'none', fontSize: '16px', fontWeight: '400' }}>Отзывов нет</span>
-                                    </div>
+                                        <Typography variant="body1" sx={{ fontWeight: 400 }}>Отзывов нет</Typography>
+                                    </Typography>
                                 )}
-                            </div>
-                            <div>
+                            </Typography>
+                            <Typography component="div">
                                 <Button color="primary" variant="outlined" onClick={toggleVisibility}>
                                     {visible ? 'Скрыть поле' : 'Написать отзыв'}
                                 </Button>
-                                {visible && ( 
+                                {visible && (
                                     <Button color="primary" variant="solid" onClick={handleSave} style={{ marginLeft: '10px' }}>
                                         Сохранить
                                     </Button>
                                 )}
-                            </div>
-                        </div>
-                        <div className={`${styles['textarea-container']} ${visible ? styles.show : styles.hide}`}>
-                                <TextArea
-                                    value={value}
-                                    onChange={(e) => setValue(e.target.value)}
-                                    placeholder="Введите отзыв..."
-                                    autoSize={{ minRows: 3, maxRows: 5 }}
-                                />
-                        </div>            
-                    </div>
+                            </Typography>
+                        </Typography>
+                        <Typography component="div" className={`${styles['textarea-container']} ${visible ? styles.show : styles.hide}`}>
+                            <JoditEditor
+                                value={value}
+                                onBlur={(newContent) => setValue(newContent)}
+                                config={{ readonly: false, height: 300, placeholder: 'Напишите ваш отзыв здесь...' }}
+                            />
+                        </Typography>
+                    </Typography>
                 </Col>
 
                 <Col span={24} className={styles['gutter-row']}>
-                    <div className={styles.respondent}>
-                        <div>
-                            <span>Вопросы {`(6)`}</span>
-                        </div>
-                        <div>
-                            <QuestionsTestTable />
-                        </div>
-                    </div>
+                    <Typography component="div" className={styles.respondent}>
+                        <Typography variant="subtitle1">Вопросы (6)</Typography>
+                        <QuestionsTestTable />
+                    </Typography>
                 </Col>
             </Row>
-
         </>
-   )
+    );
 });
 
 export default TestUserResult;

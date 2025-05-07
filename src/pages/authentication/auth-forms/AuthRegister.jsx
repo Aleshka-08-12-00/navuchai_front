@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 
 // material-ui
 import Button from '@mui/material/Button';
@@ -27,11 +27,13 @@ import { strengthColor, strengthIndicator } from 'utils/password-strength';
 import EyeOutlined from '@ant-design/icons/EyeOutlined';
 import EyeInvisibleOutlined from '@ant-design/icons/EyeInvisibleOutlined';
 
-// ============================|| JWT - REGISTER ||============================ //
+import { authStore } from 'store/authStore';
 
 export default function AuthRegister() {
   const [level, setLevel] = useState();
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
+
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
   };
@@ -61,26 +63,53 @@ export default function AuthRegister() {
           submit: null
         }}
         validationSchema={Yup.object().shape({
-          firstname: Yup.string().max(255).required('First Name is required'),
-          lastname: Yup.string().max(255).required('Last Name is required'),
-          email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
-          password: Yup.string().max(255).required('Password is required')
+          firstname: Yup.string().max(255).required('Имя обязательно'),
+          lastname: Yup.string().max(255).required('Фамилия обязательна'),
+          email: Yup.string().email('Введите корректный email').max(255).required('Email обязателен'),
+          password: Yup.string().max(255).required('Пароль обязателен')
         })}
+        onSubmit={async (values, { setSubmitting, setErrors }) => {
+          const registerData = {
+            name: `${values.lastname} ${values.firstname}`,
+            username: values.email,
+            email: values.email,
+            password: values.password,
+            role_id: 2,
+          };
+
+          try {
+            const result = await authStore.registerUser(registerData);
+            console.log(result);
+            if (result) {
+              localStorage.setItem('tokenNavuchai', result.access_token);
+
+              authStore.setAuth(true); // если используется MobX для отслеживания авторизации
+              navigate('/');
+            } else {
+              setErrors({ submit: authStore.error || 'Ошибка регистрации' });
+            }
+
+          } catch (error) {
+            setErrors({ submit: 'Ошибка при регистрации' });
+          } finally {
+            setSubmitting(false);
+          }
+        }}
       >
         {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
           <form noValidate onSubmit={handleSubmit}>
             <Grid container spacing={3}>
               <Grid item xs={12} md={6}>
                 <Stack spacing={1}>
-                  <InputLabel htmlFor="firstname-signup">First Name*</InputLabel>
+                  <InputLabel htmlFor="firstname-signup">Имя*</InputLabel>
                   <OutlinedInput
                     id="firstname-login"
-                    type="firstname"
+                    type="text"
                     value={values.firstname}
                     name="firstname"
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    placeholder="John"
+                    placeholder="Иван"
                     fullWidth
                     error={Boolean(touched.firstname && errors.firstname)}
                   />
@@ -91,20 +120,20 @@ export default function AuthRegister() {
                   </FormHelperText>
                 )}
               </Grid>
+
               <Grid item xs={12} md={6}>
                 <Stack spacing={1}>
-                  <InputLabel htmlFor="lastname-signup">Last Name*</InputLabel>
+                  <InputLabel htmlFor="lastname-signup">Фамилия*</InputLabel>
                   <OutlinedInput
                     fullWidth
                     error={Boolean(touched.lastname && errors.lastname)}
                     id="lastname-signup"
-                    type="lastname"
+                    type="text"
                     value={values.lastname}
                     name="lastname"
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    placeholder="Doe"
-                    inputProps={{}}
+                    placeholder="Петров"
                   />
                 </Stack>
                 {touched.lastname && errors.lastname && (
@@ -113,9 +142,10 @@ export default function AuthRegister() {
                   </FormHelperText>
                 )}
               </Grid>
+
               <Grid item xs={12}>
                 <Stack spacing={1}>
-                  <InputLabel htmlFor="company-signup">Company</InputLabel>
+                  <InputLabel htmlFor="company-signup">Компания</InputLabel>
                   <OutlinedInput
                     fullWidth
                     error={Boolean(touched.company && errors.company)}
@@ -124,8 +154,7 @@ export default function AuthRegister() {
                     name="company"
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    placeholder="Demo Inc."
-                    inputProps={{}}
+                    placeholder="ООО Пример"
                   />
                 </Stack>
                 {touched.company && errors.company && (
@@ -134,9 +163,10 @@ export default function AuthRegister() {
                   </FormHelperText>
                 )}
               </Grid>
+
               <Grid item xs={12}>
                 <Stack spacing={1}>
-                  <InputLabel htmlFor="email-signup">Email Address*</InputLabel>
+                  <InputLabel htmlFor="email-signup">Email адрес*</InputLabel>
                   <OutlinedInput
                     fullWidth
                     error={Boolean(touched.email && errors.email)}
@@ -146,8 +176,7 @@ export default function AuthRegister() {
                     name="email"
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    placeholder="demo@company.com"
-                    inputProps={{}}
+                    placeholder="example@company.com"
                   />
                 </Stack>
                 {touched.email && errors.email && (
@@ -156,9 +185,10 @@ export default function AuthRegister() {
                   </FormHelperText>
                 )}
               </Grid>
+
               <Grid item xs={12}>
                 <Stack spacing={1}>
-                  <InputLabel htmlFor="password-signup">Password</InputLabel>
+                  <InputLabel htmlFor="password-signup">Пароль*</InputLabel>
                   <OutlinedInput
                     fullWidth
                     error={Boolean(touched.password && errors.password)}
@@ -174,7 +204,7 @@ export default function AuthRegister() {
                     endAdornment={
                       <InputAdornment position="end">
                         <IconButton
-                          aria-label="toggle password visibility"
+                          aria-label="показать/скрыть пароль"
                           onClick={handleClickShowPassword}
                           onMouseDown={handleMouseDownPassword}
                           edge="end"
@@ -185,7 +215,6 @@ export default function AuthRegister() {
                       </InputAdornment>
                     }
                     placeholder="******"
-                    inputProps={{}}
                   />
                 </Stack>
                 {touched.password && errors.password && (
@@ -206,27 +235,38 @@ export default function AuthRegister() {
                   </Grid>
                 </FormControl>
               </Grid>
+
               <Grid item xs={12}>
                 <Typography variant="body2">
-                  By Signing up, you agree to our &nbsp;
+                  Регистрируясь, вы соглашаетесь с нашими &nbsp;
                   <Link variant="subtitle2" component={RouterLink} to="#">
-                    Terms of Service
+                    Условиями использования
                   </Link>
-                  &nbsp; and &nbsp;
+                  &nbsp; и &nbsp;
                   <Link variant="subtitle2" component={RouterLink} to="#">
-                    Privacy Policy
+                    Политикой конфиденциальности
                   </Link>
                 </Typography>
               </Grid>
+
               {errors.submit && (
                 <Grid item xs={12}>
                   <FormHelperText error>{errors.submit}</FormHelperText>
                 </Grid>
               )}
+
               <Grid item xs={12}>
                 <AnimateButton>
-                  <Button disableElevation disabled={isSubmitting} fullWidth size="large" type="submit" variant="contained" color="primary">
-                    Create Account
+                  <Button
+                    disableElevation
+                    disabled={isSubmitting}
+                    fullWidth
+                    size="large"
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                  >
+                    Зарегистрироваться
                   </Button>
                 </AnimateButton>
               </Grid>
