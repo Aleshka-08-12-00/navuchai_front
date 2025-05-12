@@ -6,49 +6,51 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 
-export default function DialogPopup({title, mainText, open, setOpen} : any) {
-//   const [open, setOpen] = React.useState(false);
+interface DialogPopupProps {
+    title: string;
+    mainText: string;
+    open: boolean;
+    setOpen: (open: boolean) => void;
+    onConfirm?: () => void;
+}
 
-//   const handleClickOpen = () => {
-//     setOpen(true);
-//   };
+export default function DialogPopup({ title, mainText, open, setOpen, onConfirm }: DialogPopupProps) {
+    const handleClose = () => {
+        setOpen(false);
+    };
 
-  const handleClose = () => {
-    setOpen(false);
-  };
+    const handleConfirm = () => {
+        if (onConfirm) {
+            onConfirm();
+        }
+        setOpen(false);
+    };
 
-//     React.useEffect(() => {
-//         if(openDialog === true){
-//             handleClickOpen()
-//         }
-  
-//   }, [openDialog]);
-
-
-  return (
-    <React.Fragment>
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">
-            {title}
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            {mainText}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} variant='contained'
-                color='success'>Нет</Button>
-          <Button onClick={handleClose} color='inherit' variant='contained' autoFocus>
-            Да
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </React.Fragment>
-  );
+    return (
+        <React.Fragment>
+            <Dialog
+                open={open}
+                onClose={handleClose}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">
+                    {title}
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        {mainText}
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose} variant='contained' color='inherit'>
+                        Нет
+                    </Button>
+                    <Button onClick={handleConfirm} color='success' variant='contained' autoFocus>
+                        Да
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        </React.Fragment>
+    );
 }

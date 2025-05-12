@@ -14,6 +14,18 @@ export interface InterfaceTests {
   title: string,
 }
 
+export interface IPostTest {
+  title: string;
+  description: string;
+  category_id: number,
+  creator_id: number,
+  access_timestamp: string;
+  status: string;
+  frozen: boolean;
+  locale: string;
+  time_limit: number;
+}
+
 export interface IRegisterUser {
   name: string;
   username: string;
@@ -26,4 +38,11 @@ export interface ILoginUser {
   grant_type: string;
   username: string;
   password: string;
+}
+
+export interface ITestCategories {
+  name: string;
+  id: number;
+  created_at: string;
+  updated_at: string;
 }

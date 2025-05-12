@@ -9,8 +9,8 @@ import { useTheme } from '@mui/material/styles';
 export default function DrawerContent() {
 
   const logout = () => {
-    window.localStorage.removeItem('tokenHR');
-    window.localStorage.removeItem('refreshTokenHR');
+    window.localStorage.removeItem('tokenNavuchai');
+    window.localStorage.removeItem('refreshTokenNavuchai');
     window.location.reload();
   };
   const theme = useTheme();

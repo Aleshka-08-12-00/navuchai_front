@@ -7,12 +7,6 @@ export default class SettingsStore {
     constructor() {
         makeAutoObservable(this);
     }
-    // 'short_answer' == Короткий ответ
-//  'true_false' == ДА / НЕТ
-//  'single_choice' == Одиночный выбор
-//  'multiple_choice' == Множественный выбор
-//  'descriptive' == Описательный
-//  'survey' == Опрос
 
     questionsObj = [
         {
@@ -330,12 +324,6 @@ export default class SettingsStore {
             }
         }
     ]
-// 'short_answer' == Короткий ответ
-//  'true_false' == ДА / НЕТ
-//  'single_choice' == Одиночный выбор
-//  'multiple_choice' == Множественный выбор
-//  'descriptive' == Описательный
-//  'survey' == Опрос
 
     setIdSettingsNumber = (value: string) => {
         this.idSettingsNumber = value

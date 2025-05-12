@@ -32,16 +32,19 @@ import { createContext } from 'react';
 import ReactDOM from 'react-dom/client';
 import SettingsStore from './store/settingsStore';
 import MainPageStore from './store/mainPageStore';
+import SettingsNewTestStore from './store/settingsNewTestStore';
 const store = new Store();
 const authStore = new AuthStore();
 const settingsStore = new SettingsStore();
-const mainPageStore = new MainPageStore()
+const mainPageStore = new MainPageStore();
+const settingsNewTestStore = new SettingsNewTestStore();
 
 const obStore = {
   store,
   authStore,
   settingsStore,
-  mainPageStore
+  mainPageStore,
+  settingsNewTestStore
 }
 
 export const Context = createContext(obStore);

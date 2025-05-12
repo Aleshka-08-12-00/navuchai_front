@@ -1,10 +1,17 @@
 const endpoints = {
     //Тесты
-    getTests: 'tests',
-    postTests: 'tests',
-    getTestsById: (id: string | number | null ): string => `tests/${id}`,
-    putTestsById: (id: string | number | null ): string => `tests/${id}`,
-    deleteTestsById: (id: string | number | null ): string => `tests/${id}`,
+    getTests: 'api/tests',
+    postTests: 'api/tests',
+    getTestsById: (id: string | number | null ): string => `api/tests/${id}`,
+    putTestsById: (id: string | number | null ): string => `api/tests/${id}`,
+    deleteTestsById: (id: string | number | null ): string => `api/tests/${id}`,
+
+    //Авторизация 
+    postAuth: 'auth/login',
+    postRegistration: 'auth/register',
+
+    //Категории
+    getCategories: 'api/categories',
 
   };
   

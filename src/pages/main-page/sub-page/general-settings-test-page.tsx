@@ -23,19 +23,80 @@ import MainCard from '../../../components/MainCard';
 import AddIcon from '@mui/icons-material/Add';
 import InfoIcon from '@mui/icons-material/Info';
 import DriveFolderUploadIcon from '@mui/icons-material/DriveFolderUpload';
+import { ITestCategories } from '../../../interface/interfaceStore';
+import { useState } from 'react';
+import DialogPopup from '../../../components/DialogPopup';
+import { postData } from '../../../api';
 
 const GeneralSettingsTestPage = observer(() => {
-    const { settingsStore } = React.useContext(Context);
+    const { settingsNewTestStore } = React.useContext(Context);
+    const { getTestCategories, testCategories, createNewTest } = settingsNewTestStore;
 
-    const [age, setAge] = React.useState('');
+    const [category, setCategory] = React.useState('');
+    const [leng, setLeng] = React.useState('');
+
+    const [openDialogClose, setOpenDialogClose] = React.useState(false);
+    const [openDialogSave, setOpenDialogSave] = React.useState(false);
+
+    // Используем существующий шаблон как начальное состояние
+    const [formData, setFormData] = React.useState({
+        title: '',
+        description: '',
+        category_id: 0,
+        creator_id: 0,
+        access_timestamp: "2025-05-12T12:10:13.557Z",
+        status: '',
+        frozen: true,
+        locale: '',
+        time_limit: 0
+    });
 
     const handleChange = (event: SelectChangeEvent) => {
-        setAge(event.target.value);
+        const selectedValue = event.target.value;
+        setCategory(selectedValue);
+        // Обновляем category_id в formData
+        setFormData(prev => ({
+            ...prev,
+            category_id: selectedValue ? Number(selectedValue) : 0
+        }));
     };
 
+    const handleChangeLeng = (event: SelectChangeEvent) => {
+        setLeng(event.target.value);
+    };
+
+    const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setFormData(prev => ({
+            ...prev,
+            title: event.target.value
+        }));
+    };
+
+    const handleDescriptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setFormData(prev => ({
+            ...prev,
+            description: event.target.value
+        }));
+    };
+
+    const clickClose = () => {
+        setOpenDialogClose(!openDialogClose)
+    };
+    const clickSave = () => {
+        setOpenDialogSave(!openDialogSave)
+    };
+
+    const handleSave = async () => {
+        createNewTest(formData)
+    };
+
+    const handleClose = () => {
+        // Если пользователь подтвердил выход без сохранения
+        window.location.replace('/');
+    };
 
     React.useEffect(() => {
-
+        getTestCategories()
     }, []);
 
     return (
@@ -52,7 +113,8 @@ const GeneralSettingsTestPage = observer(() => {
                         <InputLabel htmlFor="standard-adornment-amount">Название теста</InputLabel>
                         <Input
                             id="standard-adornment-amount"
-                            startAdornment={<InputAdornment position="start">Новое название</InputAdornment>}
+                            value={formData.title}
+                            onChange={handleTitleChange}
                         />
                     </FormControl>
                     <FormControl variant="standard" sx={{ m: 1, minWidth: '62%', mt: 1 }}>
@@ -60,30 +122,31 @@ const GeneralSettingsTestPage = observer(() => {
                         <Select
                             labelId="demo-simple-select-standard-label"
                             id="demo-simple-select-standard"
-                            value={age}
+                            value={category}
                             onChange={handleChange}
                             label="Age"
                         >
                             <MenuItem value="">
                                 <em>Нет категории</em>
                             </MenuItem>
-                            <MenuItem value={10}>Тест по ОТ</MenuItem>
-                            <MenuItem value={20}>Тест по ОЗ</MenuItem>
-                            <MenuItem value={30}>Тест по ГП</MenuItem>
+                            {testCategories.length && testCategories.map((item: ITestCategories, index: number) => (
+                                <MenuItem key={index} value={item.id}>{item.name}</MenuItem>
+                            ))}
                         </Select>
 
-                    </FormControl>  
+                    </FormControl>
                     <Button
                         variant="outlined"
                         color='success'
                         startIcon={<AddIcon />}
+                        disabled={true}
                         //   color={item.statusColor}
                         style={{ textTransform: 'none', marginTop: 15 }}
 
                     >
                         Создать категорию
                     </Button>
-             
+
 
                     <FormControl variant="standard" sx={{ m: 1, minWidth: '80%', mt: 1 }}>
                         <TextField
@@ -91,17 +154,17 @@ const GeneralSettingsTestPage = observer(() => {
                             label="Добавьте описание теста для идентификации. Оно будет видно только вам."
                             multiline
                             rows={4}
-                            defaultValue="Описание теста"
+                            value={formData.description}
+                            onChange={handleDescriptionChange}
                         />
-
                     </FormControl>
                     <FormControl variant="standard" sx={{ m: 1, minWidth: '80%', mt: 1 }}>
                         <InputLabel id="demo-simple-select-standard-label">Русский</InputLabel>
                         <Select
                             labelId="demo-simple-select-standard-label"
                             id="demo-simple-select-standard"
-                            value={age}
-                            onChange={handleChange}
+                            value={leng}
+                            onChange={handleChangeLeng}
                             label="Язык теста"
                         >
                             <MenuItem value="">
@@ -131,7 +194,7 @@ const GeneralSettingsTestPage = observer(() => {
                             Логотип виден в онлайн- и печатной версии теста.
                         </Typography>
                     </div>
-                    <FormControl style={{marginTop: 20}}>
+                    <FormControl style={{ marginTop: 20 }}>
                         <FormLabel id="demo-radio-buttons-group-label">Выберите один из вариантов:</FormLabel>
                         <RadioGroup
                             aria-labelledby="demo-radio-buttons-group-label"
@@ -148,11 +211,42 @@ const GeneralSettingsTestPage = observer(() => {
                         color='success'
                         startIcon={<DriveFolderUploadIcon />}
                         style={{ textTransform: 'none', marginTop: 40 }}
+                        disabled={true}
                     >
                         Загрузить логотип
                     </Button>
                 </>
             </MainCard>
+            <Button
+                variant='contained'
+                color='success'
+                style={{ textTransform: 'none', marginTop: 10 }}
+                onClick={() => clickSave()}
+            >
+                сохранить
+            </Button>
+            <Button
+                variant='contained'
+                color='inherit'
+                style={{ textTransform: 'none', marginTop: 10, marginLeft: 15 }}
+                onClick={() => clickClose()}
+            >
+                выйти
+            </Button>
+            <DialogPopup
+                title='Подтверждение'
+                mainText='Сохранить Ваши изменения?'
+                open={openDialogSave}
+                setOpen={setOpenDialogSave}
+                onConfirm={handleSave}
+            />
+            <DialogPopup
+                title='Подтверждение'
+                mainText='Вы не сохранили изменения. Вы уверены, что хотите покинуть страницу?'
+                open={openDialogClose}
+                setOpen={setOpenDialogClose}
+                onConfirm={handleClose}
+            />
         </div>
     );
 })

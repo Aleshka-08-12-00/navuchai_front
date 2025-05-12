@@ -5,10 +5,12 @@ import Typography from '@mui/material/Typography';
 // project import
 import AuthWrapper from './AuthWrapper';
 import AuthRegister from './auth-forms/AuthRegister';
+import { useNavigate } from 'react-router';
 
 // ================================|| REGISTER ||================================ //
 
 export default function Register() {
+  const navigate = useNavigate();
   return (
     <AuthWrapper>
       <Grid container spacing={3}>
@@ -21,7 +23,7 @@ export default function Register() {
           >
             <Typography variant="h3">Регистрация</Typography>
             <Typography
-              onClick={() => alert('Перейдите на страницу авторизации')}
+              onClick={() => navigate('/login')}
               variant="body1"
               sx={{ textDecoration: 'none', cursor: 'pointer' }}
               color="primary"
