@@ -12,6 +12,8 @@ import ConstructorPage from "./sub-page/constructor-page/constructor-page";
 import TestStartPage from "./sub-page/test-start-page/test-start-page";
 import GradingSummaryPage from "./sub-page/grading-summary-page/grading-summary-page";
 import TimeSettingsPage from "./sub-page/time-settings-page/time-settings-page";
+import TestSetsPage from "./sub-page/test-sets-page/test-sets-page";
+import TestAccessPage from "./sub-page/test-access-page/test-access-page";
 
 
 const ContentPage = observer(({testId}: any) => {
@@ -30,6 +32,8 @@ const ContentPage = observer(({testId}: any) => {
             {settingsStore.idSettingsNumber === '55' && <TestStartPage/>}
             {settingsStore.idSettingsNumber === '56' && <GradingSummaryPage/>}
             {settingsStore.idSettingsNumber === '57' && <TimeSettingsPage/>}
+            {settingsStore.idSettingsNumber === '53' && <TestSetsPage/>}
+            {settingsStore.idSettingsNumber === '54' && <TestAccessPage/>}
       
             </Grid>
         </Grid> 
