@@ -9,10 +9,25 @@ import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 
-const Descriptive = observer(() => {
+interface DescriptiveProps {
+    onDataChange?: (data: {
+        maxScore: number;
+        maxCharCount: number;
+        showMaxScore: boolean;
+        requireAnswer: boolean;
+        stopIfIncorrect: boolean;
+    }) => void;
+}
+
+const Descriptive = observer(({ onDataChange }: DescriptiveProps) => {
     const editorRefs = useRef<Map<number, any>>(new Map()); // Хранилище ссылок на редакторы
     const [contentList, setContentList] = useState<string[]>([""]); // Список контента
     const [selectedValue, setSelectedValue] = useState<string>(""); // Текущее выбранное значение
+    const [maxScore, setMaxScore] = useState<number>(0);
+    const [maxCharCount, setMaxCharCount] = useState<number>(0);
+    const [showMaxScore, setShowMaxScore] = useState<boolean>(true);
+    const [requireAnswer, setRequireAnswer] = useState<boolean>(false);
+    const [stopIfIncorrect, setStopIfIncorrect] = useState<boolean>(false);
 
     // Добавление нового элемента
     const addAnswer = () => {
@@ -42,13 +57,49 @@ const Descriptive = observer(() => {
         setContentList(updatedContent);
     };
 
+    const updateParentData = () => {
+        if (onDataChange) {
+            onDataChange({
+                maxScore,
+                maxCharCount,
+                showMaxScore,
+                requireAnswer,
+                stopIfIncorrect
+            });
+        }
+    };
+
+    const handleMaxScoreChange = (value: number) => {
+        setMaxScore(value);
+        updateParentData();
+    };
+
+    const handleMaxCharCountChange = (value: number) => {
+        setMaxCharCount(value);
+        updateParentData();
+    };
+
+    const handleSwitchChange = (type: 'showMax' | 'require' | 'stop', checked: boolean) => {
+        switch (type) {
+            case 'showMax':
+                setShowMaxScore(checked);
+                break;
+            case 'require':
+                setRequireAnswer(checked);
+                break;
+            case 'stop':
+                setStopIfIncorrect(checked);
+                break;
+        }
+        updateParentData();
+    };
+
     return (
         <>
-             <div style={{ padding: 10 }}>
-                <Typography variant="h5"  >
+            <div style={{ padding: 10 }}>
+                <Typography variant="h5">
                     Настройки баллов
                 </Typography>
-
             </div>
             <div style={{
                 background: '#e3e3e3',
@@ -61,19 +112,21 @@ const Descriptive = observer(() => {
             }}>
                 <div style={{ display: 'flex' }}>
                     <InfoIcon />
-                    <Typography variant="h6" color="textSecondary" style={{ marginLeft: 5, marginBottom: 5 }}  >
-                    Вам придется самостоятельно оценить ответы на описательные вопросы после теста. 
-                    Ниже вы можете установить максимальный балл за этот вопрос.
+                    <Typography variant="h6" color="textSecondary" style={{ marginLeft: 5, marginBottom: 5 }}>
+                        Вам придется самостоятельно оценить ответы на описательные вопросы после теста.
+                        Ниже вы можете установить максимальный балл за этот вопрос.
                     </Typography>
                 </div>
             </div>
-           
-            <div  style={{  marginBottom: 20 }}>
+
+            <div style={{ marginBottom: 20 }}>
                 <TextField
                     style={{ width: '39%', marginRight: 30, marginLeft: 5 }}
                     id="outlined-number"
                     label="Максимальный балл за правильный ответ"
                     type="number"
+                    value={maxScore}
+                    onChange={(e) => handleMaxScoreChange(Number(e.target.value))}
                     variant="standard"
                 />
                 <TextField
@@ -81,14 +134,40 @@ const Descriptive = observer(() => {
                     id="outlined-number"
                     label="Максимальное количество символов в ответе"
                     type="number"
+                    value={maxCharCount}
+                    onChange={(e) => handleMaxCharCountChange(Number(e.target.value))}
                     variant="standard"
                 />
             </div>
             <div>
                 <FormGroup>
-                    <FormControlLabel control={<Switch defaultChecked />} label="Показать максимально возможный балл за этот вопрос" />
-                    <FormControlLabel control={<Switch />} label="Заставьте респондента ответить на этот вопрос при первом показе" />
-                    <FormControlLabel control={<Switch />} label="Прекратите тест, если ответ на этот вопрос неверный." />
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={showMaxScore}
+                                onChange={(e) => handleSwitchChange('showMax', e.target.checked)}
+                            />
+                        }
+                        label="Показать максимально возможный балл за этот вопрос"
+                    />
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={requireAnswer}
+                                onChange={(e) => handleSwitchChange('require', e.target.checked)}
+                            />
+                        }
+                        label="Заставьте респондента ответить на этот вопрос при первом показе"
+                    />
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={stopIfIncorrect}
+                                onChange={(e) => handleSwitchChange('stop', e.target.checked)}
+                            />
+                        }
+                        label="Прекратите тест, если ответ на этот вопрос неверный."
+                    />
                 </FormGroup>
             </div>
         </>

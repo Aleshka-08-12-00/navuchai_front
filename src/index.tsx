@@ -33,18 +33,21 @@ import ReactDOM from 'react-dom/client';
 import SettingsStore from './store/settingsStore';
 import MainPageStore from './store/mainPageStore';
 import SettingsNewTestStore from './store/settingsNewTestStore';
+import CreateQuestionsStore from './store/createQuestionsStore';
 const store = new Store();
 const authStore = new AuthStore();
 const settingsStore = new SettingsStore();
 const mainPageStore = new MainPageStore();
 const settingsNewTestStore = new SettingsNewTestStore();
+const createQuestionsStore  = new CreateQuestionsStore();
 
 const obStore = {
   store,
   authStore,
   settingsStore,
   mainPageStore,
-  settingsNewTestStore
+  settingsNewTestStore,
+  createQuestionsStore,
 }
 
 export const Context = createContext(obStore);
