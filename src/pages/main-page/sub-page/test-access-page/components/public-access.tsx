@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
     Typography,
     Box,
@@ -7,14 +7,23 @@ import {
     Grid
 } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import { observer } from 'mobx-react-lite';
+import { Context } from '../../../../..';
 
-const PublicAccess = () => {
+const PublicAccess = observer(() => {
+
+    const { settingsNewTestStore } = useContext(Context);
+
+    useEffect(() => {
+        if (!settingsNewTestStore.publicLink) {
+            settingsNewTestStore.generatePublicLink();
+        }
+    }, [settingsNewTestStore]);
     
-    const [link] = useState('https://example.com/test/12345');
 
     const handleCopy = async () => {
         try {
-            await navigator.clipboard.writeText(link);
+            await navigator.clipboard.writeText(settingsNewTestStore.publicLink);
             alert('Ссылка скопирована!');
         } catch (err) {
             alert('Не удалось скопировать ссылку');
@@ -31,7 +40,7 @@ const PublicAccess = () => {
                 <Grid item xs style={{display:"flex", flexDirection: 'row'}}>
                     <TextField
                         fullWidth
-                        value={link}
+                        value={settingsNewTestStore.publicLink}
                         InputProps={{
                             readOnly: true
                         }}
@@ -63,6 +72,6 @@ const PublicAccess = () => {
             </Grid>
         </Box>
     );
-};
+});
 
 export default PublicAccess;
