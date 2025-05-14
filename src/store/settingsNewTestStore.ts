@@ -2,15 +2,15 @@ import { makeAutoObservable } from 'mobx';
 import { fetchData, postData } from '../api';
 import { InterfaceTests, IPostTest, ITestCategories } from '../interface/interfaceStore';
 
+
 export default class SettingsNewTestStore {
 
     error: string = '';
     testCategories: ITestCategories[] = []
-
+    
     constructor() {
         makeAutoObservable(this);
     }
-
 
     getTestCategories = async () => {
         const result = await fetchData('getCategories', {});
