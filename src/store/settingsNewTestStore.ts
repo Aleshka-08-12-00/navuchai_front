@@ -2,6 +2,7 @@ import { makeAutoObservable } from 'mobx';
 import { fetchData, postData } from '../api';
 import { ILocales, IPostTest, ITestCategories } from '../interface/interfaceStore';
 
+
 export default class SettingsNewTestStore {
 
     error: string = '';
@@ -11,7 +12,6 @@ export default class SettingsNewTestStore {
     constructor() {
         makeAutoObservable(this);
     }
-
 
     getTestCategories = async () => {
         const result = await fetchData('getCategories', {});
@@ -44,6 +44,21 @@ export default class SettingsNewTestStore {
         const result = await postData('postTests', {data});
         if (result)
             alert('Тест успешно создан, продолжайте настраивать тест')
+    }
+
+    generatePublicLink = () => {
+        const randomId = this.generateCryptoString(12);
+        const baseUrl = 'https://navuchai.by/test/';
+        this.publicLink = baseUrl + randomId;
+    };
+
+    private generateCryptoString(length: number): string {
+        const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        const values = new Uint8Array(length);
+        window.crypto.getRandomValues(values);
+        return Array.from(values)
+            .map((v) => charset[v % charset.length])
+            .join('');
     }
 
 
