@@ -9,10 +9,29 @@ import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 
-const SingleChoice = observer(() => {
-    const editorRefs = useRef<Map<number, any>>(new Map()); // Хранилище ссылок на редакторы
-    const [contentList, setContentList] = useState<string[]>([""]); // Список контента
-    const [selectedValue, setSelectedValue] = useState<string>(""); // Текущее выбранное значение
+interface SingleChoiceProps {
+    onDataChange?: (data: {
+        answers: Array<{
+            body: string;
+            correct: boolean;
+        }>;
+        correctScore: number;
+        incorrectScore: number;
+        showMaxScore: boolean;
+        requireAnswer: boolean;
+        stopIfIncorrect: boolean;
+    }) => void;
+}
+
+const SingleChoice = observer(({ onDataChange }: SingleChoiceProps) => {
+    const editorRefs = useRef<Map<number, any>>(new Map());
+    const [contentList, setContentList] = useState<string[]>([""]); 
+    const [selectedValue, setSelectedValue] = useState<string>("");
+    const [correctScore, setCorrectScore] = useState<number>(0);
+    const [incorrectScore, setIncorrectScore] = useState<number>(0);
+    const [showMaxScore, setShowMaxScore] = useState<boolean>(true);
+    const [requireAnswer, setRequireAnswer] = useState<boolean>(false);
+    const [stopIfIncorrect, setStopIfIncorrect] = useState<boolean>(false);
 
     // Добавление нового элемента
     const addAnswer = () => {
@@ -24,15 +43,17 @@ const SingleChoice = observer(() => {
         const updatedContent = contentList.filter((_, i) => i !== index);
         setContentList(updatedContent);
 
-        // Если удалён выбранный элемент, сбросить выбор
         if (selectedValue === `option-${index}`) {
             setSelectedValue("");
         }
+
+        updateParentData(updatedContent, selectedValue === `option-${index}` ? "" : selectedValue);
     };
 
     // Обработка изменений радиокнопки
     const handleRadioChange = (value: string) => {
         setSelectedValue(value);
+        updateParentData(contentList, value);
     };
 
     // Обновление контента в редакторе
@@ -40,15 +61,57 @@ const SingleChoice = observer(() => {
         const updatedContent = [...contentList];
         updatedContent[index] = newContent;
         setContentList(updatedContent);
+        updateParentData(updatedContent, selectedValue);
+    };
+
+    const updateParentData = (contents: string[], selected: string) => {
+        if (onDataChange) {
+            const answers = contents.map((content, index) => ({
+                body: content,
+                correct: `option-${index}` === selected
+            }));
+
+            onDataChange({
+                answers,
+                correctScore,
+                incorrectScore,
+                showMaxScore,
+                requireAnswer,
+                stopIfIncorrect
+            });
+        }
+    };
+
+    const handleScoreChange = (type: 'correct' | 'incorrect', value: number) => {
+        if (type === 'correct') {
+            setCorrectScore(value);
+        } else {
+            setIncorrectScore(value);
+        }
+        updateParentData(contentList, selectedValue);
+    };
+
+    const handleSwitchChange = (type: 'showMax' | 'require' | 'stop', checked: boolean) => {
+        switch (type) {
+            case 'showMax':
+                setShowMaxScore(checked);
+                break;
+            case 'require':
+                setRequireAnswer(checked);
+                break;
+            case 'stop':
+                setStopIfIncorrect(checked);
+                break;
+        }
+        updateParentData(contentList, selectedValue);
     };
 
     return (
         <>
             <div style={{ padding: 10 }}>
-                <Typography variant="h5"  >
+                <Typography variant="h5">
                     Ответ
                 </Typography>
-
             </div>
             <Typography variant="h6" style={{ padding: 10 }}>
                 Добавьте список ответов. Респонденты смогут выбрать только один.
@@ -85,17 +148,19 @@ const SingleChoice = observer(() => {
                             value={content}
                             onBlur={(newContent) => handleEditorChange(index, newContent)}
                         />
-                        <IconButton aria-label="delete" onClick={() => deleteAnswer(index)} style={{
-                            marginLeft: "10px",
-                            marginTop: "-15%",
-                        }}>
+                        <IconButton 
+                            aria-label="delete" 
+                            onClick={() => deleteAnswer(index)} 
+                            style={{
+                                marginLeft: "10px",
+                                marginTop: "-15%",
+                            }}
+                        >
                             <DeleteIcon />
-
                         </IconButton>
                     </div>
                 ))}
                 <div style={{ textAlign: "left", marginTop: "20px", marginLeft: 40, marginBottom: 40 }}>
-
                     <Button
                         variant="outlined"
                         color="success"
@@ -108,10 +173,9 @@ const SingleChoice = observer(() => {
                 </div>
             </div>
             <div style={{ padding: 10 }}>
-                <Typography variant="h5"  >
+                <Typography variant="h5">
                     Настройки баллов
                 </Typography>
-
             </div>
             <div style={{
                 background: '#e3e3e3',
@@ -124,7 +188,7 @@ const SingleChoice = observer(() => {
             }}>
                 <div style={{ display: 'flex' }}>
                     <InfoIcon />
-                    <Typography variant="h6" color="textSecondary" style={{ marginLeft: 5, marginBottom: 5 }}  >
+                    <Typography variant="h6" color="textSecondary" style={{ marginLeft: 5, marginBottom: 5 }}>
                         Определите оценку за правильный ответ. Также можно назначить отрицательные баллы за неправильные
                         ответы. Если вы не хотите этого делать, введите 0 (ноль) в качестве оценки за этот ответ.
                     </Typography>
@@ -136,6 +200,8 @@ const SingleChoice = observer(() => {
                     id="outlined-number"
                     label="Балл за правильный ответ"
                     type="number"
+                    value={correctScore}
+                    onChange={(e) => handleScoreChange('correct', Number(e.target.value))}
                     variant="outlined"
                 />
                 <TextField
@@ -143,15 +209,41 @@ const SingleChoice = observer(() => {
                     id="outlined-number"
                     label="Баллов за неправильный ответ"
                     type="number"
+                    value={incorrectScore}
+                    onChange={(e) => handleScoreChange('incorrect', Number(e.target.value))}
                     variant="outlined"
                     helperText="Внимание! Количество баллов должно быть отрицательным или нулевым. Отрицательные значения должны включать знак минус, например, -1."
                 />
             </div>
             <div>
                 <FormGroup>
-                    <FormControlLabel control={<Switch defaultChecked />} label="Показать максимально возможный балл за этот вопрос" />
-                    <FormControlLabel control={<Switch />} label="Заставьте респондента ответить на этот вопрос при первом показе" />
-                    <FormControlLabel control={<Switch />} label="Прекратите тест, если ответ на этот вопрос неверный." />
+                    <FormControlLabel 
+                        control={
+                            <Switch 
+                                checked={showMaxScore}
+                                onChange={(e) => handleSwitchChange('showMax', e.target.checked)}
+                            />
+                        } 
+                        label="Показать максимально возможный балл за этот вопрос" 
+                    />
+                    <FormControlLabel 
+                        control={
+                            <Switch 
+                                checked={requireAnswer}
+                                onChange={(e) => handleSwitchChange('require', e.target.checked)}
+                            />
+                        } 
+                        label="Заставьте респондента ответить на этот вопрос при первом показе" 
+                    />
+                    <FormControlLabel 
+                        control={
+                            <Switch 
+                                checked={stopIfIncorrect}
+                                onChange={(e) => handleSwitchChange('stop', e.target.checked)}
+                            />
+                        } 
+                        label="Прекратите тест, если ответ на этот вопрос неверный." 
+                    />
                 </FormGroup>
             </div>
         </>

@@ -1,4 +1,3 @@
-
 export interface InterfaceTests {
   id: number,
   access_timestamp: string,
@@ -17,13 +16,14 @@ export interface InterfaceTests {
 export interface IPostTest {
   title: string;
   description: string;
-  category_id: number,
-  creator_id: number,
+  category_id: number;
+  creator_id: number;
   access_timestamp: string;
   status: string;
   frozen: boolean;
-  locale: string;
+  locale_id: number;
   time_limit: number;
+  img_id: number;
 }
 
 export interface IRegisterUser {
@@ -45,4 +45,52 @@ export interface ITestCategories {
   id: number;
   created_at: string;
   updated_at: string;
+}
+
+export interface ILocales {
+  code: string;
+  name: string;
+  id: number;
+  created_at: string;
+  updated_at: string;
+}
+
+
+export interface IQuestions {
+  id: number;
+  text: string;
+  text_abstract: string;
+  type: string;
+  reviewable: boolean;
+  answers: {
+    correctAnswer: string[];
+    allAnswer: string[];
+    settings: {
+      correctScore: number,
+      incorrectScore: number,
+      showMaxScore: boolean,
+      requireAnswer: boolean,
+      stopIfIncorrect: boolean
+    };
+  };
+  created_at: string;
+  updated_at: string;
+}
+
+export interface IPostQuestion {
+  text: string;
+  text_abstract: string;
+  type: string;
+  reviewable: boolean;
+  answers: {
+    correctAnswer: string[];
+    allAnswer: string[];
+    settings: {
+      correctScore: number,
+      incorrectScore: number,
+      showMaxScore: boolean,
+      requireAnswer: boolean,
+      stopIfIncorrect: boolean
+    };
+  };
 }
