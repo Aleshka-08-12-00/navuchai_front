@@ -12,6 +12,17 @@ const endpoints = {
 
     //Категории
     getCategories: 'api/categories',
+    postCategories: 'api/categories',
+
+    //Языки
+    getLocales: 'api/locales',
+
+    //Логотип
+    uploadLogo: 'api/files/upload',
+
+    //Вопросы
+    getQuestions: 'api/questions',
+    postQuestions: 'api/questions',
 
   };
   

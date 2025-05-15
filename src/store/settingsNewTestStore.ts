@@ -1,14 +1,14 @@
 import { makeAutoObservable } from 'mobx';
 import { fetchData, postData } from '../api';
-import { InterfaceTests, IPostTest, ITestCategories } from '../interface/interfaceStore';
+import { ILocales, IPostTest, ITestCategories } from '../interface/interfaceStore';
 
 
 export default class SettingsNewTestStore {
 
     error: string = '';
-    testCategories: ITestCategories[] = []
-    publicLink: string = '';
-    
+    testCategories: ITestCategories[] = [];
+    locales: ILocales[] = [];
+
     constructor() {
         makeAutoObservable(this);
     }
@@ -19,8 +19,25 @@ export default class SettingsNewTestStore {
             this.setTestCategories(result)
     }
 
+    postTestCategories = async (value: string) => {
+        const result = await postData('postCategories', {name: value});
+        if (result)
+            alert('новая категория создана')
+            this.getTestCategories()
+    }
+
+    getLocales = async () => {
+        const result = await fetchData('getLocales', {});
+        if (result)
+            this.setLocales(result)
+    }
+
     setTestCategories = (value: ITestCategories[]) => {
         this.testCategories = value
+    }
+
+    setLocales = (value: ILocales[]) => {
+        this.locales = value
     }
     
     createNewTest = async (data: IPostTest) => {

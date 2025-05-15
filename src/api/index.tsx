@@ -38,6 +38,11 @@ const handleError = (error: unknown) => {
   if (axios.isAxiosError(error)) {
     const axiosError = error as AxiosError;
     if (axiosError.response) {
+      // Обработка 401 ошибки
+      if (axiosError.response.status === 401) {
+        window.location.replace('/login');
+        throw new Error('Требуется авторизация');
+      }
       // Пытаемся получить detail из ответа
       const responseData = axiosError.response.data;
       if (typeof responseData === 'object' && responseData !== null && 'detail' in responseData) {
