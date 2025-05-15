@@ -46,3 +46,9 @@ export interface ITestCategories {
   created_at: string;
   updated_at: string;
 }
+
+export interface IGroupMember {
+  id: number;
+  email: string;
+  send_code: boolean;
+}
