@@ -6,6 +6,7 @@ import { ILocales, IPostTest, ITestCategories } from '../interface/interfaceStor
 export default class SettingsNewTestStore {
 
     error: string = '';
+    publicLink: string = '';
     testCategories: ITestCategories[] = [];
     locales: ILocales[] = [];
 
