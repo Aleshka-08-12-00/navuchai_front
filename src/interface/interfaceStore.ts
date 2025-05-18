@@ -19,7 +19,7 @@ export interface IPostTest {
   category_id: number;
   creator_id: number;
   access_timestamp: string;
-  status: string;
+  status_id: number;
   frozen: boolean;
   locale_id: number;
   time_limit: number;

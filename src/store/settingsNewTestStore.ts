@@ -42,7 +42,7 @@ export default class SettingsNewTestStore {
     }
     
     createNewTest = async (data: IPostTest) => {
-        const result = await postData('postTests', {data});
+        const result = await postData('postTests', data);
         if (result)
             alert('Тест успешно создан, продолжайте настраивать тест')
     }

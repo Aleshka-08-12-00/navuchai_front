@@ -53,7 +53,7 @@ const GeneralSettingsTestPage = observer(() => {
         category_id: 0,
         creator_id: 2,
         access_timestamp: "2025-05-15 10:01:22",
-        status: 'CREATED',
+        status_id: 1,
         frozen: true,
         locale_id: 0,
         time_limit: 300,
@@ -102,6 +102,7 @@ const GeneralSettingsTestPage = observer(() => {
 
     const handleSave = async () => {
         createNewTest({...formData, locale_id: Number(formData.locale_id)})
+        console.log(formData);
     };
 
     const handleClose = () => {
