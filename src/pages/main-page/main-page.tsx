@@ -55,6 +55,7 @@ const MainPage = observer(() => {
     categoriesArray,
     getTestStatuses,
     testStatusesArray,
+    deleteTestById,
   } = mainPageStore
 
   const [category, setCategory] = useState<string>('all');
@@ -70,24 +71,34 @@ const MainPage = observer(() => {
   const navigate = useNavigate();
 
 
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [menuAnchorEl, setMenuAnchorEl] = useState<{ [key: number]: HTMLElement | null }>({});
 
-  const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
+  const handleOpenMenu = (event: React.MouseEvent<HTMLElement>, id: number) => {
+    setMenuAnchorEl(prev => ({
+      ...prev,
+      [id]: event.currentTarget
+    }));
   };
 
-  const handleCloseMenu = () => {
-    setAnchorEl(null);
+  const handleCloseMenu = (id: number) => {
+    setMenuAnchorEl(prev => ({
+      ...prev,
+      [id]: null
+    }));
   };
 
-  const handleCopy = () => {
-    alert("Удалить выбрано");
-    handleCloseMenu();
+  const handleCopy = (id: number) => {
+    handleCloseMenu(id);
   };
 
-  const handleDuplicate = () => {
+  const handleDeleteTestById = (id: number) => {
+    deleteTestById(id);
+    handleCloseMenu(id);
+  };
+
+  const handleDuplicate = (id: number) => {
     alert("Дублировать выбрано");
-    handleCloseMenu();
+    handleCloseMenu(id);
   };
 
   const handleCategoryChange = (event: SelectChangeEvent) => {
@@ -105,7 +116,7 @@ const MainPage = observer(() => {
     const matchesSearch = item.title.toLowerCase().includes(search.toLowerCase());
     const matchesStatus = status === 'all' || item.status_id === Number(status);
     const matchesCategory = category === 'all' || item.category_id === Number(category);
-    
+
     return matchesSearch && matchesStatus && matchesCategory;
   });
 
@@ -221,37 +232,32 @@ const MainPage = observer(() => {
                         создан: {item.access_timestamp}
                       </Typography>
                       <Box>
-                        <IconButton aria-label="Example" onClick={handleOpenMenu}>
+                        <IconButton aria-label="Example" onClick={(e) => handleOpenMenu(e, item.id)}>
                           <FontAwesomeSvgIcon icon={faEllipsisV} />
                         </IconButton>
                         <Menu
-                          anchorEl={anchorEl}
-                          open={Boolean(anchorEl)}
-                          onClose={handleCloseMenu}
+                          anchorEl={menuAnchorEl[item.id]}
+                          open={Boolean(menuAnchorEl[item.id])}
+                          onClose={() => handleCloseMenu(item.id)}
                           PaperProps={{
                             style: {
-                              border: '1px solid gray', // Серая рамка
+                              border: '1px solid gray',
                               borderRadius: '8px',
                               padding: '5px',
                             },
                           }}
                         >
-                          <MenuItem onClick={handleCopy}>Удалить</MenuItem>
-                          <MenuItem onClick={handleDuplicate}>Дублировать</MenuItem>
+                          <MenuItem onClick={() => handleDeleteTestById(item.id)}>Удалить</MenuItem>
+                          <MenuItem onClick={() => handleDuplicate(item.id)}>Дублировать</MenuItem>
                         </Menu>
                       </Box>
-                      {/* <IconButton aria-label="Example">
-                      <FontAwesomeSvgIcon icon={faEllipsisV} />
-                    </IconButton> */}
-
                     </div>
-
-                    <Stack sx={{ mt: 2, mb: 2 }} style={{ cursor: 'pointer' }} onClick={() => navigate(`/main-page/test/${item.id}`)}>
+                    <Stack sx={{ mt: 2, mb: 2 }} style={{ cursor: 'pointer' }} onClick={() => window.open(`/main-page/test/${item.id}`, '_blank')}>
                       <Typography variant="h4"  >
                         {item.title}
                       </Typography>
                     </Stack>
-                    <Stack sx={{ mb: 2 }} style={{ cursor: 'pointer' }} onClick={() => navigate(`/main-page/test/${item.id}`)}>
+                    <Stack sx={{ mb: 2 }} style={{ cursor: 'pointer' }} onClick={() => window.open(`/main-page/test/${item.id}`, '_blank')}>
                       <Typography variant="h6" color="textSecondary" >
                         ({item.description})
                       </Typography>
@@ -283,6 +289,7 @@ const MainPage = observer(() => {
                       </div>
 
                       <div style={{ flex: "1", textAlign: "right" }}>
+                        <Button variant="outlined" size="small" color="secondary" style={{ textTransform: 'uppercase', marginRight: 10 }} onClick={() => window.open(`/start_test/${item.id}`, '_blank')}>начать тест</Button>
                         <Button variant="outlined" size="small" color="secondary" style={{ textTransform: 'uppercase', }}>{item.category_name}</Button>
                       </div>
                     </div>

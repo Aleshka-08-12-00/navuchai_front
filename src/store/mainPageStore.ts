@@ -1,5 +1,5 @@
 import { makeAutoObservable } from 'mobx';
-import { fetchData } from '../api';
+import { deleteData, fetchData } from '../api';
 import { InterfaceTests, ITestCategories, ITestStatus } from '../interface/interfaceStore';
 
 export default class MainPageStore {
@@ -42,5 +42,13 @@ export default class MainPageStore {
     setTestStatuses = (value: ITestStatus[]) => {
         this.testStatusesArray = value
       }
+
+    deleteTestById = async (id: number) => {
+        const result = await deleteData('deleteTestsById', {}, id);
+        if (result)
+            this.getTests()
+    }
+
+  
       
 }
