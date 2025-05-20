@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
-import { useParams } from "react-router-dom"; // Импортируем useParams
+import { useParams } from "react-router-dom"; 
 import { Context } from "../..";
 import TestStartPage from "./components/test-start-page";
 
@@ -13,25 +13,26 @@ import TestSurveyCard from "./components/testSurveyCard";
 import TestMultipleChoiceCard from "./components/testMultipleChoiceCard";
 
 const TestPage = observer(() => {
-  const { questionsStore } = useContext(Context);
+  const { questionsStore, settingsNewTestStore } = useContext(Context);
   const [start, setStart] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
-  const { testId } = useParams(); // Получаем testId из URL
+  const { testId } = useParams();
 
   useEffect(() => {
-    if (start && testId) {
+    if (testId) {
       const parsedId = parseInt(testId, 10);
       if (!isNaN(parsedId)) {
         questionsStore.fetchQuestionsByTestId(parsedId);
-        setCurrentQuestionIndex(0);
+        settingsNewTestStore.getTestById(parsedId);
       }
     }
-  }, [start, testId, questionsStore]);
+  }, [testId, questionsStore, settingsNewTestStore]);
 
   const questions = questionsStore.questions;
   const loading = questionsStore.loading;
   const error = questionsStore.error;
+  const test = settingsNewTestStore.testMainInfo; 
 
   const handleNextQuestion = () => {
     if (currentQuestionIndex < questions.length - 1) {
@@ -43,7 +44,15 @@ const TestPage = observer(() => {
   };
 
   if (!start) {
-    return <TestStartPage start={start} setStart={setStart} />;
+    return (
+      <TestStartPage
+        setStart={setStart}
+        start={start}
+        questionsLength={questions.length}
+        testTitle={test?.title}
+        testLogo={test?.image?.path}
+      />
+    );
   }
 
   if (loading) {
@@ -55,12 +64,11 @@ const TestPage = observer(() => {
   }
 
   if (!questions.length) {
-    console.log(testId);
     return <Typography sx={{ mt: 4, textAlign: "center" }}>Нет доступных вопросов</Typography>;
   }
 
   const current = questions[currentQuestionIndex];
-  const { question, position } = current;
+  const { question } = current;
   const { type } = question;
 
   let QuestionComponent;
