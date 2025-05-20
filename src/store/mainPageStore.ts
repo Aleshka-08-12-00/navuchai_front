@@ -1,11 +1,13 @@
 import { makeAutoObservable } from 'mobx';
 import { fetchData } from '../api';
-import { InterfaceTests } from '../interface/interfaceStore';
+import { InterfaceTests, ITestCategories, ITestStatus } from '../interface/interfaceStore';
 
 export default class MainPageStore {
 
-    error: string = ''
-    testsArray: InterfaceTests[] = []
+    error: string = '';
+    testsArray: InterfaceTests[] = [];
+    categoriesArray: ITestCategories[] = []
+    testStatusesArray: ITestStatus[] =[];
     
     constructor() {
         makeAutoObservable(this);
@@ -20,4 +22,25 @@ export default class MainPageStore {
     setTest = (value: InterfaceTests[]) => {
         this.testsArray = value
       }
+
+    getCategories = async () => {
+        const result = await fetchData('getCategories', {});
+        if (result)
+            this.setCategories(result)
+    }
+
+    setCategories = (value: ITestCategories[]) => {
+        this.categoriesArray = value
+      }
+
+    getTestStatuses = async () => {
+        const result = await fetchData('getTestStatuses', {});
+        if (result)
+            this.setTestStatuses(result)
+    }
+
+    setTestStatuses = (value: ITestStatus[]) => {
+        this.testStatusesArray = value
+      }
+      
 }
