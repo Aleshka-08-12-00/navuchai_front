@@ -34,19 +34,19 @@ const GeneralSettingsTestPage = observer(() => {
     const { id } = useParams<{ id: string }>();
 
     const { settingsNewTestStore } = React.useContext(Context);
-    const { 
+    const {
         getTestCategories,
-         testCategories,
-          createNewTest,
-           locales,
-            getLocales,
-             postTestCategories,
-             getTestById,
-             testMainInfo,
-             } = settingsNewTestStore;
+        testCategories,
+        createNewTest,
+        locales,
+        getLocales,
+        postTestCategories,
+        getTestById,
+        testMainInfo,
+    } = settingsNewTestStore;
 
     const [category, setCategory] = React.useState<string>('');
-    const [leng, setLeng] = React.useState('');
+    const [leng, setLeng] = React.useState('1');
 
     const [openDialogClose, setOpenDialogClose] = React.useState(false);
     const [openDialogSave, setOpenDialogSave] = React.useState(false);
@@ -71,7 +71,7 @@ const GeneralSettingsTestPage = observer(() => {
         status_name_ru: 'Настройка в процессе',
         status_color: '#a569bd',
         frozen: true,
-        locale_id: 0,
+        locale_id: 1,
         time_limit: 300,
         img_id: 0,
     });
@@ -120,6 +120,7 @@ const GeneralSettingsTestPage = observer(() => {
     const handleSave = async () => {
         createNewTest({...formData, locale_id: Number(formData.locale_id)})
         console.log(formData);
+        createNewTest({ ...formData, locale_id: Number(formData.locale_id) })
     };
 
     const handleClose = () => {
@@ -141,8 +142,8 @@ const GeneralSettingsTestPage = observer(() => {
     const handleLogoOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const value = event.target.value;
         setLogoOption(value);
-        
-        switch(value) {
+
+        switch (value) {
             case '1': // Custom logo - keep current values
                 setImageUrl('');
                 setImageId(0);
@@ -152,7 +153,7 @@ const GeneralSettingsTestPage = observer(() => {
                 }));
                 break;
             case '2': // App logo
-                setImageUrl('http://172.16.0.79/navuchai/8d6e012539204b13a507a74cde4ba50f.png');
+                setImageUrl('http://172.16.0.79/navuchai/navuchai_logo.png');
                 setImageId(31);
                 setFormData(prev => ({
                     ...prev,
@@ -160,11 +161,11 @@ const GeneralSettingsTestPage = observer(() => {
                 }));
                 break;
             case '3': // Hide logo
-                setImageUrl('');
-                setImageId(0);
+                setImageUrl('http://172.16.0.79/navuchai/6419cb2d2000478fa1db2da77634d625.png');
+                setImageId(32);
                 setFormData(prev => ({
                     ...prev,
-                    img_id: 0
+                    img_id: 32
                 }));
                 break;
         }
@@ -227,10 +228,10 @@ const GeneralSettingsTestPage = observer(() => {
     }, []);
 
     React.useEffect(() => {
-        if(id){
+        if (id) {
             getTestById(Number(id));
         }
-       
+
     }, [id]);
 
     React.useEffect(() => {
@@ -254,7 +255,7 @@ const GeneralSettingsTestPage = observer(() => {
                     time_limit: testInfo?.time_limit ?? 300,
                     img_id: testInfo?.img_id ?? 0,
                 });
-                
+
                 // Set other state values based on test info
                 // setCategory(testInfo?.category_id?.toString() ?? '');
                 setLeng(testInfo?.locale_id?.toString() ?? '');
@@ -370,7 +371,7 @@ const GeneralSettingsTestPage = observer(() => {
                             onChange={handleLogoOptionChange}
                             name="radio-buttons-group"
                         >
-                            <FormControlLabel value="1" control={<Radio />} label="Добавить мой логотип" />
+                            <FormControlLabel defaultValue={'1'} value="1" control={<Radio />} label="Добавить мой логотип" />
                             <FormControlLabel value="2" control={<Radio />} label="Использовать логотип приложения" />
                             <FormControlLabel value="3" control={<Radio />} label="Скрыть логотип" />
                         </RadioGroup>
@@ -379,9 +380,10 @@ const GeneralSettingsTestPage = observer(() => {
                             height: 'auto',
                             margin: 10,
                             borderRadius: 10,
-                            marginLeft: 30}}/>}
+                            marginLeft: 30
+                        }} />}
                     </FormControl>
-                   
+
                     <input
                         type="file"
                         accept="image/*"
@@ -446,7 +448,7 @@ const GeneralSettingsTestPage = observer(() => {
                 setOpen={setOpenDialogClose}
                 onConfirm={handleClose}
             />
-            <DialogCreateCategoryPopup 
+            <DialogCreateCategoryPopup
                 title='Создание новой категории'
                 mainText='Для создания новой категории введите ее название в строке ввода и нажмите Сохранить'
                 open={openDialogNewCategory}

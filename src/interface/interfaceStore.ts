@@ -147,3 +147,14 @@ export interface IQuestionInTest {
   required: boolean;
   max_score: number;
 }
+
+export interface ITestStatus 
+{
+  name: string;
+  code: string;
+  name_ru: string;
+  color: string;
+  id: number;
+  created_at: string;
+  updated_at: string;
+}

@@ -27,6 +27,10 @@ const endpoints = {
     postQuestionsToTest: (question_id: string | number | null , test_id: string | number | null): string => `api/questions/${question_id}/add-to-test/${test_id}`,
     getQuestionsByTestId: (testId: string | number | null): string => `api/questions/by-test/${testId}`,
 
+   
+    //Статусы
+    getTestStatuses: 'api/test-statuses',
+    
   };
   
   export default endpoints;
