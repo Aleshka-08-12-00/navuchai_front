@@ -65,15 +65,11 @@ const GeneralSettingsTestPage = observer(() => {
         category_id: 0,
         creator_id: 2,
         access_timestamp: "2025-05-15 10:01:22",
-<<<<<<< HEAD
-        status_id: 1,
-=======
         status: 'CREATED',
         status_id: 2,
         status_name: 'Setup in progress',
         status_name_ru: 'Настройка в процессе',
         status_color: '#a569bd',
->>>>>>> origin/main
         frozen: true,
         locale_id: 0,
         time_limit: 300,

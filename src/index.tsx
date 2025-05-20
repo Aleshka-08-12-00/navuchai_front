@@ -35,6 +35,7 @@ import MainPageStore from './store/mainPageStore';
 import SettingsNewTestStore from './store/settingsNewTestStore';
 import CreateQuestionsStore from './store/createQuestionsStore';
 import TestQuestionListPageStore from './store/testQuestionListPageStore';
+import QuestionsStore from './store/questionsStore';
 
 const store = new Store();
 const authStore = new AuthStore();
@@ -43,6 +44,8 @@ const mainPageStore = new MainPageStore();
 const settingsNewTestStore = new SettingsNewTestStore();
 const createQuestionsStore  = new CreateQuestionsStore();
 const testQuestionListPageStore  = new TestQuestionListPageStore();
+const questionsStore = new QuestionsStore();
+
 
 
 const obStore = {
@@ -53,6 +56,7 @@ const obStore = {
   settingsNewTestStore,
   createQuestionsStore,
   testQuestionListPageStore,
+  questionsStore,
 }
 
 export const Context = createContext(obStore);

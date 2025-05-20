@@ -58,15 +58,10 @@ export default class SettingsNewTestStore {
 
     createNewTest = async (data: IPostTest) => {
         const result = await postData('postTests', data);
-<<<<<<< HEAD
-        if (result)
-            alert('Тест успешно создан, продолжайте настраивать тест')
-=======
         if (result) {
             window.location.href = window.location.href + '/' + result.id;
             alert('Тест успешно создан, продолжайте настраивать тест');
         }
->>>>>>> origin/main
     }
 
     generatePublicLink = () => {
