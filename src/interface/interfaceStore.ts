@@ -1,16 +1,34 @@
 export interface InterfaceTests {
-  id: number,
-  access_timestamp: string,
-  category_id: number,
-  category_name: string,
-  creator_id: number,
-  creator_name: string,
-  description: string,
-  frozen: boolean,
-  locale: string,
-  status: string,
-  time_limit: number
-  title: string,
+  id: number;
+  title: string;
+  description: string;
+  category_id: number;
+  creator_id: number;
+  access_timestamp: string;
+  status_id: number;
+  frozen : boolean;
+  locale_id: number;
+  time_limit: number;
+  img_id: null | number; // Assuming img_id can be null or number
+  category_name: string;
+  creator_name: string;
+  locale_code: string;
+  status_name: string;
+  image: null | {
+    type: string;
+    name: string;
+    size: number;
+    path: string;
+    provider: string;
+    creator_id: number;
+    id: number;
+    created_at: string;
+    updated_at: string;
+  };
+  percent?: number; // Added optional percent
+  completed?: number; // Added optional completed
+  status_name_ru?: string; // Added optional status_name_ru
+  status_color?: string; // Added optional status_color
 }
 
 export interface IPostTest {
@@ -99,3 +117,32 @@ export interface IPostQuestion {
     };
   };
 }
+<<<<<<< HEAD
+=======
+
+export interface IQuestionInTest {
+  question: {
+    id: number;
+    text: string;
+    text_abstract: string;
+    type: string;
+    reviewable: boolean;
+    answers:  {
+      settings: {
+          correctScore: number,
+          showMaxScore: boolean,
+          requireAnswer: boolean,
+          incorrectScore: number,
+          stopIfIncorrect: boolean,
+      },
+      allAnswer: string[],
+      correctAnswer: string[]
+  }
+    created_at: string;
+    updated_at: string;
+  };
+  position: number;
+  required: boolean;
+  max_score: number;
+}
+>>>>>>> origin/main

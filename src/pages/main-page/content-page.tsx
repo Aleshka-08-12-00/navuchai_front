@@ -22,10 +22,10 @@ const ContentPage = observer(({testId}: any) => {
   return (
     <>
         <Grid container spacing={2}>
-            <Grid item xs={1} sm={1} md={1} lg={3}>
+            <Grid item xs={2} sm={2} md={2} lg={3}>
             <ContentSettingsMainMenu />
             </Grid>
-            <Grid item xs={11} sm={11} md={11} lg={9}>
+            <Grid item xs={10} sm={10} md={10} lg={9}>
             {settingsStore.idSettingsNumber === '51' && <GeneralSettingsTestPage/>}
             {settingsStore.idSettingsNumber === '58' && <RecordingComponent/>}
             {settingsStore.idSettingsNumber === '52' && <ConstructorPage/>} 

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { observer } from 'mobx-react-lite';
+import { useParams } from 'react-router-dom';
 import {
     Button,
     FormControl,
@@ -29,10 +30,22 @@ import { postData } from '../../../api';
 import DialogCreateCategoryPopup from '../../../components/DialogCreateCategoryPopup';
 
 const GeneralSettingsTestPage = observer(() => {
-    const { settingsNewTestStore } = React.useContext(Context);
-    const { getTestCategories, testCategories, createNewTest, locales, getLocales, postTestCategories } = settingsNewTestStore;
 
-    const [category, setCategory] = React.useState('');
+    const { id } = useParams<{ id: string }>();
+
+    const { settingsNewTestStore } = React.useContext(Context);
+    const { 
+        getTestCategories,
+         testCategories,
+          createNewTest,
+           locales,
+            getLocales,
+             postTestCategories,
+             getTestById,
+             testMainInfo,
+             } = settingsNewTestStore;
+
+    const [category, setCategory] = React.useState<string>('');
     const [leng, setLeng] = React.useState('');
 
     const [openDialogClose, setOpenDialogClose] = React.useState(false);
@@ -46,19 +59,27 @@ const GeneralSettingsTestPage = observer(() => {
     const fileInputRef = React.useRef<HTMLInputElement>(null);
     const [logoOption, setLogoOption] = React.useState('1'); // 1 - custom logo, 2 - app logo, 3 - hide logo
 
-    // Используем существующий шаблон как начальное состояние
     const [formData, setFormData] = React.useState({
         title: '',
         description: '',
         category_id: 0,
         creator_id: 2,
         access_timestamp: "2025-05-15 10:01:22",
+<<<<<<< HEAD
         status_id: 1,
+=======
+        status: 'CREATED',
+        status_id: 2,
+        status_name: 'Setup in progress',
+        status_name_ru: 'Настройка в процессе',
+        status_color: '#a569bd',
+>>>>>>> origin/main
         frozen: true,
         locale_id: 0,
         time_limit: 300,
         img_id: 0,
     });
+
 
     const handleChange = (event: SelectChangeEvent) => {
         const selectedValue = event.target.value;
@@ -209,6 +230,50 @@ const GeneralSettingsTestPage = observer(() => {
         getLocales()
     }, []);
 
+    React.useEffect(() => {
+        if(id){
+            getTestById(Number(id));
+        }
+       
+    }, [id]);
+
+    React.useEffect(() => {
+        if (testMainInfo && typeof testMainInfo === 'object' && Object.keys(testMainInfo).length > 0) {
+            try {
+                const testInfo = testMainInfo;
+
+                setFormData({
+                    title: testInfo?.title ?? '',
+                    description: testInfo?.description ?? '',
+                    category_id: testInfo?.category_id ?? 0,
+                    creator_id: testInfo?.creator_id ?? 2,
+                    access_timestamp: testInfo?.access_timestamp ?? "2025-05-15 10:01:22",
+                    status: 'CREATED',
+                    status_id: testInfo?.status_id ?? 2,
+                    status_name: testInfo?.status_name ?? 'Setup in progress',
+                    status_name_ru: testInfo?.status_name_ru ?? 'Настройка в процессе',
+                    status_color: testInfo?.status_color ?? '#a569bd',
+                    frozen: testInfo?.frozen ?? true,
+                    locale_id: testInfo?.locale_id ?? 0,
+                    time_limit: testInfo?.time_limit ?? 300,
+                    img_id: testInfo?.img_id ?? 0,
+                });
+                
+                // Set other state values based on test info
+                // setCategory(testInfo?.category_id?.toString() ?? '');
+                setLeng(testInfo?.locale_id?.toString() ?? '');
+                if (testInfo?.image?.path) {
+                    setImageUrl(testInfo.image.path);
+                    setImageId(testInfo.image.id);
+                    setLogoOption('1'); // Set to custom logo if there's an image
+                }
+            } catch (error) {
+                console.error('Error processing testMainInfo:', error);
+            }
+        }
+    }, [testMainInfo]);
+
+
     return (
         <div >
             <Typography variant="h6" color="textSecondary" >
@@ -239,11 +304,10 @@ const GeneralSettingsTestPage = observer(() => {
                             <MenuItem value="">
                                 <em>Нет категории</em>
                             </MenuItem>
-                            {testCategories.length && testCategories.map((item: ITestCategories, index: number) => (
-                                <MenuItem key={index} value={item.id}>{item.name}</MenuItem>
+                            {Array.isArray(testCategories) && testCategories.map((item: ITestCategories) => (
+                                <MenuItem key={item.id} value={item.id.toString()}>{item.name}</MenuItem>
                             ))}
                         </Select>
-
                     </FormControl>
                     <Button
                         variant="outlined"
@@ -278,8 +342,8 @@ const GeneralSettingsTestPage = observer(() => {
                             <MenuItem value="">
                                 <em>нет выбрано</em>
                             </MenuItem>
-                            {locales.length && locales.map((item: ILocales, index: number) => (
-                                <MenuItem key={index} value={item.id}>{item.name}</MenuItem>
+                            {Array.isArray(locales) && locales.map((item: ILocales) => (
+                                <MenuItem key={item.id} value={item.id.toString()}>{item.name}</MenuItem>
                             ))}
                         </Select>
                     </FormControl>

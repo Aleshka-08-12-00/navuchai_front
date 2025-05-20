@@ -47,7 +47,6 @@ export default function NavGroup({ item }: any) {
               >
                 {item.title}
               </Typography>
-              {/* only available in paid version */}
             </Box>
           )
         }

@@ -1,4 +1,3 @@
-
 import { Context } from "../..";
 import { Box, Button, Checkbox, IconButton, Radio, Stack, Typography } from "@mui/material";
 import { observer } from "mobx-react-lite";
@@ -16,6 +15,7 @@ import { useNavigate } from "react-router";
 import { useParams } from "react-router-dom";
 import SingleChoiceCard from "./components/single-choice-card";
 import MultipleChoiceCard from "./components/multiple-choice-card";
+import { IQuestionInTest } from "../../interface/interfaceStore";
 
 
 type FontAwesomeSvgIconProps = {
@@ -48,9 +48,17 @@ const FontAwesomeSvgIcon = React.forwardRef<SVGSVGElement, FontAwesomeSvgIconPro
 
 
 const TestQuestionListPage = observer(() => {
-    const { settingsStore } = React.useContext(Context);
-    const navigate = useNavigate();
+    console.log('TestQuestionListPage rendered');
+    const { settingsStore, testQuestionListPageStore } = React.useContext(Context);
+    const { getQuestionListByTestId, questionArray } = testQuestionListPageStore
+    // const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
+    React.useEffect(() => {
+        console.log('useEffect triggered with id:', id);
+        getQuestionListByTestId(Number(id))
+    }, [id]);
+    
+
     // path: '/main-page/test/:id/question/:questionId',
 
     return (
@@ -58,13 +66,13 @@ const TestQuestionListPage = observer(() => {
             <Box sx={{ flexGrow: 1 }}>
                 <Grid container spacing={2}>
                     <Grid item xs={12} sm={12} md={12} lg={12} style={{ cursor: 'pointer' }} >
-                        {settingsStore.questionsObj.map((item: any, index: number) => {
-                            if (item.questionType === "SINGLE_ANSWER") {
-                                return <SingleChoiceCard key={`single-${index}`}  obj={item}/>;
+                        {questionArray.length && questionArray.map((item: IQuestionInTest, index: number) => {
+                            if (item.question.type === "single_choice" || item.question.type === "SINGLE_CHOICE") {
+                                return <SingleChoiceCard key={`single-${index}`} {...item} index={index} />;
                             }
 
-                            if (item.questionType === "MULTI_ANSWER") {
-                                return <MultipleChoiceCard key={`multi-${index}`} obj={item}/>;
+                            if (item.question.type === "multiple_choice" || item.question.type === "MULTIPLE_CHOICE") {
+                                return <MultipleChoiceCard key={`multi-${index}`} {...item} index={index} />;
                             }
 
                             return null; // Если ни один из типов не совпадает, ничего не рендерим

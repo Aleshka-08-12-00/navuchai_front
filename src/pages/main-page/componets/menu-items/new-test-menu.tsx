@@ -31,7 +31,7 @@ const newTestMenu = {
       id: '51',
       title: 'Основная настройки',
       type: 'item',
-      url: '/main-page/new-test',
+      // url: '/main-page',
       icon: icons.SettingsIcon,
       breadcrumbs: true,
       code: 'anyCode'
@@ -40,7 +40,7 @@ const newTestMenu = {
       id: '52',
       title: 'Настройка вопросов',
       type: 'item',
-      // url: '/main-page/new-tests',
+      // url: '/main-page/test/:id/question/:questionId',
       icon: icons.TuneIcon,
       breadcrumbs: true,
       code: 'anyCode'
@@ -49,7 +49,7 @@ const newTestMenu = {
       id: '53',
       title: 'Подача теста',
       type: 'item',
-      // url: '/main-page/new-tests',
+      // url: '/main-page/test/:id',
       icon: icons.AppsIcon,
       breadcrumbs: true,
       code: 'anyCode'
@@ -58,7 +58,7 @@ const newTestMenu = {
       id: '54',
       title: 'Доступ к тесту',
       type: 'item',
-      // url: '/main-page/new-tests',
+      // url: '/main-page/test/:id',
       icon: icons.VpnKeyIcon,
       breadcrumbs: true,
       code: 'anyCode'
@@ -67,7 +67,7 @@ const newTestMenu = {
       id: '55',
       title: 'Стартовая страница',
       type: 'item',
-      // url: '/main-page/new-tests',
+      // url: '/main-page/test/:id',
       icon: icons.HomeIcon,
       breadcrumbs: true,
       code: 'anyCode'
@@ -76,7 +76,7 @@ const newTestMenu = {
       id: '56',
       title: 'Оценка и резюме',
       type: 'item',
-      // url: '/main-page/new-tests',
+      // url: '/main-page/test/:id',
       icon: icons.StickyNote2Icon,
       breadcrumbs: true,
       code: 'anyCode'
@@ -85,7 +85,7 @@ const newTestMenu = {
       id: '57',
       title: 'Настройка времени',
       type: 'item',
-      // url: '/main-page/new-tests',
+      // url: '/main-page/test/:id',
       icon: icons.ManageHistoryIcon,
       breadcrumbs: true,
       code: 'anyCode'
@@ -94,38 +94,11 @@ const newTestMenu = {
       id: '58',
       title: 'Шаблон сертификата',
       type: 'item',
-      // url: '/main-page/new-tests',
+      // url: '/main-page/test/:id',
       icon: icons.EmojiEventsIcon,
       breadcrumbs: true,
       code: 'anyCode'
     },
-    // {
-    //   id: '44',
-    //   title: 'Личный кабинет',
-    //   type: 'item',
-    //   url: '/settings',
-    //   icon: icons.SettingsIcon,
-    //   breadcrumbs: false,
-    //   code: 'anyCode'
-    // },
-    // {
-    //   id: '45',
-    //   title: 'Личный кабинет',
-    //   type: 'item',
-    //   url: '/settings',
-    //   icon: icons.SettingsIcon,
-    //   breadcrumbs: false,
-    //   code: 'anyCode'
-    // },
-    // {
-    //   id: '46',
-    //   title: 'Личный кабинет',
-    //   type: 'item',
-    //   url: '/settings',
-    //   icon: icons.SettingsIcon,
-    //   breadcrumbs: false,
-    //   code: 'anyCode'
-    // },
  
   ]
 };

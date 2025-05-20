@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { forwardRef, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
@@ -20,8 +20,8 @@ import { Context } from '../../../..';
 // export default function NavItem({ item, level }) {
 const NavItem = observer(({ item, level }: any) => {
    const { settingsStore } = React.useContext(Context);
-
-  const theme = useTheme();
+   const { id } = useParams<{ id: string }>();
+   const theme = useTheme();
 
   const { menuMaster } = useGetMenuMaster();
   //@ts-ignore
@@ -42,7 +42,8 @@ const NavItem = observer(({ item, level }: any) => {
   const itemIcon = item.icon ? <Icon style={{ fontSize: drawerOpen ? '1rem' : '1.25rem' }} /> : false;
 
   const { pathname } = useLocation();
-  const isSelected = openItem === item.id;
+  const isSelected = settingsStore.idSettingsNumber === item.id;
+  const shouldBeDisabled = !id && item.id !== '51';
 
   useEffect(() => {
     if (pathname === item.url) handlerActiveItem(item.id);
@@ -68,7 +69,7 @@ const NavItem = observer(({ item, level }: any) => {
     <>
       <ListItemButton
         {...listItemProps}
-        disabled={item.disabled}
+        disabled={item.disabled || shouldBeDisabled}
         onClick={() => (handlerActiveItem(item.id), settingsStore.setIdSettingsNumber(item.id))}
         selected={isSelected}
         sx={{
