@@ -7,6 +7,7 @@ import RespondentsPage from 'pages/respondents-page/respondents-page';
 import SettingsPage from 'pages/settings-page/settings-page';
 import NewTestPage from 'pages/new-test-page/new-test-page';
 import TestQuestionListPage from 'pages/test-question-list-page/test-question-list-page';
+import TestPage from 'pages/TestPage/TestPage';
 
 
 // ==============================|| MAIN ROUTING ||============================== //
@@ -58,6 +59,10 @@ const MainRoutes = {
         {
           path: '/settings',
           element: <SettingsPage />
+        },
+        {
+          path: '/start_test/:testId',  // динамический параметр testId
+          element: <TestPage />
         },
       ]
     },

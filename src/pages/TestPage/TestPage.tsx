@@ -1,29 +1,33 @@
 import React, { useContext, useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
+import { useParams } from "react-router-dom"; // Импортируем useParams
 import { Context } from "../..";
 import TestStartPage from "./components/test-start-page";
 
 import { Typography, Box } from "@mui/material";
 import TestSingleChoiceCard from "./components/testSingleChoiceCard";
-import TestMultipleChoiceCard from "./components/TestMultipleChoiceCard";
 import TestTextAnswerCard from "./components/testTextAnswerCard";
 import TestYesNoCard from "./components/testYesNoCard";
 import TestDescriptiveCard from "./components/testDescriptiveCard";
 import TestSurveyCard from "./components/testSurveyCard";
+import TestMultipleChoiceCard from "./components/testMultipleChoiceCard";
 
 const TestPage = observer(() => {
   const { questionsStore } = useContext(Context);
   const [start, setStart] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
-  const testId = 355;
+  const { testId } = useParams(); // Получаем testId из URL
 
   useEffect(() => {
-    if (start) {
-      questionsStore.fetchQuestionsByTestId(testId);
-      setCurrentQuestionIndex(0);
+    if (start && testId) {
+      const parsedId = parseInt(testId, 10);
+      if (!isNaN(parsedId)) {
+        questionsStore.fetchQuestionsByTestId(parsedId);
+        setCurrentQuestionIndex(0);
+      }
     }
-  }, [start, questionsStore]);
+  }, [start, testId, questionsStore]);
 
   const questions = questionsStore.questions;
   const loading = questionsStore.loading;
@@ -51,6 +55,7 @@ const TestPage = observer(() => {
   }
 
   if (!questions.length) {
+    console.log(testId);
     return <Typography sx={{ mt: 4, textAlign: "center" }}>Нет доступных вопросов</Typography>;
   }
 
@@ -77,8 +82,8 @@ const TestPage = observer(() => {
       QuestionComponent = TestDescriptiveCard;
       break;
     case "SURVEY":
-        QuestionComponent = TestSurveyCard;
-        break;
+      QuestionComponent = TestSurveyCard;
+      break;
     default:
       QuestionComponent = () => <Typography>Тип вопроса не поддерживается</Typography>;
   }
