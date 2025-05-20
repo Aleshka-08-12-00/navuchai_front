@@ -1,12 +1,13 @@
-import { Box, Button, Checkbox, IconButton, Radio, Stack, Typography } from "@mui/material";
+import { Checkbox, IconButton, Radio, Stack, Typography } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { faEllipsisV } from '@fortawesome/free-solid-svg-icons/faEllipsisV';
 
 import SvgIcon from '@mui/material/SvgIcon';
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router";
 import { useParams } from "react-router-dom";
 import MainCard from "../../../components/MainCard";
+import { IQuestionInTest } from "../../../interface/interfaceStore";
 
 
 type FontAwesomeSvgIconProps = {
@@ -37,18 +38,17 @@ const FontAwesomeSvgIcon = React.forwardRef<SVGSVGElement, FontAwesomeSvgIconPro
 
 const Example = ({ htmlContent }: { htmlContent: string }) => {
     return (
-      <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
+        <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
     );
-  };
+};
 
 
 
-const SingleChoiceCard = observer(({ obj }: any) => {
+const SingleChoiceCard = observer(({ index, ...obj }: IQuestionInTest & { index: number }) => {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
 
-    let data = obj.answerConfiguration.answers
-    console.log(data)
+
     return (
         <>
             <div style={{ marginBottom: 20 }}>
@@ -58,78 +58,64 @@ const SingleChoiceCard = observer(({ obj }: any) => {
                             <span style={{ display: 'flex', alignItems: 'center' }}>
                                 <Checkbox />
                                 <Typography variant="h5">
-                                    № {obj.position}
+                                    {/* № {obj.position} */}
+                                    № {index}
                                 </Typography>
                             </span>
                             <span style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                                <Button
-                                    variant="outlined"
-                                    color="success"
-                                    style={{ textTransform: 'none' }}
-                                    size="small"
-                                >
-                                    {obj.subjects[0].name}
-                                </Button>
-
                                 <Typography variant="h6" color="textSecondary">
                                     Тип:
-                                    {/* {item.createDate} */}
                                 </Typography>
                                 <Typography variant="h6">
-                                    {obj.questionType}
-                                    {/* {item.createDate} */}
+                                    {obj.question.type}
                                 </Typography>
                                 <Typography variant="h6" color="textSecondary">
                                     |
-                                    {/* {item.createDate} */}
                                 </Typography>
                                 <Typography variant="h6" color="textSecondary">
                                     Баллов:
-                                    {/* {item.createDate} */}
                                 </Typography>
                                 <Typography variant="h6">
-                                    {obj.maxScore}
-                                    {/* {item.createDate} */}
+                                    {obj.max_score}
                                 </Typography>
-
                                 <IconButton aria-label="Example">
                                     <FontAwesomeSvgIcon icon={faEllipsisV} />
                                 </IconButton>
                             </span>
                         </div>
                         <Stack sx={{ mt: 2, mb: 2, ml: 5 }}>
-                            <Example htmlContent={obj.body} />
-
-                            {data.map((item: any, index: number) => (
-                               <div
-                               key={index}
-                               style={item.correct ? { backgroundColor: '#e5ffea', borderRadius: 10 } : { borderRadius: 10 }}
-                             >
-                               <div
-                                 style={{
-                                   display: "flex",
-                                   alignItems: "flex-start", // Выровнять элементы по верхнему краю
-                                 }}
-                               >
-                                 <Radio
-                                   checked={false}
-                                   disabled={true}
-                                   name="single-choice-group"
-                                   style={{
-                                     outline: "none",
-                                     boxShadow: "none",
-                                     marginTop: 3
-                                   }}
-                                   sx={{
-                                     "&:hover": {
-                                       backgroundColor: "transparent",
-                                     },
-                                   }}
-                                 />
-                                 <Example htmlContent={item.body} />
-                               </div>
-                             </div>
-                             
+                            <Example htmlContent={obj.question.text} />
+                            {obj.question.answers.allAnswer.map((item: string, index: number) => (
+                                <div
+                                    key={index}
+                                    style={obj.question.answers.correctAnswer.includes(item) ? { backgroundColor: '#e5ffea', borderRadius: 10 } : { borderRadius: 10 }}
+                                >
+                                    <div
+                                        style={{
+                                            display: "flex",
+                                            alignItems: "flex-start", // Выровнять элементы по верхнему краю
+                                        }}
+                                    >
+                                        <Radio
+                                            checked={obj.question.answers.correctAnswer.includes(item)}
+                                            disabled={true}
+                                            name="single-choice-group"
+                                            style={{
+                                                outline: "none",
+                                                boxShadow: "none",
+                                                marginTop: 3
+                                            }}
+                                            sx={{
+                                                "&:hover": {
+                                                    backgroundColor: "transparent",
+                                                },
+                                            }}
+                                        />
+                                        <div style={{ marginTop: 12 }}>
+                                            <Example htmlContent={item} />
+                                        </div>
+                                    </div>
+                                </div>
                             ))}
                         </Stack>
                     </>

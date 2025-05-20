@@ -21,8 +21,12 @@ import DialogPopup from '../../../../components/DialogPopup';
 import ShortAnswer from './components/short-answer';
 import MultipleChoice from './components/multiple-choice';
 import { IPostQuestion } from '../../../../interface/interfaceStore';
+import { useParams } from "react-router-dom";
 
 const ConstructorPage = observer(() => {
+
+    const { id } = useParams<{ id: string }>();
+
     const { createQuestionsStore } = React.useContext(Context);
     const { postQuestion } = createQuestionsStore;
     const editor = React.useRef(null);
@@ -253,7 +257,7 @@ const ConstructorPage = observer(() => {
         };
 
         try {
-            await postQuestion(finalData);
+            await postQuestion(finalData, Number(id));
             console.log('Question saved successfully');
         } catch (error) {
             console.error('Error saving question:', error);
@@ -284,7 +288,7 @@ const ConstructorPage = observer(() => {
                         />
                     </div>
 
-                    <FormControl variant="standard" sx={{ m: 1, minWidth: '62%', mt: 1 }}>
+                    {/* <FormControl variant="standard" sx={{ m: 1, minWidth: '62%', mt: 1 }}>
                         <InputLabel id="category-select-label">Категория</InputLabel>
                         <Select
                             labelId="category-select-label"
@@ -308,7 +312,7 @@ const ConstructorPage = observer(() => {
                         style={{ textTransform: 'none', marginTop: 15 }}
                     >
                         Создать категорию
-                    </Button>
+                    </Button> */}
 
                     <FormControl variant="standard" sx={{ m: 1, minWidth: '80%', mt: 1 }}>
                         <InputLabel id="answer-type-select-label">Тип ответа</InputLabel>

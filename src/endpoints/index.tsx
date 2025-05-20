@@ -23,6 +23,9 @@ const endpoints = {
     //Вопросы
     getQuestions: 'api/questions',
     postQuestions: 'api/questions',
+    getQuestionsById: (id: string | number | null ): string => `api/questions/by-test/${id}`,
+    postQuestionsToTest: (question_id: string | number | null , test_id: string | number | null): string => `api/questions/${question_id}/add-to-test/${test_id}`,
+   
 
   };
   

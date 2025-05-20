@@ -34,12 +34,16 @@ import SettingsStore from './store/settingsStore';
 import MainPageStore from './store/mainPageStore';
 import SettingsNewTestStore from './store/settingsNewTestStore';
 import CreateQuestionsStore from './store/createQuestionsStore';
+import TestQuestionListPageStore from './store/testQuestionListPageStore';
+
 const store = new Store();
 const authStore = new AuthStore();
 const settingsStore = new SettingsStore();
 const mainPageStore = new MainPageStore();
 const settingsNewTestStore = new SettingsNewTestStore();
 const createQuestionsStore  = new CreateQuestionsStore();
+const testQuestionListPageStore  = new TestQuestionListPageStore();
+
 
 const obStore = {
   store,
@@ -48,6 +52,7 @@ const obStore = {
   mainPageStore,
   settingsNewTestStore,
   createQuestionsStore,
+  testQuestionListPageStore,
 }
 
 export const Context = createContext(obStore);

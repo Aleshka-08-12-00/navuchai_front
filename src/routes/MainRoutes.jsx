@@ -7,7 +7,6 @@ import RespondentsPage from 'pages/respondents-page/respondents-page';
 import SettingsPage from 'pages/settings-page/settings-page';
 import NewTestPage from 'pages/new-test-page/new-test-page';
 import TestQuestionListPage from 'pages/test-question-list-page/test-question-list-page';
-import TestQuestionOnePage from 'pages/test-question-one-page/test-question-one-page';
 
 
 // ==============================|| MAIN ROUTING ||============================== //
@@ -34,10 +33,14 @@ const MainRoutes = {
         },
         {
           path: '/main-page/test/:id/question/:questionId',
-          element: <TestQuestionOnePage />
+          element: <NewTestPage />
         },
         {
           path: '/main-page/new-test',
+          element: <NewTestPage />
+        },
+        {
+          path: '/main-page/new-test/:id',
           element: <NewTestPage />
         },
         {

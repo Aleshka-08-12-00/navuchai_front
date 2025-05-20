@@ -1,6 +1,4 @@
-
-
-import { Box, Button, IconButton, Stack, Typography } from "@mui/material";
+import { Box, Button, IconButton, Stack, Typography, FormControl, Select, MenuItem, TextField, SelectChangeEvent } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { Grid } from "@mui/material";
 import AddBoxIcon from '@mui/icons-material/AddBox';
@@ -15,7 +13,8 @@ import React, { useState } from "react";
 import { Context } from "../..";
 import ContentPage from "./content-page";
 import { useNavigate } from "react-router";
-import { Menu, MenuItem } from '@mui/material';
+import { Menu } from '@mui/material';
+import { InterfaceTests } from "../../interface/interfaceStore";
 
 
 type FontAwesomeSvgIconProps = {
@@ -81,71 +80,26 @@ const MainPage = observer(() => {
 
   const data = [
     {}
-    // {
-    //   id: 1,
-    //   status: 'активный',
-    //   statusColor: 'success',
-    //   createDate: '2025.03.02',
-    //   testName: 'Тест на знание языков',
-    //   testDescription: 'нет описания',
-    //   procent: '56.1',
-    //   completed: '37',
-    // },
-    // {
-    //   id: 2,
-    //   status: 'завершен',
-    //   statusColor: 'warning',
-    //   createDate: '2024.11.07',
-    //   testName: 'Тест на Валеру',
-    //   testDescription: 'нет описания',
-    //   procent: '21.1',
-    //   completed: '31',
-    // },
-    // {
-    //   id: 3,
-    //   status: 'настройка в процессе',
-    //   statusColor: 'primary',
-    //   createDate: '2025.04.04',
-    //   testName: 'Тест по охране труда',
-    //   testDescription: 'нет описания',
-    //   procent: '76.1',
-    //   completed: '69',
-    // },
-    // {
-    //   id: 4,
-    //   status: 'активный',
-    //   statusColor: 'success',
-    //   createDate: '2023.09.02',
-    //   testName: 'Тест на знание 1С',
-    //   testDescription: 'нет описания',
-    //   procent: '46.1',
-    //   completed: '28',
-    // },
-    // {
-    //   id: 5,
-    //   status: 'активный',
-    //   statusColor: 'success',
-    //   createDate: '2023.09.02',
-    //   testName: 'Тест на знание JS',
-    //   testDescription: 'нет описания',
-    //   procent: '46.1',
-    //   completed: '28',
-    // },
-
   ]
-  // id: number,
-  // access_timestamp: string,
-  // category_id: number,
-  // category_name: string,
-  // creator_id: number,
-  // creator_name: string,
-  // description: string,
-  // frozen: boolean,
-  // locale: string,
-  // status: string,
-  // time_limit: number
-  // title: string,
 
+  const [category, setCategory] = useState('all');
+  const [status, setStatus] = useState('all');
+  const [search, setSearch] = useState('');
+
+  const handleCategoryChange = (event: SelectChangeEvent) => {
+    setCategory(event.target.value as string);
+  };
+  const handleStatusChange = (event: SelectChangeEvent) => {
+    setStatus(event.target.value as string);
+  };
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(event.target.value);
+  };
+
+  // Фильтрация по поиску
+  const filteredTests = testsArray.filter((item: InterfaceTests) =>
+    item.title.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <>
@@ -178,9 +132,65 @@ const MainPage = observer(() => {
               </div>
             </div>
           </Grid>
-          {/* /main-page/test/:id */}
+          <Grid item xs={12} sx={{ mb: 2 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16, background: '#f6f8fa', borderRadius: 8, padding: '12px 20px', minHeight: 56 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Typography variant="body1" color="textSecondary" sx={{ mr: 1 }}>Category</Typography>
+                <FormControl size="small" sx={{ minWidth: 140 }}>
+                  <Select
+                    value={category}
+                    onChange={handleCategoryChange}
+                    displayEmpty
+                  >
+                    <MenuItem value="all">All categories</MenuItem>
+                    <MenuItem value="cat1">Category 1</MenuItem>
+                    <MenuItem value="cat2">Category 2</MenuItem>
+                  </Select>
+                </FormControl>
+                <IconButton size="small" sx={{ ml: 1 }}>
+                  <svg width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16Zm0 14.5A6.5 6.5 0 1 1 10 3.5a6.5 6.5 0 0 1 0 13Zm.75-10.25h-1.5v5.5l4.75 2.85.75-1.23-4-2.37V6.25Z" fill="#757575"/></svg>
+                </IconButton>
+                <Button variant="text" size="small" startIcon={<svg width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 1.5a7.5 7.5 0 1 0 0 15 7.5 7.5 0 0 0 0-15Zm0 13.75A6.25 6.25 0 1 1 9 2.75a6.25 6.25 0 0 1 0 12.5Zm2.47-7.97-2.47 2.47-2.47-2.47-.88.88 3.35 3.35 3.35-3.35-.88-.88Z" fill="#757575"/></svg>} sx={{ textTransform: 'none', color: '#757575', ml: 1 }}>
+                  Manage categories
+                </Button>
+              </Box>
+              <Box sx={{ flexGrow: 1 }} />
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Typography variant="body1" color="textSecondary" sx={{ mr: 1 }}>Status</Typography>
+                <FormControl size="small" sx={{ minWidth: 100 }}>
+                  <Select
+                    value={status}
+                    onChange={handleStatusChange}
+                    displayEmpty
+                  >
+                    <MenuItem value="all">All</MenuItem>
+                    <MenuItem value="active">Active</MenuItem>
+                    <MenuItem value="archived">Archived</MenuItem>
+                  </Select>
+                </FormControl>
+              </Box>
+              <Box sx={{ ml: 2, display: 'flex', alignItems: 'center' }}>
+                <TextField
+                  size="small"
+                  variant="outlined"
+                  placeholder="Search"
+                  value={search}
+                  onChange={handleSearchChange}
+                  sx={{ minWidth: 200, background: '#fff', borderRadius: 1 }}
+                  InputProps={{
+                    endAdornment: (
+                      <IconButton size="small">
+                        <svg width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="9" cy="9" r="7" stroke="#757575" strokeWidth="2"/><path d="M15 15l-3-3" stroke="#757575" strokeWidth="2" strokeLinecap="round"/></svg>
+                      </IconButton>
+                    )
+                  }}
+                />
+              </Box>
+            </div>
+          </Grid>
+        
           <Grid container spacing={2}>
-            {testsArray && testsArray.map((item: any, index: number) => (
+            {filteredTests && filteredTests.map((item: InterfaceTests, index: number) => (
               <Grid item xs={12} sm={6} md={6} lg={6} 
              key={index}
                >
@@ -190,11 +200,14 @@ const MainPage = observer(() => {
 
                       <Button
                         variant="outlined"
-                        color={item.statusColor}
-                        style={{ textTransform: 'none' }}
+                        style={{ 
+                          textTransform: 'none', 
+                          color: item.status_color,
+                          borderColor: item.status_color 
+                        }}
                         size="small"
                       >
-                        {item.status}
+                        {item.status_name_ru}
                       </Button>
                       <Typography variant="h6" color="textSecondary" >
                         создан: {item.access_timestamp}
@@ -248,7 +261,7 @@ const MainPage = observer(() => {
                           <DonutLargeIcon />
                         </Typography>
                         <Typography variant="h6" >
-                          {item.procent}%
+                          {item.percent}%
                         </Typography>
                         <Typography variant="h6" color="textSecondary">
                           средний результат
@@ -262,7 +275,7 @@ const MainPage = observer(() => {
                       </div>
 
                       <div style={{ flex: "1", textAlign: "right" }}>
-                        <Button variant="outlined" size="small" color="secondary" style={{ textTransform: 'uppercase', }}>без категории</Button>
+                        <Button variant="outlined" size="small" color="secondary" style={{ textTransform: 'uppercase', }}>{item.category_name}</Button>
                       </div>
                     </div>
                   </>
@@ -271,11 +284,7 @@ const MainPage = observer(() => {
             ))}
           </Grid>
         </>
-
-
-
       </Box>
-
     </>
   )
 });

@@ -1,6 +1,6 @@
 import { makeAutoObservable } from 'mobx';
 import { fetchData, postData } from '../api';
-import { ILocales, IPostTest, ITestCategories } from '../interface/interfaceStore';
+import { ILocales, InterfaceTests, IPostTest, ITestCategories } from '../interface/interfaceStore';
 
 
 export default class SettingsNewTestStore {
@@ -8,6 +8,7 @@ export default class SettingsNewTestStore {
     error: string = '';
     testCategories: ITestCategories[] = [];
     locales: ILocales[] = [];
+    testMainInfo: InterfaceTests = {} as InterfaceTests
 
     constructor() {
         makeAutoObservable(this);
@@ -20,10 +21,24 @@ export default class SettingsNewTestStore {
     }
 
     postTestCategories = async (value: string) => {
-        const result = await postData('postCategories', {name: value});
+        const result = await postData('postCategories', { name: value });
         if (result)
             alert('новая категория создана')
-            this.getTestCategories()
+        this.getTestCategories()
+    }
+
+    getTestById = async (id: number) => {
+        const result = await fetchData('getTestsById', {}, id);
+        if (result)
+        this.setTestById(result)
+    }
+
+    setTestById = (value: InterfaceTests) => {
+        console.log('33333333')
+        console.log(value)
+
+        this.testMainInfo = value
+        console.log(this.testMainInfo)
     }
 
     getLocales = async () => {
@@ -39,11 +54,13 @@ export default class SettingsNewTestStore {
     setLocales = (value: ILocales[]) => {
         this.locales = value
     }
-    
+
     createNewTest = async (data: IPostTest) => {
-        const result = await postData('postTests', {data});
-        if (result)
-            alert('Тест успешно создан, продолжайте настраивать тест')
+        const result = await postData('postTests', data);
+        if (result) {
+            window.location.href = window.location.href + '/' + result.id;
+            alert('Тест успешно создан, продолжайте настраивать тест');
+        }
     }
 
     generatePublicLink = () => {
