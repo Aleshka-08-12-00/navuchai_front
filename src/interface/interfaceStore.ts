@@ -117,8 +117,6 @@ export interface IPostQuestion {
     };
   };
 }
-<<<<<<< HEAD
-=======
 
 export interface IQuestionInTest {
   question: {
@@ -145,4 +143,3 @@ export interface IQuestionInTest {
   required: boolean;
   max_score: number;
 }
->>>>>>> origin/main
