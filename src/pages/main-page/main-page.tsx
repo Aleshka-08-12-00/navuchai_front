@@ -46,7 +46,7 @@ const FontAwesomeSvgIcon = React.forwardRef<SVGSVGElement, FontAwesomeSvgIconPro
 
 const MainPage = observer(() => {
 
-  const { mainPageStore } = React.useContext(Context);
+  const { mainPageStore, authStore } = React.useContext(Context);
 
   const {
     getTests,
@@ -66,6 +66,7 @@ const MainPage = observer(() => {
     getTests();
     getCategories();
     getTestStatuses();
+    authStore.authMe();
   }, []);
 
   const navigate = useNavigate();

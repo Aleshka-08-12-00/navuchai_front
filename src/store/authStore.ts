@@ -1,20 +1,23 @@
 import { makeAutoObservable } from 'mobx';
-import { postData } from '../api';
-import { jwtDecode } from "jwt-decode";
+import { fetchData, postData } from '../api';
 import { ILoginUser, IRegisterUser } from '../interface/interfaceStore';
 
-export default class AuthStore {
-
-  isAuth: boolean = false
-  error: string = ''
-  userId: number = 2
-  roleCode: string = ''
+class AuthStore {
+  isAuth: boolean = false;
+  error: string = '';
+  userId: number | null = null;
+  roleCode: string = '';
+  objForShow: string[] = [];
 
   constructor() {
     makeAutoObservable(this);
   }
 
-  objForShow: string[] = []
+  setUserData = (userData: { id: number; role_code: string }) => {
+    this.userId = userData.id;
+    this.roleCode = userData.role_code;
+    this.isAuth = true;
+  };
 
   async loginUser(loginData: ILoginUser) {
     try {
@@ -22,26 +25,14 @@ export default class AuthStore {
       formData.append('username', loginData.username);
       formData.append('password', loginData.password);
 
-      const response = await postData(
-        'postAuth',
-        formData,
-      );
-
+      const response = await postData('postAuth', formData);
       //@ts-ignore
       localStorage.setItem('tokenNavuchai', response.access_token);
       window.location.replace('/');
-
-      this.setAuth(true);
-
     } catch (error: any) {
       this.setAuth(false);
-      if (error instanceof Error) {
-        this.error = error.message;
-      } else {
-        this.error = 'Произошла неизвестная ошибка при входе';
-      }
-      console.error('Registration error:', this.error);
-      return null;
+      this.error = error instanceof Error ? error.message : 'Произошла неизвестная ошибка при входе';
+      console.error('Login error:', this.error);
     }
   }
 
@@ -51,63 +42,41 @@ export default class AuthStore {
       localStorage.setItem('tokenNavuchai', response.access_token);
       window.location.replace('/');
     } catch (error) {
-      if (error instanceof Error) {
-        this.error = error.message;
-      } else {
-        this.error = 'Произошла неизвестная ошибка при регистрации';
-      }
+      this.error = error instanceof Error ? error.message : 'Произошла неизвестная ошибка при регистрации';
       console.error('Registration error:', this.error);
-      return null;
     }
   }
 
-
-  initAuth(result: any) {
-    if (result && (result as { data: { token: string; refreshToken: string; accessCodes: any[]; }[] }).data[0]) {
-      const data = (result as { data: { token: string; refreshToken: string; accessCodes: any[]; }[] }).data[0];
-      localStorage.setItem('tokenHR', data.token);
-      localStorage.setItem('refreshTokenHR', data.refreshToken);
-      localStorage.setItem('accessCodes', JSON.stringify(data.accessCodes));
-      this.setAuth(true);
-      window.location.replace('/');
+  async authMe() {
+    const result = await fetchData('getAuthMe');
+    if (result) {
+      this.setUserData(result);
+      console.log(this.userId);
+      return result; 
     }
-  }
-
-  async loginRoot(id: string) {
-    const dataObj = {
-      id: id
-    }
-    const result = await postData('postAuthLoginRoot', dataObj);
-    this.initAuth(result);
+    return null;
   }
 
   setObjForShow = () => {
-    let obj = []
-    let value = localStorage.getItem('accessCodes')
+    let obj = [];
+    const value = localStorage.getItem('accessCodes');
     if (value) {
-      obj = JSON.parse(value)
+      obj = JSON.parse(value);
     }
-    this.objForShow = obj
-    // let token = localStorage.getItem('tokenHR');
-    // if (token) {
-    //     const payload = jwtDecode(token); // Используем jwt_decode для декодирования токена
-    //     //@ts-ignore
-    //     this.roleCode = payload.role_code
-    //     //@ts-ignore
-    //     this.userId = payload.id
-    // }
-  }
+    this.objForShow = obj;
+  };
 
   logout = () => {
-    localStorage.removeItem('tokenHR')
+    localStorage.removeItem('tokenNavuchai');
     this.setAuth(false);
-    window.location.reload()
-  }
+    this.userId = null;
+    window.location.reload();
+  };
 
   setAuth(bool: boolean) {
-    this.isAuth = bool
+    this.isAuth = bool;
   }
-
 }
 
 export const authStore = new AuthStore();
+export default authStore;

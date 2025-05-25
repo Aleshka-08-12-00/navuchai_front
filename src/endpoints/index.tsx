@@ -9,6 +9,7 @@ const endpoints = {
     //Авторизация 
     postAuth: 'auth/login',
     postRegistration: 'auth/register',
+    getAuthMe: 'auth/me',
 
     //Категории
     getCategories: 'api/categories',
@@ -27,6 +28,8 @@ const endpoints = {
     postQuestionsToTest: (question_id: string | number | null , test_id: string | number | null): string => `api/questions/${question_id}/add-to-test/${test_id}`,
     getQuestionsByTestId: (testId: string | number | null): string => `api/questions/by-test/${testId}`,
 
+    //Результат
+    postResults: 'api/results',
    
     //Статусы
     getTestStatuses: 'api/test-statuses',

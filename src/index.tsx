@@ -27,7 +27,7 @@ import '@fontsource/public-sans/700.css';
 // project import
 import App from './App';
 import Store from './store/store';
-import AuthStore from './store/authStore';
+import authStore from './store/authStore';
 import { createContext } from 'react';
 import ReactDOM from 'react-dom/client';
 import SettingsStore from './store/settingsStore';
@@ -36,15 +36,21 @@ import SettingsNewTestStore from './store/settingsNewTestStore';
 import CreateQuestionsStore from './store/createQuestionsStore';
 import TestQuestionListPageStore from './store/testQuestionListPageStore';
 import QuestionsStore from './store/questionsStore';
+import TestResultStore from './store/testResultStore';
+import UserAnswerStore from './store/userAnswerStore';
+
+
+
 
 const store = new Store();
-const authStore = new AuthStore();
 const settingsStore = new SettingsStore();
 const mainPageStore = new MainPageStore();
 const settingsNewTestStore = new SettingsNewTestStore();
 const createQuestionsStore  = new CreateQuestionsStore();
 const testQuestionListPageStore  = new TestQuestionListPageStore();
 const questionsStore = new QuestionsStore();
+const testResultStore = new TestResultStore();
+const userAnswerStore = new UserAnswerStore
 
 
 
@@ -57,6 +63,8 @@ const obStore = {
   createQuestionsStore,
   testQuestionListPageStore,
   questionsStore,
+  testResultStore,
+  userAnswerStore,
 }
 
 export const Context = createContext(obStore);
