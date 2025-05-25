@@ -38,6 +38,7 @@ import TestQuestionListPageStore from './store/testQuestionListPageStore';
 import QuestionsStore from './store/questionsStore';
 import TestResultStore from './store/testResultStore';
 import UserAnswerStore from './store/userAnswerStore';
+import resultTableStore from './store/resultTableStore';
 
 
 
@@ -50,7 +51,7 @@ const createQuestionsStore  = new CreateQuestionsStore();
 const testQuestionListPageStore  = new TestQuestionListPageStore();
 const questionsStore = new QuestionsStore();
 const testResultStore = new TestResultStore();
-const userAnswerStore = new UserAnswerStore
+const userAnswerStore = new UserAnswerStore();
 
 
 
@@ -65,6 +66,7 @@ const obStore = {
   questionsStore,
   testResultStore,
   userAnswerStore,
+  resultTableStore,
 }
 
 export const Context = createContext(obStore);

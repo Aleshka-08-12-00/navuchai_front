@@ -30,6 +30,7 @@ const endpoints = {
 
     //Результат
     postResults: 'api/results',
+    getResultsByUserId: (user_id: string | number | null): string => `api/results/user/${user_id}`,
    
     //Статусы
     getTestStatuses: 'api/test-statuses',

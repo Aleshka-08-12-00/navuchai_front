@@ -224,3 +224,16 @@ export interface ITestResultCreateResponse {
   answers: ITestResultAnswerResponse[];
 }
 
+/**
+ * Интерфейс для таблицы с результами тестов
+ */
+
+export interface IUserTestResultRow {
+  key: React.Key;       
+  test_name: string;    
+  name: string;    
+  email: string;   
+  total_score?: number;  
+  end_date?: string;     
+  test_time?: string;    
+}
