@@ -20,6 +20,7 @@ const TestMultipleChoiceCard = ({
 }) => {
   const [selected, setSelected] = useState<string[]>([]);
   const { text, answers, image } = question.question;
+  const stripHtml = (html: string) => html.replace(/<[^>]+>/g, "");
 
   const toggle = (answer: string) => {
     setSelected((prev) =>
@@ -44,7 +45,7 @@ const TestMultipleChoiceCard = ({
             Вопрос
           </Typography>
           <Typography variant="body1" mb={2}>
-            {text}
+            {stripHtml(text)}
           </Typography>
 
           {image && (
@@ -77,7 +78,7 @@ const TestMultipleChoiceCard = ({
                     onChange={() => toggle(answer)}
                   />
                 }
-                label={answer}
+                label={stripHtml(answer)}
               />
             ))}
           </Stack>

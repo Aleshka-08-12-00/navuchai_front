@@ -22,6 +22,7 @@ interface QuestionProps {
 const TestDescriptiveCard: React.FC<QuestionProps> = ({ question, onNext }) => {
   const [text, setText] = useState("");
   const qData = question.question;
+  const stripHtml = (html: string) => html.replace(/<[^>]+>/g, "");
 
   if (!qData) return null;
 
@@ -42,7 +43,7 @@ const TestDescriptiveCard: React.FC<QuestionProps> = ({ question, onNext }) => {
             Вопрос
           </Typography>
           <Typography variant="body1" mb={2}>
-            {qData.text}
+            {stripHtml(qData.text)}
           </Typography>
 
           {qData.image && (

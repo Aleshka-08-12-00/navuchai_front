@@ -21,6 +21,7 @@ const TestYesNoCard = ({
 }) => {
   const [value, setValue] = useState<string | null>(null);
   const { question: qData } = question;
+  const stripHtml = (html: string) => html.replace(/<[^>]+>/g, "");
 
   return (
     <Box
@@ -39,7 +40,7 @@ const TestYesNoCard = ({
             Вопрос
           </Typography>
           <Typography variant="body1" mb={2}>
-            {qData.text}
+            {stripHtml(qData.text)}
           </Typography>
 
           {qData.image && (
