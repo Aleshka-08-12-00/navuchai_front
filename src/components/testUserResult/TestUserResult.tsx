@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Col, Divider, Progress, Row } from 'antd';
-import { useNavigate } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import { CheckCircleOutlined, CloseCircleOutlined, FieldTimeOutlined, LeftOutlined, MessageOutlined, ProjectOutlined, UserOutlined } from '@ant-design/icons';
 import { Typography, Link as MuiLink } from '@mui/material';
 import styles from './style.module.scss';
@@ -14,21 +14,31 @@ import TimeDisplay from './timeDisplay/TimeDisplay';
 import TimeLinear from './timeLiner/TimeLinear';
 import QuestionsTestTable from './questionsTestTable/QuestionsTestTable';
 import JoditEditor from 'jodit-react';
+import TestResultStore from '../../store/testResultStore';
+import resultTableStore from '../../store/resultTableStore';
 
 const TestUserResult: React.FC = observer(() => {
     const navigate = useNavigate();
     const [visible, setVisible] = useState(false);
     const [value, setValue] = useState('');
     const [hasFeedback, setHasFeedback] = useState(false);
+    const { resultId } = useParams();
+    
 
-    if (!store.selectedUser) {
-        return <Typography>Выберите пользователя</Typography>;
-    }
+      React.useEffect(() => {
+        if (resultId) {
+        const parsedId = parseInt(resultId, 10);
+        if (!isNaN(parsedId)) {
+            resultTableStore.getResultByResultId(parsedId);
+        }
+      }
+    }, []);
 
-    const { total_score, test_name, first_name, last_name, test_time, end_date } = store.selectedUser;
-    const timeInSeconds = store.getTimeInSeconds(test_time);
+    // const { total_score, test_name, first_name, last_name, test_time, end_date } = store.selectedUser;
+    // const timeInSeconds = store.getTimeInSeconds(test_time);
 
-    const passed = total_score >= 50 && timeInSeconds <= 720;
+    // const passed = total_score >= 50 && timeInSeconds <= 720;
+    const passed = 50;
     const resultTest = passed ? 'Тест пройден!' : 'Тест не пройден!';
     const resultGood = passed ? 'Оценка удовлетворительная' : 'Оценка неудовлетворительная';
     const resultColor = passed ? 'rgb(22, 119, 255)' : 'rgb(247, 100, 100)';
@@ -57,7 +67,7 @@ const TestUserResult: React.FC = observer(() => {
                     <Typography component="div" className={styles['actions-bar']} style={{ marginLeft: '15px'}}>
                         <Typography component="div" className={styles['actions-bar-left']}>
                             <MuiLink component="button" className={styles.link} sx={{ fontSize: 18, fontWeight: 400}}>
-                                {test_name}
+                                {/* {test_name} */}
                             </MuiLink>
                         </Typography>
 
@@ -73,7 +83,7 @@ const TestUserResult: React.FC = observer(() => {
                                     '&:hover': {
                                         textDecoration: 'none',
                                     },  }}>
-                                    {last_name} {first_name}
+                                    {/* {last_name} {first_name} */}
                                 </MuiLink>
                             </Typography>
                             <Typography component="div" style={{ display: 'flex', borderRight: '1px solid rgb(80, 93, 107, 0.2)' }} className={styles.btnBackground}>
@@ -114,7 +124,7 @@ const TestUserResult: React.FC = observer(() => {
                         <Typography component="div" className={styles['respondent-name']}>
                             <AccountBoxOutlinedIcon style={{ fontSize: '30px', marginRight: '15px' }} />
                             <Typography variant="h6" className={styles['title-card']}>
-                                {last_name} {first_name}
+                                {/* {last_name} {first_name} */}
                             </Typography>
                         </Typography>
                     </Typography>
@@ -140,7 +150,7 @@ const TestUserResult: React.FC = observer(() => {
                                 </Typography>
                             </Typography>
                             <Typography component="div" style={{ width: '40%' }}>
-                                <PieChartResult totalScore={total_score} />
+                                {/* <PieChartResult totalScore={total_score} /> */}
                             </Typography>
                         </Typography>
                     </Col>
@@ -154,12 +164,12 @@ const TestUserResult: React.FC = observer(() => {
                                     <Typography variant="h6">Общее время</Typography>
                                 </Typography>
                                 <Typography component="div" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', marginLeft: '45px' }}>
-                                    <TimeDisplay maxTime={720} />
+                                    {/* <TimeDisplay maxTime={720} /> */}
                                     <Typography component="div" style={{ marginBottom: '10px' }}>
-                                        <TimeLinear timeInSeconds={timeInSeconds} />
+                                        {/* <TimeLinear timeInSeconds={timeInSeconds} /> */}
                                     </Typography>
                                     <Typography variant="body2">
-                                        Дата: <Typography component="span" sx={{ fontWeight: 600, fontSize: 16 }}>{end_date}</Typography>
+                                        {/* Дата: <Typography component="span" sx={{ fontWeight: 600, fontSize: 16 }}>{end_date}</Typography> */}
                                     </Typography>
                                 </Typography>
                             </Typography>

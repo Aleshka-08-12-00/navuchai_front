@@ -32,13 +32,14 @@ import { createContext } from 'react';
 import ReactDOM from 'react-dom/client';
 import SettingsStore from './store/settingsStore';
 import MainPageStore from './store/mainPageStore';
-import SettingsNewTestStore from './store/settingsNewTestStore';
+
 import CreateQuestionsStore from './store/createQuestionsStore';
 import TestQuestionListPageStore from './store/testQuestionListPageStore';
 import QuestionsStore from './store/questionsStore';
 import TestResultStore from './store/testResultStore';
 import UserAnswerStore from './store/userAnswerStore';
 import resultTableStore from './store/resultTableStore';
+import settingsNewTestStore from './store/settingsNewTestStore';
 
 
 
@@ -46,7 +47,6 @@ import resultTableStore from './store/resultTableStore';
 const store = new Store();
 const settingsStore = new SettingsStore();
 const mainPageStore = new MainPageStore();
-const settingsNewTestStore = new SettingsNewTestStore();
 const createQuestionsStore  = new CreateQuestionsStore();
 const testQuestionListPageStore  = new TestQuestionListPageStore();
 const questionsStore = new QuestionsStore();

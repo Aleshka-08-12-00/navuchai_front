@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
-import { Button, Flex, Table } from "antd";
+import { Button, Table } from "antd";
 import type { TableColumnsType, TableProps } from "antd";
 import styles from "./style.module.scss";
 
@@ -16,12 +16,11 @@ type TableRowSelection<T extends object = object> = TableProps<T>["rowSelection"
 const columns: TableColumnsType<IUserTestResultRow> = [
   { title: "#", dataIndex: "key", sorter: (a, b) => Number(a.key) - Number(b.key) },
   { title: "Название теста", dataIndex: "test_name", sorter: (a, b) => a.test_name.localeCompare(b.test_name) },
-  { title: "Фамилия", dataIndex: "last_name",  },
-  { title: "Имя", dataIndex: "first_name", },
+  { title: "Имя и фамилия", dataIndex: "name" },
+  { title: "Email", dataIndex: "email" },
   {
     title: "Результат",
     dataIndex: "total_score",
-    // sorter: (a, b) => a.total_score - b.total_score,
     render: (score: number) => {
       const color = score >= 50 ? "rgb(154, 244, 158)" : "rgb(245, 141, 142)";
       return (
@@ -31,39 +30,45 @@ const columns: TableColumnsType<IUserTestResultRow> = [
       );
     },
   },
-  {
-    title: "Дата",
-    dataIndex: "end_date",
-    // sorter: (a, b) => new Date(a.end_date).getTime() - new Date(b.end_date).getTime(),
-  },
-  { title: "Время", dataIndex: "test_time", },
+  { title: "Дата", dataIndex: "end_date" },
+  { title: "Время", dataIndex: "test_time" },
 ];
-
-// sorter: (a, b) => a.last_name.localeCompare(b.last_name)
-// sorter: (a, b) => a.first_name.localeCompare(b.first_name) 
-// sorter: (a, b) => a.test_time.localeCompare(b.test_time) 
 
 const ResultTable: React.FC = observer(() => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-  const [loading, setLoading] = useState(false);
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [data, setData] = useState<IUserTestResultRow[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
-  const start = async () => {
+  // Функция загрузки данных
+  const loadData = async () => {
+    if (!authStore.userId) return;
     setLoading(true);
-    const userId = authStore.userId;
-    if (userId) {
-      await resultTableStore.getResultByUser(userId);
-      const formatted = resultTableStore.getFormattedUserResults();
-      setData(formatted);
-    }
+    await resultTableStore.getResultByUser(authStore.userId);
     setSelectedRowKeys([]);
     setLoading(false);
   };
+
+  useEffect(() => {
+    // Если userId нет — пробуем вызвать authMe()
+    if (!authStore.userId) {
+      authStore.authMe().then(() => {
+        if (authStore.userId) loadData();
+      });
+    } else {
+      loadData();
+    }
+  }, []);
+
+  useEffect(() => {
+    // Если userId изменился (например, после authMe), загружаем данные
+    if (authStore.userId) {
+      loadData();
+    }
+  }, [authStore.userId]);
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
     setSelectedRowKeys(newSelectedRowKeys);
@@ -81,9 +86,12 @@ const ResultTable: React.FC = observer(() => {
 
   const onSearch = (value: string) => {
     setSearchQuery(value);
+    setCurrent(1);
   };
 
-  const filteredData = data.filter((item) =>
+  const allResults = resultTableStore.getFormattedUserResults();
+
+  const filteredData = allResults.filter((item) =>
     Object.values(item).some((field) =>
       String(field).toLowerCase().includes(searchQuery.toLowerCase())
     )
@@ -91,23 +99,24 @@ const ResultTable: React.FC = observer(() => {
 
   const hasSelected = selectedRowKeys.length > 0;
 
-  useEffect(() => {
-    start();
-  }, []);
-
   return (
-    <Flex gap="middle" vertical>
-      <Flex align="center" gap="middle">
-        <Button type="primary" onClick={start} disabled={loading} loading={loading}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <Button
+          type="primary"
+          onClick={loadData}
+          disabled={loading || resultTableStore.loading}
+          loading={loading || resultTableStore.loading}
+        >
           Обновить
         </Button>
-        {hasSelected ? `Выделено: ${selectedRowKeys.length}` : null}
-      </Flex>
+        {hasSelected && <span>Выделено: {selectedRowKeys.length}</span>}
+      </div>
 
-      <Flex align="center" gap="middle" justify="space-between">
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
         <DropDownDowload dataSource={filteredData} columns={columns} />
         <SearchInput onSearch={onSearch} />
-      </Flex>
+      </div>
 
       <Table<IUserTestResultRow>
         rowSelection={rowSelection}
@@ -119,20 +128,16 @@ const ResultTable: React.FC = observer(() => {
           pageSizeOptions: ["10", "20", "50"],
           showSizeChanger: true,
           total: filteredData.length,
-          locale: {
-            items_per_page: "",
-          },
+          locale: { items_per_page: "" },
         }}
         rowClassName={styles["clickable-row"]}
         onRow={(record) => ({
-          onClick: () => {
-            // testResultStore.setSelectedResult(record); // если потребуется
-            navigate(`/results/${record.key}`);
-          },
+          onClick: () => navigate(`/results/${record.key}`),
         })}
         onChange={handleTableChange}
+        loading={loading || resultTableStore.loading}
       />
-    </Flex>
+    </div>
   );
 });
 

@@ -3,7 +3,7 @@ import { fetchData, postData } from '../api';
 import { ILocales, InterfaceTests, IPostTest, ITestCategories } from '../interface/interfaceStore';
 
 
-export default class SettingsNewTestStore {
+class SettingsNewTestStore {
 
     error: string = '';
     publicLink: string = '';
@@ -35,11 +35,7 @@ export default class SettingsNewTestStore {
     }
 
     setTestById = (value: InterfaceTests) => {
-        console.log('33333333')
-        console.log(value)
-
         this.testMainInfo = value
-        console.log(this.testMainInfo)
     }
 
     getLocales = async () => {
@@ -81,3 +77,6 @@ export default class SettingsNewTestStore {
 
 
 }
+
+export const settingsNewTestStore = new SettingsNewTestStore();
+export default settingsNewTestStore;

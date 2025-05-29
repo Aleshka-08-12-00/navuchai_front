@@ -168,7 +168,64 @@ export interface ITestStatus {
   updated_at: string;
 }
 
+// // ---------- результат теста ----------
+// /**
+//  * Тип значения ответа на вопрос
+//  */
+// export interface ITestResultAnswerPayload {
+//   value: string | number | boolean | string[] | number[] | Record<string, any>;
+// }
+
+// /**
+//  * Массив ответов
+//  */
+// export interface ITestResultAnswerRequest {
+//   question_id: number;
+//   answer: ITestResultAnswerPayload;
+// }
+
+// /**
+//  * Тело POST-запроса для создания результата теста
+//  */
+// export interface ITestResultCreateRequest {
+//   test_id: number;
+//   user_id?: number;
+//   score: number;
+//   completed_at?: string;
+//   created_at?: string;
+//   updated_at?: string;
+//   answers: ITestResultAnswerRequest[];
+// }
+
+// /**
+//  * Ответ сервера по каждому ответу на вопрос.
+//  */
+// export interface ITestResultAnswerResponse {
+//   id: number;
+//   result_id: number;
+//   question_id: number;
+//   user_id: number;
+//   answer: ITestResultAnswerPayload;
+//   created_at: string;
+//   updated_at: string;
+// }
+
+// /**
+//  * Полный результат теста от сервера.
+//  */
+// export interface ITestResultCreateResponse {
+//   id: number;
+//   user_id: number;
+//   test_id: number;
+//   score: number;
+//   completed_at: string;
+//   created_at: string;
+//   updated_at: string;
+//   answers: ITestResultAnswerResponse[];
+// }
+
 // ---------- результат теста ----------
+
 /**
  * Тип значения ответа на вопрос
  */
@@ -198,31 +255,67 @@ export interface ITestResultCreateRequest {
 }
 
 /**
- * Ответ сервера по каждому ответу на вопрос.
+ * Детальная проверка ответа на вопрос
  */
-export interface ITestResultAnswerResponse {
-  id: number;
-  result_id: number;
-  question_id: number;
-  user_id: number;
-  answer: ITestResultAnswerPayload;
-  created_at: string;
-  updated_at: string;
+export interface ICheckDetails {
+  score: number;
+  max_score: number;
+  is_correct: boolean;
+  details: {
+    settings: {
+      correctScore: number;
+      showMaxScore: boolean;
+      requireAnswer: boolean;
+      incorrectScore: number;
+      stopIfIncorrect: boolean;
+    };
+    user_choice: {
+      answer: string;
+    };
+    correct_choice: string;
+  };
+  user_answer: {
+    value: {
+      answer: string;
+    };
+  };
+  correct_answer: string[];
 }
 
 /**
- * Полный результат теста от сервера.
+ * Проверенный ответ на вопрос
+ */
+export interface ICheckedAnswer {
+  score: number;
+  max_score: number;
+  is_correct: boolean;
+  question_id: number;
+  question_text: string;
+  question_type: string;
+  check_details: ICheckDetails;
+}
+
+/**
+ * Поле "result" в ответе на создание теста
+ */
+export interface ITestResultAnalysis {
+  percentage: number;
+  total_score: number;
+  checked_answers: ICheckedAnswer[];
+}
+
+/**
+ * Ответ сервера при создании результата теста
  */
 export interface ITestResultCreateResponse {
   id: number;
   user_id: number;
   test_id: number;
   score: number;
-  completed_at: string;
-  created_at: string;
-  updated_at: string;
-  answers: ITestResultAnswerResponse[];
+  completed_at?: number,
+  result: ITestResultAnalysis;
 }
+
 
 /**
  * Интерфейс для таблицы с результами тестов

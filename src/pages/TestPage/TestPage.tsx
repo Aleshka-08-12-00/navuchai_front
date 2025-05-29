@@ -65,14 +65,23 @@ const TestPage = observer(() => {
     } else {
       const fullPayload = userAnswerStore.getPayload();
       console.log("fullPayload =", fullPayload);
+      
       if (fullPayload) {
         try {
           await testResultStore.createTestResult(fullPayload);
-          alert("Результаты теста отправлены!");
+
+          const result = testResultStore.result;
+
+          if (result?.result?.percentage !== undefined) {
+            alert(`Тест завершён! Вы набрали ${result.result.percentage}%`);
+          } else {
+            alert("Результаты теста отправлены!");
+          }
         } catch (e) {
           alert("Ошибка при отправке результатов");
           console.error(e);
         }
+
         userAnswerStore.reset();
       } else {
         alert("Недостаточно данных для отправки результатов");
