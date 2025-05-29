@@ -30,8 +30,12 @@ const endpoints = {
 
     //Результат
     postResults: 'api/results',
+    getResults: 'api/results',
     getResultsByUserId: (user_id: string | number | null): string => `api/results/user/${user_id}`,
     getResultByResultId: (result_id: string | number | null): string => `api/results/${result_id}`,
+
+    //Пользователи
+    getUserById: (user_id: string | number | null): string => `api/users/${user_id}`,
    
     //Статусы
     getTestStatuses: 'api/test-statuses',

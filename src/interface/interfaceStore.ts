@@ -230,7 +230,7 @@ export interface ITestStatus {
  * Тип значения ответа на вопрос
  */
 export interface ITestResultAnswerPayload {
-  value: string | number | boolean | string[] | number[] | Record<string, any>;
+  value: string | number | string[] | number[] | Record<string, any>;
 }
 
 /**

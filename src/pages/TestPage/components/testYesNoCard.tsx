@@ -67,15 +67,15 @@ const TestYesNoCard = ({
             onChange={(e) => setValue(e.target.value)}
           >
             <Stack spacing={1}>
-              <FormControlLabel value="true" control={<Radio />} label="Да" />
-              <FormControlLabel value="false" control={<Radio />} label="Нет" />
+              <FormControlLabel value="ДА" control={<Radio />} label="Да" />
+              <FormControlLabel value="НЕТ" control={<Radio />} label="Нет" />
             </Stack>
           </RadioGroup>
 
           <Button
             fullWidth
             disabled={value === null}
-            onClick={() => onNext(value === "true")} // передаём булево, а не объект
+            onClick={() => onNext(value)} // передаём булево, а не объект
             variant="contained"
             color="primary"
             sx={{ mt: 3 }}

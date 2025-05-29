@@ -1,3 +1,4 @@
+// ResultTable.tsx
 import React, { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { Button, Table } from "antd";
@@ -39,21 +40,15 @@ const ResultTable: React.FC = observer(() => {
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [searchQuery, setSearchQuery] = useState("");
-  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
-  // Функция загрузки данных
   const loadData = async () => {
-    if (!authStore.userId) return;
-    setLoading(true);
-    await resultTableStore.getResultByUser(authStore.userId);
+    await resultTableStore.getResults();
     setSelectedRowKeys([]);
-    setLoading(false);
   };
 
   useEffect(() => {
-    // Если userId нет — пробуем вызвать authMe()
     if (!authStore.userId) {
       authStore.authMe().then(() => {
         if (authStore.userId) loadData();
@@ -62,13 +57,6 @@ const ResultTable: React.FC = observer(() => {
       loadData();
     }
   }, []);
-
-  useEffect(() => {
-    // Если userId изменился (например, после authMe), загружаем данные
-    if (authStore.userId) {
-      loadData();
-    }
-  }, [authStore.userId]);
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
     setSelectedRowKeys(newSelectedRowKeys);
@@ -105,8 +93,8 @@ const ResultTable: React.FC = observer(() => {
         <Button
           type="primary"
           onClick={loadData}
-          disabled={loading || resultTableStore.loading}
-          loading={loading || resultTableStore.loading}
+          disabled={resultTableStore.loading}
+          loading={resultTableStore.loading}
         >
           Обновить
         </Button>
@@ -135,7 +123,7 @@ const ResultTable: React.FC = observer(() => {
           onClick: () => navigate(`/results/${record.key}`),
         })}
         onChange={handleTableChange}
-        loading={loading || resultTableStore.loading}
+        loading={resultTableStore.loading}
       />
     </div>
   );
