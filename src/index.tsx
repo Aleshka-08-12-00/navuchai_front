@@ -40,6 +40,7 @@ import TestResultStore from './store/testResultStore';
 import UserAnswerStore from './store/userAnswerStore';
 import resultTableStore from './store/resultTableStore';
 import settingsNewTestStore from './store/settingsNewTestStore';
+import userStore from './store/userStore';
 
 
 
@@ -67,6 +68,7 @@ const obStore = {
   testResultStore,
   userAnswerStore,
   resultTableStore,
+  userStore,
 }
 
 export const Context = createContext(obStore);

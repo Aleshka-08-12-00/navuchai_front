@@ -1,12 +1,11 @@
-// resultTableStore.ts
 import { makeAutoObservable, runInAction } from "mobx";
 import { fetchData } from "../api/index";
 import {
   ITestResultCreateResponse,
   IUserTestResultRow,
 } from "../interface/interfaceStore";
-import authStore from "./authStore";
 import settingsNewTestStore from "./settingsNewTestStore";
+import userStore from "./userStore";
 
 class ResultTableStore {
   result: ITestResultCreateResponse | null = null;
@@ -19,6 +18,7 @@ class ResultTableStore {
     makeAutoObservable(this);
   }
 
+  // Загрузка названия теста по ID и кэширование
   fetchAndStoreTestName = async (testId: number) => {
     if (this.testNamesMap.has(testId)) return;
 
@@ -31,9 +31,11 @@ class ResultTableStore {
     }
   };
 
+  // Загрузка всех результатов и имен/емейлов
   getResults = async () => {
     this.loading = true;
     this.error = null;
+
     try {
       const result = await fetchData("getResults");
       if (result) {
@@ -50,43 +52,56 @@ class ResultTableStore {
     }
   };
 
+  // Кэшируем тесты и пользователей
   setResultsArray = async (value: ITestResultCreateResponse[]) => {
     this.resultsArray = value;
+
     const uniqueTestIds = [...new Set(value.map((res) => res.test_id))];
-    await Promise.all(uniqueTestIds.map((id) => this.fetchAndStoreTestName(id)));
+    const uniqueUserIds = [...new Set(value.map((res) => res.user_id))];
+
+    // Параллельная загрузка
+    await Promise.all([
+      ...uniqueTestIds.map((id) => this.fetchAndStoreTestName(id)),
+      ...uniqueUserIds.map((id) => userStore.getUserInfo(id)),
+    ]);
   };
 
+  // Формирование строки для таблицы
   getFormattedUserResults = (): IUserTestResultRow[] => {
     return this.resultsArray.map((result) => {
       const testName = this.testNamesMap.get(result.test_id) || "Загрузка...";
+      const name = userStore.getUserField(result.user_id, "name");
+      const email = userStore.getUserField(result.user_id, "email");
+
       return {
         key: result.id.toString(),
         test_name: testName,
-        name: authStore.name || "—",
-        email: authStore.email || "—",
-        total_score: result.result.percentage,
+        name,
+        email,
+        total_score: result.result?.percentage ?? undefined,
         end_date: result.completed_at
           ? new Date(result.completed_at).toLocaleString()
           : "—",
-        test_time: "—",
+        test_time: "—", // если нужно — можешь добавить расчет времени здесь
       };
     });
   };
 
+  // Получение результата по ID (если нужно)
   getResultByResultId = async (result_id: number) => {
     try {
-      const resultOfTest = await fetchData('getResultByResultId', {}, result_id);
-      if(resultOfTest) {
+      const resultOfTest = await fetchData("getResultByResultId", {}, result_id);
+      if (resultOfTest) {
         runInAction(() => {
-          alert(resultOfTest);
+          alert(JSON.stringify(resultOfTest, null, 2));
         });
       }
     } catch (error: any) {
       runInAction(() => {
-        this.error = error.message || "Ошибка загрузки результатов";
+        this.error = error.message || "Ошибка загрузки результата";
       });
     }
-  }
+  };
 }
 
 const resultTableStore = new ResultTableStore();
