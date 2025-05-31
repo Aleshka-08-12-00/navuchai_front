@@ -39,6 +39,10 @@ const endpoints = {
    
     //Статусы
     getTestStatuses: 'api/test-statuses',
+
+    //Профиль
+    getProfile: 'api/profile',
+    putProfile: 'api/profile',
     
   };
   

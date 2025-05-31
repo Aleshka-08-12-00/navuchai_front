@@ -16,23 +16,28 @@ import QuestionsTestTable from './questionsTestTable/QuestionsTestTable';
 import JoditEditor from 'jodit-react';
 import TestResultStore from '../../store/testResultStore';
 import resultTableStore from '../../store/resultTableStore';
+import { Context } from '../..';
 
 const TestUserResult: React.FC = observer(() => {
+    const { resultTableStore } = React.useContext(Context);
     const navigate = useNavigate();
     const [visible, setVisible] = useState(false);
     const [value, setValue] = useState('');
     const [hasFeedback, setHasFeedback] = useState(false);
     const { resultId } = useParams();
+    const resultInfo = resultTableStore.selectedResult;
+    
     
 
-      React.useEffect(() => {
+    React.useEffect(() => {
         if (resultId) {
-        const parsedId = parseInt(resultId, 10);
-        if (!isNaN(parsedId)) {
-            resultTableStore.getResultByResultId(parsedId);
+            const parsedId = parseInt(resultId, 10);
+            if (!isNaN(parsedId)) {
+                resultTableStore.getResultByResultId(parsedId);
+                
+            }
         }
-      }
-    }, []);
+    }, [resultId]);
 
     // const { total_score, test_name, first_name, last_name, test_time, end_date } = store.selectedUser;
     // const timeInSeconds = store.getTimeInSeconds(test_time);
@@ -56,18 +61,17 @@ const TestUserResult: React.FC = observer(() => {
 
     return (
         <>
-            <Divider orientation="start">
-                <MuiLink component="button" className={styles.link} sx={{ textAlign: 'left' }} onClick={() => navigate(-1)}>
-                    <LeftOutlined /> Вернуться к списку
-                </MuiLink>
-            </Divider>
-
             <Row gutter={[10, 10]}>
                 <Col span={24} className={styles['gutter-row']} style={{ paddingRight: 0 }}>
                     <Typography component="div" className={styles['actions-bar']} style={{ marginLeft: '15px'}}>
                         <Typography component="div" className={styles['actions-bar-left']}>
+                            
+                            <MuiLink component="button" className={styles.link} sx={{ textAlign: 'left' }} onClick={() => navigate(-1)}>
+                                <LeftOutlined /> Вернуться к списку
+                            </MuiLink>
+
                             <MuiLink component="button" className={styles.link} sx={{ fontSize: 18, fontWeight: 400}}>
-                                {/* {test_name} */}
+                                {}
                             </MuiLink>
                         </Typography>
 
@@ -83,7 +87,7 @@ const TestUserResult: React.FC = observer(() => {
                                     '&:hover': {
                                         textDecoration: 'none',
                                     },  }}>
-                                    {/* {last_name} {first_name} */}
+                                    
                                 </MuiLink>
                             </Typography>
                             <Typography component="div" style={{ display: 'flex', borderRight: '1px solid rgb(80, 93, 107, 0.2)' }} className={styles.btnBackground}>
@@ -177,7 +181,7 @@ const TestUserResult: React.FC = observer(() => {
                     </Col>
                 </Row>
 
-                <Col span={24} className={styles['gutter-row']}>
+                {/* <Col span={24} className={styles['gutter-row']}>
                     <Typography component="div" className={styles.respondent}>
                         <Typography variant="subtitle1">Баллы по категориям вопросов (3)</Typography>
                         <Typography component="div" style={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'row', flexWrap: 'wrap', marginTop: '15px', alignItems: 'start', gap: '10px', width: '100%'}}>
@@ -195,9 +199,9 @@ const TestUserResult: React.FC = observer(() => {
                             </Typography>
                         </Typography>
                     </Typography>
-                </Col>
+                </Col> */}
 
-                <Col span={24} className={styles['gutter-row']}>
+                {/* <Col span={24} className={styles['gutter-row']}>
                     <Typography component="div" className={styles.respondent}>
                         <Typography variant="subtitle1">Отзывы</Typography>
                         <Typography component="div" style={{ marginTop: '15px', display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
@@ -228,7 +232,7 @@ const TestUserResult: React.FC = observer(() => {
                             />
                         </Typography>
                     </Typography>
-                </Col>
+                </Col> */}
 
                 <Col span={24} className={styles['gutter-row']}>
                     <Typography component="div" className={styles.respondent}>

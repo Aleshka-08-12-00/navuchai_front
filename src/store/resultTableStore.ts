@@ -7,12 +7,13 @@ import {
 import settingsNewTestStore from "./settingsNewTestStore";
 import userStore from "./userStore";
 
-class ResultTableStore {
+export default class ResultTableStore {
   result: ITestResultCreateResponse | null = null;
   loading = false;
   error: string | null = null;
   resultsArray: ITestResultCreateResponse[] = [];
   testNamesMap = new Map<number, string>();
+  selectedResult: ITestResultCreateResponse | null = null;
 
   constructor() {
     makeAutoObservable(this);
@@ -62,7 +63,7 @@ class ResultTableStore {
     // Параллельная загрузка
     await Promise.all([
       ...uniqueTestIds.map((id) => this.fetchAndStoreTestName(id)),
-      ...uniqueUserIds.map((id) => userStore.getUserInfo(id)),
+      ...uniqueUserIds.map((id) => userStore.getUserById(id)),
     ]);
   };
 
@@ -88,21 +89,24 @@ class ResultTableStore {
   };
 
   // Получение результата по ID (если нужно)
-  getResultByResultId = async (result_id: number) => {
+  getResultByResultId = async (resultId: number) => {
+    this.loading = true;
     try {
-      const resultOfTest = await fetchData("getResultByResultId", {}, result_id);
-      if (resultOfTest) {
-        runInAction(() => {
-          alert(JSON.stringify(resultOfTest, null, 2));
-        });
-      }
+      const data = await fetchData(`/test-results/${resultId}`);
+      runInAction(() => {
+        this.selectedResult = data;
+        this.loading = false;
+      });
     } catch (error: any) {
       runInAction(() => {
-        this.error = error.message || "Ошибка загрузки результата";
+        this.error = error.message || "Ошибка при загрузке результата";
+        this.loading = false;
       });
     }
   };
+
+   getInfoByIdResultTest = () => {
+
+  }
 }
 
-const resultTableStore = new ResultTableStore();
-export default resultTableStore;

@@ -5,7 +5,7 @@ export type AccessType = 'public' | 'private' | 'group' | 'training';
 export default class SettingsStore {
 
     error: string = ''
-    idSettingsNumber: string = '51'
+    idSettingsNumber: string = '41'
     accessType: AccessType = 'public';
 
     constructor() {

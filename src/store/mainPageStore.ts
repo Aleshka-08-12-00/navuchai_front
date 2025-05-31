@@ -1,5 +1,5 @@
 import { makeAutoObservable } from 'mobx';
-import { deleteData, fetchData } from '../api';
+import { deleteData, fetchData, putData } from '../api';
 import { InterfaceTests, ITestCategories, ITestStatus } from '../interface/interfaceStore';
 
 export default class MainPageStore {
@@ -49,6 +49,9 @@ export default class MainPageStore {
             this.getTests()
     }
 
-  
-      
+    putTestById = async (id: number) => {
+        const result = await putData('putTestsById', {}, id);
+        if (result)
+            console.log(result);
+    }   
 }

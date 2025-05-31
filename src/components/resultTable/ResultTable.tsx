@@ -10,7 +10,7 @@ import { useNavigate } from "react-router";
 import DropDownDowload from "./dropDownDowload/dropDownDowload";
 import { IUserTestResultRow } from "../../interface/interfaceStore";
 import authStore from "../../store/authStore";
-import resultTableStore from "../../store/resultTableStore";
+import { Context } from "../..";
 
 type TableRowSelection<T extends object = object> = TableProps<T>["rowSelection"];
 
@@ -36,6 +36,7 @@ const columns: TableColumnsType<IUserTestResultRow> = [
 ];
 
 const ResultTable: React.FC = observer(() => {
+  const { resultTableStore } = React.useContext(Context);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(10);

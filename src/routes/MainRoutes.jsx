@@ -45,6 +45,10 @@ const MainRoutes = {
           element: <NewTestPage />
         },
         {
+          path: '/main-page/edit/:id',
+          element: <NewTestPage />
+        },
+        {
           path: '/results',
           element: <ResultsPage />,
         },

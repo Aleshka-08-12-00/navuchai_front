@@ -10,7 +10,7 @@ class UserStore {
     makeAutoObservable(this);
   }
 
-  getUserInfo = async (user_id: number) => {
+  getUserById = async (user_id: number) => {
     if (this.usersMap.has(user_id)) return;
 
     try {

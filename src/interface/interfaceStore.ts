@@ -330,3 +330,39 @@ export interface IUserTestResultRow {
   end_date?: string;     
   test_time?: string;    
 }
+
+/**
+ * Интерфейс для страницы результата теста
+ */
+
+export interface ITestResultIdPage {
+  test_name: string;
+  name: string;
+  result: ITestResultCreateResponse;
+}
+
+
+//**
+// Интерфейс для страницы профиля
+//  */
+
+export interface IRoleUser {
+  name: string;
+  code: string;
+}
+
+export interface IProfileUser {
+  name: string;
+  role_id: number;
+  username: string;
+  email: string;
+  id: number;
+  role: IRoleUser;
+}
+
+export interface IEditProfileReq {
+  name: string;
+  username: string;
+  email: string;
+  password: string;
+}
