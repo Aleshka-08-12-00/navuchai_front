@@ -35,11 +35,18 @@ const GeneralInformationPage = observer(() => {
     const profile = profileStore.profile;
 
     const [openModal, setOpenModal] = React.useState(false);
+    const [openPasswordModal, setOpenPasswordModal] = React.useState(false);
+
     const [formData, setFormData] = React.useState({
         name: '',
         username: '',
-        email: '',
-        password: ''
+        email: ''
+    });
+
+    const [passwordData, setPasswordData] = React.useState({
+        oldPassword: '',
+        newPassword: '',
+        confirmPassword: ''
     });
 
     React.useEffect(() => {
@@ -47,8 +54,7 @@ const GeneralInformationPage = observer(() => {
             setFormData({
                 name: profile.name,
                 username: profile.username,
-                email: profile.email,
-                password: ''
+                email: profile.email
             });
         }
     }, [profile]);
@@ -60,10 +66,42 @@ const GeneralInformationPage = observer(() => {
         });
     };
 
+    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setPasswordData({
+            ...passwordData,
+            [e.target.name]: e.target.value
+        });
+    };
+
     const handleSave = async () => {
+        if (formData.username !== formData.email) {
+            alert('Username должен совпадать с email');
+            return;
+        }
+
         const success = await profileStore.putProfile(formData);
         if (success) {
             setOpenModal(false);
+        }
+    };
+
+    const handlePasswordSave = async () => {
+        const { oldPassword, newPassword, confirmPassword } = passwordData;
+
+        if (!newPassword || !confirmPassword) {
+            alert('Пожалуйста, заполните все поля');
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            alert('Пароли не совпадают');
+            return;
+        }
+
+        const success = await profileStore.changePassword(oldPassword, newPassword);
+        if (success) {
+            setOpenPasswordModal(false);
+            setPasswordData({ oldPassword: '', newPassword: '', confirmPassword: '' });
         }
     };
 
@@ -79,13 +117,11 @@ const GeneralInformationPage = observer(() => {
                 <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 1 }}>
                     <Typography variant="h6">Имя пользователя: <strong>{profile?.name}</strong></Typography>
                     <Typography variant="h6">Email: <strong>{profile?.email}</strong></Typography>
-                    <Button
-                        variant="outlined"
-                        onClick={() => setOpenModal(true)}
-                        sx={{ width: 'fit-content', mt: 2 }}
-                    >
-                        Редактировать профиль
-                    </Button>
+
+                    <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
+                        <Button variant="outlined" onClick={() => setOpenModal(true)}>Редактировать профиль</Button>
+                        <Button variant="outlined" onClick={() => setOpenPasswordModal(true)}>Сменить пароль</Button>
+                    </Box>
                 </Box>
 
                 <hr />
@@ -118,6 +154,7 @@ const GeneralInformationPage = observer(() => {
                 </Stack>
             </MainCard>
 
+            {/* Модалка редактирования профиля */}
             <Modal open={openModal} onClose={() => setOpenModal(false)}>
                 <Box sx={modalStyle}>
                     <Typography variant="h6" sx={{ mb: 2 }}>Редактирование профиля</Typography>
@@ -130,7 +167,7 @@ const GeneralInformationPage = observer(() => {
                         onChange={handleChange}
                     />
                     <TextField
-                        label="Username"
+                        label="Username (должен совпадать с email)"
                         name="username"
                         fullWidth
                         margin="normal"
@@ -145,18 +182,47 @@ const GeneralInformationPage = observer(() => {
                         value={formData.email}
                         onChange={handleChange}
                     />
-                    <TextField
-                        label="Пароль (оставьте пустым, если не меняется)"
-                        name="password"
-                        type="password"
-                        fullWidth
-                        margin="normal"
-                        value={formData.password}
-                        onChange={handleChange}
-                    />
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 2 }}>
                         <Button variant="contained" onClick={handleSave}>Сохранить</Button>
                         <Button variant="outlined" onClick={() => setOpenModal(false)}>Отмена</Button>
+                    </Box>
+                </Box>
+            </Modal>
+
+            {/* Модалка смены пароля */}
+            <Modal open={openPasswordModal} onClose={() => setOpenPasswordModal(false)}>
+                <Box sx={modalStyle}>
+                    <Typography variant="h6" sx={{ mb: 2 }}>Сменить пароль</Typography>
+                    <TextField
+                        label="Старый пароль"
+                        name="oldPassword"
+                        type="password"
+                        fullWidth
+                        margin="normal"
+                        value={passwordData.oldPassword}
+                        onChange={handlePasswordChange}
+                    />
+                    <TextField
+                        label="Новый пароль"
+                        name="newPassword"
+                        type="password"
+                        fullWidth
+                        margin="normal"
+                        value={passwordData.newPassword}
+                        onChange={handlePasswordChange}
+                    />
+                    <TextField
+                        label="Подтвердите пароль"
+                        name="confirmPassword"
+                        type="password"
+                        fullWidth
+                        margin="normal"
+                        value={passwordData.confirmPassword}
+                        onChange={handlePasswordChange}
+                    />
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 2 }}>
+                        <Button variant="contained" onClick={handlePasswordSave}>Сохранить</Button>
+                        <Button variant="outlined" onClick={() => setOpenPasswordModal(false)}>Отмена</Button>
                     </Box>
                 </Box>
             </Modal>

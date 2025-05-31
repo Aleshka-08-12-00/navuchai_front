@@ -90,9 +90,15 @@ export default class ResultTableStore {
 
   // Получение результата по ID (если нужно)
   getResultByResultId = async (resultId: number) => {
+
+    if (!resultId || isNaN(resultId)) {
+      console.error("Неверный resultId:", resultId);
+      return null;
+    }
+
     this.loading = true;
     try {
-      const data = await fetchData(`/test-results/${resultId}`);
+      const data = await fetchData('getResultByResultId', {}, resultId);
       runInAction(() => {
         this.selectedResult = data;
         this.loading = false;
@@ -105,8 +111,50 @@ export default class ResultTableStore {
     }
   };
 
-   getInfoByIdResultTest = () => {
+  getInfoByIdResultTest = async (resultId: number) => {
+    this.loading = true;
+    this.error = null;
+    try {
+      // 1. Получаем полный результат
+      console.log('Fetching result by ID:', resultId);
+      const data = await fetchData('getResultByResultId', {}, resultId);
+      console.log('Data received:', data);
 
-  }
+      runInAction(() => {
+        this.selectedResult = data;
+      });
+
+      // 2. Извлекаем test_id и user_id
+      const testId = data?.test_id;
+      const userId = data?.user_id;
+
+      // 3. Параллельно загружаем название теста и пользователя
+      await Promise.all([
+        testId ? this.fetchAndStoreTestName(testId) : Promise.resolve(),
+        userId ? userStore.getUserById(userId) : Promise.resolve(),
+      ]);
+
+      // 4. Берём имя теста и имя пользователя
+      const testName = testId ? this.testNamesMap.get(testId) : "Неизвестно";
+      const userName = userId ? userStore.getUserField(userId, "name") : "Неизвестно";
+
+      runInAction(() => {
+        this.loading = false;
+      });
+
+      // 5. Возвращаем нужные данные
+      return {
+        result: data,
+        testName,
+        userName,
+      };
+    } catch (error: any) {
+      runInAction(() => {
+        this.error = error.message || "Ошибка при загрузке результата";
+        this.loading = false;
+      });
+      return null;
+    }
+  };
 }
 

@@ -43,6 +43,7 @@ const endpoints = {
     //Профиль
     getProfile: 'api/profile',
     putProfile: 'api/profile',
+    putPassword: 'api/profile/password'
     
   };
   

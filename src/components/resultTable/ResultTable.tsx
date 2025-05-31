@@ -121,7 +121,10 @@ const ResultTable: React.FC = observer(() => {
         }}
         rowClassName={styles["clickable-row"]}
         onRow={(record) => ({
-          onClick: () => navigate(`/results/${record.key}`),
+          onClick: () => {
+            console.log('Clicked resultId:', record.key);
+            navigate(`/results/${record.key}`);
+          }
         })}
         onChange={handleTableChange}
         loading={resultTableStore.loading}

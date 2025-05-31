@@ -42,7 +42,19 @@ export default class ProfileStore {
                     this.error = error.message || 'Ошибка при обновлении профиля';
                 });
             }
-            return false;
-        }
+        return false;
+    }
+
+    async changePassword(oldPassword: string, newPassword: string) {
+    try {
+        const response = await putData('putPassword', { oldPassword, newPassword });
+        return !!response;
+    } catch (error: any) {
+        runInAction(() => {
+            this.error = error.message || 'Ошибка при смене пароля';
+        });
+        return false;
+    }
+}
 
 }
