@@ -45,16 +45,27 @@ export default class ProfileStore {
         return false;
     }
 
-    async changePassword(oldPassword: string, newPassword: string) {
-    try {
-        const response = await putData('putPassword', { oldPassword, newPassword });
-        return !!response;
-    } catch (error: any) {
-        runInAction(() => {
-            this.error = error.message || 'Ошибка при смене пароля';
-        });
-        return false;
+    async changePassword(old_password: string, new_password: string) {
+        try {
+            const response = await putData('putPassword', { old_password, new_password });
+            return !!response;
+        } catch (error: any) {
+            let message = 'Ошибка при смене пароля';
+
+            // Если сервер вернул detail, показать его
+            if (error?.response?.data?.detail) {
+                message = error.response.data.detail;
+            } else if (error?.message) {
+                message = error.message;
+            }
+
+            runInAction(() => {
+                this.error = message;
+            });
+
+            alert(message);
+            return false;
+        }
     }
-}
 
 }

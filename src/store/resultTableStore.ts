@@ -115,26 +115,19 @@ export default class ResultTableStore {
     this.loading = true;
     this.error = null;
     try {
-      // 1. Получаем полный результат
-      console.log('Fetching result by ID:', resultId);
       const data = await fetchData('getResultByResultId', {}, resultId);
-      console.log('Data received:', data);
-
       runInAction(() => {
         this.selectedResult = data;
       });
 
-      // 2. Извлекаем test_id и user_id
       const testId = data?.test_id;
       const userId = data?.user_id;
 
-      // 3. Параллельно загружаем название теста и пользователя
       await Promise.all([
         testId ? this.fetchAndStoreTestName(testId) : Promise.resolve(),
         userId ? userStore.getUserById(userId) : Promise.resolve(),
       ]);
 
-      // 4. Берём имя теста и имя пользователя
       const testName = testId ? this.testNamesMap.get(testId) : "Неизвестно";
       const userName = userId ? userStore.getUserField(userId, "name") : "Неизвестно";
 
@@ -142,18 +135,26 @@ export default class ResultTableStore {
         this.loading = false;
       });
 
-      // 5. Возвращаем нужные данные
       return {
         result: data,
         testName,
         userName,
+        error: null, // явное указание на отсутствие ошибки
       };
     } catch (error: any) {
+      const message = error?.response?.data?.detail || error.message || "Ошибка при загрузке результата";
+
       runInAction(() => {
-        this.error = error.message || "Ошибка при загрузке результата";
+        this.error = message;
         this.loading = false;
       });
-      return null;
+
+      return {
+        error: message,
+        result: null,
+        testName: '',
+        userName: '',
+      };
     }
   };
 }

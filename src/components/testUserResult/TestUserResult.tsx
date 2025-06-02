@@ -24,6 +24,7 @@ const TestUserResult: React.FC = observer(() => {
     const [value, setValue] = useState('');
     const [hasFeedback, setHasFeedback] = useState(false);
     const { resultId } = useParams();
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
     console.log(resultId);
     
     const [info, setInfo] = useState<{
@@ -32,31 +33,37 @@ const TestUserResult: React.FC = observer(() => {
         userName: string;
     } | null>(null);
 
-    useEffect(() => {
-            if (!resultId) return;
+        useEffect(() => {
+        if (!resultId) return;
 
-            const parsedId = parseInt(resultId, 10);
-            console.log(parsedId);
-            // обязательно приводи к числу
-            if (isNaN(parsedId)) return;
+        const parsedId = parseInt(resultId, 10);
+        if (isNaN(parsedId)) return;
 
-            resultTableStore.getInfoByIdResultTest(parsedId).then((data) => {
-            console.log("Полученные данные:", data);
-            if (data) {
-                setInfo({
-                    result: data.result,
-                    testName: data.testName ?? "Неизвестно",
-                    userName: data.userName ?? "Неизвестно",
-                 });
+        resultTableStore.getInfoByIdResultTest(parsedId).then((data) => {
+            if (data?.error) {
+            console.error("Ошибка:", data.error);
+            setInfo(null);
+            setErrorMessage(data.error); // новое состояние
             } else {
-                console.log("Данные не найдены");
-                setInfo(null);
-            }
+            setInfo({
+                result: data.result,
+                testName: data.testName ?? "Неизвестно",
+                userName: data.userName ?? "Неизвестно",
             });
+            setErrorMessage(null);
+            }
+        });
         }, [resultId]);
 
 
-    // Пример данных, подставьте ваши реальные из resultInfo или store.selectedUser
+    if (errorMessage) {
+        return (
+            <div style={{ padding: '30px', color: 'red', fontSize: '18px' }}>
+            <p>{errorMessage}</p>
+            <Button onClick={() => navigate(-1)}>Вернуться назад</Button>
+            </div>
+        );
+    }
 
     if (!info) {
         return <div>Загрузка...</div>; // или спиннер
