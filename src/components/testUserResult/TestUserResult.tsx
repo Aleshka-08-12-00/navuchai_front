@@ -31,6 +31,8 @@ const TestUserResult: React.FC = observer(() => {
         result: any;
         testName: string;
         userName: string;
+        percentage: number;
+        completedAt: string | null;
     } | null>(null);
 
         useEffect(() => {
@@ -49,6 +51,8 @@ const TestUserResult: React.FC = observer(() => {
                 result: data.result,
                 testName: data.testName ?? "Неизвестно",
                 userName: data.userName ?? "Неизвестно",
+                percentage: data.percentage ?? 0,
+                completedAt: data.completedAt ?? null,
             });
             setErrorMessage(null);
             }
@@ -70,21 +74,33 @@ const TestUserResult: React.FC = observer(() => {
     }
 
   // Теперь берем нужные данные из info
-    const { result, testName, userName } = info;
+    const { result, testName, userName, percentage, completedAt } = info;
 
     const name = userName|| 'Имя и Фамилия';
     const total_score = 0;
     const test_name = testName || 'Название теста';
     const test_time = "0";
-    const end_date = 'дд.мм.гггг';
 
     // const timeInSeconds = store.getTimeInSeconds ? store.getTimeInSeconds(test_time) : test_time;
-
-    // const passed = total_score >= 50 && timeInSeconds <= 720;
-    const passed = 0;
+    // && timeInSeconds <= 720;
+    const passed = percentage >= 50;
     const resultTest = passed ? 'Тест пройден!' : 'Тест не пройден!';
     const resultGood = passed ? 'Оценка удовлетворительная' : 'Оценка неудовлетворительная';
     const resultColor = passed ? 'rgb(22, 119, 255)' : 'rgb(247, 100, 100)';
+
+    const formatDate = (dateStr: string | null): string => {
+        if (!dateStr) return 'Неизвестно';
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('ru-RU', {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+        });
+    };
+
+    const end_date = formatDate(completedAt);
 
     const toggleVisibility = () => {
         setVisible(!visible);
@@ -207,7 +223,7 @@ const TestUserResult: React.FC = observer(() => {
                                 </Typography>
                             </Typography>
                             <Typography component="div" style={{ width: '40%' }}>
-                                <PieChartResult totalScore={total_score} />
+                                <PieChartResult totalScore={percentage} />
                             </Typography>
                         </Typography>
                     </Col>

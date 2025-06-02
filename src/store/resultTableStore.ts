@@ -1,6 +1,7 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import { fetchData } from "../api/index";
 import {
+  ICheckedAnswer,
   ITestResultCreateResponse,
   IUserTestResultRow,
 } from "../interface/interfaceStore";
@@ -122,14 +123,63 @@ export default class ResultTableStore {
 
       const testId = data?.test_id;
       const userId = data?.user_id;
+      const percentage = data?.result?.percentage;
+      const completedAt = data?.completed_at;
+      
 
       await Promise.all([
         testId ? this.fetchAndStoreTestName(testId) : Promise.resolve(),
         userId ? userStore.getUserById(userId) : Promise.resolve(),
+        console.log(`${percentage} и ${completedAt}`),
       ]);
 
       const testName = testId ? this.testNamesMap.get(testId) : "Неизвестно";
       const userName = userId ? userStore.getUserField(userId, "name") : "Неизвестно";
+
+    // Обработка массива вопросов для таблицы
+    const checkedAnswers = data?.result?.checked_answers || [];
+
+    const questions = checkedAnswers.map((answer: ICheckedAnswer, index: number) => {
+      const questionText = answer.question_text;
+      const correctAnswers = answer.check_details.correct_answer || [];
+
+      let userAnswers: string[] = [];
+
+      try {
+        const rawAnswer = answer.check_details?.details?.user_choice?.answer ?? '';
+        const parsed = JSON.parse(rawAnswer);
+        userAnswers = Array.isArray(parsed) ? parsed : [String(parsed)];
+      } catch {
+        const fallback = answer.check_details?.details?.user_choice?.answer ?? '';
+        userAnswers = fallback ? [fallback] : [];
+      }
+
+      const allAnswers = Array.from(new Set([
+        ...correctAnswers,
+        ...userAnswers,
+        ...([]) // Массив из всех вариантов ответа на вопрос
+      ]));
+
+      const options = allAnswers.map((text, i) => ({
+        id: i,
+        text,
+        isCorrect: correctAnswers.includes(text),
+      }));
+
+      const userAnswerIds = options
+        .filter(opt => userAnswers.includes(opt.text))
+        .map(opt => opt.id);
+
+      return {
+        question: `Вопрос №${index + 1}`,
+        title: questionText,
+        timeSpent: '—',
+        description: questionText,
+        options,
+        userAnswerIds,
+      };
+    });
+
 
       runInAction(() => {
         this.loading = false;
@@ -139,7 +189,10 @@ export default class ResultTableStore {
         result: data,
         testName,
         userName,
-        error: null, // явное указание на отсутствие ошибки
+        percentage,
+        completedAt,
+        questions,
+        error: null,
       };
     } catch (error: any) {
       const message = error?.response?.data?.detail || error.message || "Ошибка при загрузке результата";
@@ -154,6 +207,9 @@ export default class ResultTableStore {
         result: null,
         testName: '',
         userName: '',
+        percentage: 0,
+        completedAt: null,
+        questions: [],
       };
     }
   };
