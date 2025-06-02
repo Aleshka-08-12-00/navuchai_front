@@ -85,7 +85,7 @@ const TestUserResult: React.FC = observer(() => {
     const passed = percentage >= 50;
     const resultTest = passed ? 'Тест пройден!' : 'Тест не пройден!';
     const resultGood = passed ? 'Оценка удовлетворительная' : 'Оценка неудовлетворительная';
-    const resultColor = passed ? '#1677ff' : '#f76464';
+    const resultColor = passed ? '#1677ff' : '#f58d8f';
 
     const formatDate = (dateStr: string | null): string => {
         if (!dateStr) return 'Неизвестно';

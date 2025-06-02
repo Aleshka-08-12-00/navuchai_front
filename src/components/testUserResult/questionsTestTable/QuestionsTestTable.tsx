@@ -71,46 +71,51 @@ const Row = ({ row }: { row: QuestionData }) => {
               <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>
                 Правильный/Неправильный ответ
               </Typography>
-              <Box component="ul" sx={{ pl: 3, m: 0 }}>
+              <Box component="ol" sx={{ pl: 3, m: 0 }}>
                 {row.options.map((option) => {
                   const { isCorrect, isUserAnswer } = option;
                   const isMultiple = row.correctCount > 1;
+  
+              let bgColor = 'transparent';
+              let textColor = 'inherit';
+              let borderColor = '#ccc';
 
-                  let color: 'default' | 'error' | 'success' = 'default';
-                  let variant: 'outlined' | 'filled' = 'outlined';
-
-              if (isMultiple) {
-                  // множественный выбор — показываем все правильные зелёным (filled или outlined), выбранные неправильные — красным
+                            if (isMultiple) {
                   if (isCorrect && isUserAnswer) {
-                    color = 'success';
-                    variant = 'filled';
+                    bgColor = '#9af49e';
+                    textColor = '#000';
                   } else if (!isCorrect && isUserAnswer) {
-                    color = 'error';
-                    variant = 'filled';
+                    bgColor = '#f58d8f';
+                    textColor = '#000';
                   } else if (isCorrect && !isUserAnswer) {
-                    color = 'success';
-                    variant = 'outlined';
+                    borderColor = '#9af49e';
+                    textColor = '#000';
                   }
                 } else {
-                  // одиночный выбор — подсвечиваем только выбранный правильный зелёным и выбранный неправильный красным
                   if (isUserAnswer) {
-                    color = isCorrect ? 'success' : 'error';
-                    variant = 'filled';
-                  } else {
-                    color = 'default';
-                    variant = 'outlined';
+                    if (isCorrect) {
+                      bgColor = '#9af49e';
+                      textColor = '#000';
+                    } else {
+                      bgColor = '#f58d8f';
+                      textColor = '#000';
+                    }
                   }
                 }
 
-                  return (
-                    <li key={option.id}>
-                      <Chip
-                        label={stripHtml(option.text)}
-                        color={color}
-                        variant={variant}
-                        sx={{ my: 0.5 }}
-                      />
-                    </li>
+                return (
+                  <li key={option.id} style={{ marginBottom: 4, listStyle: 'decimal', paddingLeft: 8 }}>
+                    <Chip
+                      label={stripHtml(option.text)}
+                      variant="outlined"
+                      sx={{
+                        my: 0.5,
+                        backgroundColor: bgColor,
+                        color: textColor,
+                        borderColor: bgColor !== 'transparent' ? 'transparent' : borderColor,
+                      }}
+                    />
+                  </li>
                   );
                 })}
               </Box>

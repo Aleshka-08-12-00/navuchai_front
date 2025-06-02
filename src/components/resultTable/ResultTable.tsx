@@ -23,7 +23,7 @@ const columns: TableColumnsType<IUserTestResultRow> = [
     title: "Результат",
     dataIndex: "total_score",
     render: (score: number) => {
-      const color = score >= 50 ? "rgb(154, 244, 158)" : "rgb(245, 141, 142)";
+      const color = score >= 50 ? "#9af49e" : "#f58d8f";
       return (
         <div className={styles["box-score"]} style={{ backgroundColor: color }}>
           {score}%

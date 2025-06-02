@@ -1,7 +1,7 @@
 import { ResponsivePie } from "@nivo/pie";
 
 const PieChartResult = ({ totalScore }: { totalScore: number }) => {
-  const fillColor = totalScore >= 50 ? "#1677ff" : "#f76464";
+  const fillColor = totalScore >= 50 ? "#1677ff" : "#f58d8f";
 
   const data = [
     { id: "Набрано", value: totalScore, color: fillColor },
