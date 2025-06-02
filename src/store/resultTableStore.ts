@@ -140,45 +140,71 @@ export default class ResultTableStore {
     const checkedAnswers = data?.result?.checked_answers || [];
 
     const questions = checkedAnswers.map((answer: ICheckedAnswer, index: number) => {
-      const questionText = answer.question_text;
-      const correctAnswers = answer.check_details.correct_answer || [];
+    const questionText = answer.question_text;
+    const correctAnswers = answer.check_details.correct_answer || [];
 
-      let userAnswers: string[] = [];
+    let userAnswers: string[] = [];
 
-      try {
-        const rawAnswer = answer.check_details?.details?.user_choice?.answer ?? '';
-        const parsed = JSON.parse(rawAnswer);
-        userAnswers = Array.isArray(parsed) ? parsed : [String(parsed)];
-      } catch {
-        const fallback = answer.check_details?.details?.user_choice?.answer ?? '';
-        userAnswers = fallback ? [fallback] : [];
+    try {
+      const rawValue: any = answer.check_details?.user_answer?.value;
+
+      const parsedValue =
+        typeof rawValue === 'string'
+          ? rawValue.trim().startsWith('{') || rawValue.trim().startsWith('[')
+            ? JSON.parse(rawValue.trim())
+            : { answer: rawValue.trim() }
+          : rawValue;
+
+      if (Array.isArray(parsedValue)) {
+        // Если это массив - берем его как userAnswers
+        userAnswers = parsedValue.map(String);
+      } else if (parsedValue && typeof parsedValue === 'object') {
+        // Если объект, пытаемся взять поле answer
+        const extracted = parsedValue.answer;
+        userAnswers = Array.isArray(extracted)
+          ? extracted.map(String)
+          : extracted
+          ? [String(extracted)]
+          : [];
+      } else if (typeof parsedValue === 'string') {
+        // Если строка
+        userAnswers = [parsedValue];
+      } else {
+        userAnswers = [];
       }
 
-      const allAnswers = Array.from(new Set([
-        ...correctAnswers,
-        ...userAnswers,
-        ...([]) // Массив из всех вариантов ответа на вопрос
-      ]));
+      console.log('✅ userAnswers:', userAnswers);
+    } catch (e) {
+      console.error('❌ Ошибка при разборе user_answer:', e);
+      userAnswers = [];
+    }
+    // все возможные ответы, если есть
+    // const allAnswerOptions = answer.check_details?.details?.all_answers ?? [];
 
-      const options = allAnswers.map((text, i) => ({
-        id: i,
-        text,
-        isCorrect: correctAnswers.includes(text),
-      }));
+    
+    const allAnswers = Array.from(new Set([
+      ...correctAnswers,
+      ...userAnswers,
+      // ...allAnswerOptions,
+    ]));
 
-      const userAnswerIds = options
-        .filter(opt => userAnswers.includes(opt.text))
-        .map(opt => opt.id);
+    const options = allAnswers.map((text, i) => ({
+      id: i,
+      text,
+      isCorrect: correctAnswers.includes(text),
+      isUserAnswer: userAnswers.includes(text),
+    }));
 
-      return {
-        question: `Вопрос №${index + 1}`,
-        title: questionText,
-        timeSpent: '—',
-        description: questionText,
-        options,
-        userAnswerIds,
-      };
-    });
+    return {
+      question: `Вопрос №${index + 1}`,
+      title: questionText,
+      timeSpent: '—',
+      description: questionText,
+      options,
+      correctCount: answer.check_details.details.correct_count || 1,
+      totalCorrect: answer.check_details.details.total_correct || 1,
+    };
+  });
 
 
       runInAction(() => {

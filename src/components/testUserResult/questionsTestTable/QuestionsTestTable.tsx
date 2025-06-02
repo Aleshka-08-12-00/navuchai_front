@@ -23,7 +23,9 @@ interface Option {
   id: number;
   text: string;
   isCorrect: boolean;
+  isUserAnswer: boolean;
 }
+
 
 interface QuestionData {
   question: string;
@@ -31,8 +33,15 @@ interface QuestionData {
   timeSpent: string;
   description: string;
   options: Option[];
+  correctCount: number;
   userAnswerIds: number[];
 }
+
+const stripHtml = (html: string): string => {
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  return div.textContent || div.innerText || '';
+};
 
 const Row = ({ row }: { row: QuestionData }) => {
   const [open, setOpen] = React.useState(false);
@@ -46,8 +55,8 @@ const Row = ({ row }: { row: QuestionData }) => {
           </IconButton>
         </TableCell>
         <TableCell>{row.question}</TableCell>
-        <TableCell align="right">{row.title}</TableCell>
-        <TableCell align="right">{row.timeSpent}</TableCell>
+        <TableCell align="right">{stripHtml(row.title)}</TableCell>
+        <TableCell align="right">{stripHtml(row.timeSpent)}</TableCell>
       </TableRow>
 
       <TableRow>
@@ -57,26 +66,48 @@ const Row = ({ row }: { row: QuestionData }) => {
               <Typography variant="subtitle1" gutterBottom>
                 Описание вопроса
               </Typography>
-              <Typography variant="body2" gutterBottom>{row.description}</Typography>
+              <Typography variant="body2" gutterBottom>{stripHtml(row.description)}</Typography>
 
               <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>
-                Варианты ответа
+                Правильный/Неправильный ответ
               </Typography>
               <Box component="ul" sx={{ pl: 3, m: 0 }}>
                 {row.options.map((option) => {
-                  const isUserSelected = row.userAnswerIds.includes(option.id);
-                  const isCorrect = option.isCorrect;
+                  const { isCorrect, isUserAnswer } = option;
+                  const isMultiple = row.correctCount > 1;
 
                   let color: 'default' | 'error' | 'success' = 'default';
-                  if (isCorrect) color = 'success';
-                  if (isUserSelected && !isCorrect) color = 'error';
+                  let variant: 'outlined' | 'filled' = 'outlined';
+
+              if (isMultiple) {
+                  // множественный выбор — показываем все правильные зелёным (filled или outlined), выбранные неправильные — красным
+                  if (isCorrect && isUserAnswer) {
+                    color = 'success';
+                    variant = 'filled';
+                  } else if (!isCorrect && isUserAnswer) {
+                    color = 'error';
+                    variant = 'filled';
+                  } else if (isCorrect && !isUserAnswer) {
+                    color = 'success';
+                    variant = 'outlined';
+                  }
+                } else {
+                  // одиночный выбор — подсвечиваем только выбранный правильный зелёным и выбранный неправильный красным
+                  if (isUserAnswer) {
+                    color = isCorrect ? 'success' : 'error';
+                    variant = 'filled';
+                  } else {
+                    color = 'default';
+                    variant = 'outlined';
+                  }
+                }
 
                   return (
                     <li key={option.id}>
                       <Chip
-                        label={option.text}
+                        label={stripHtml(option.text)}
                         color={color}
-                        variant={isUserSelected || isCorrect ? 'filled' : 'outlined'}
+                        variant={variant}
                         sx={{ my: 0.5 }}
                       />
                     </li>

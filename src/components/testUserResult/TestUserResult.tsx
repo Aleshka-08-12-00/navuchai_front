@@ -74,10 +74,9 @@ const TestUserResult: React.FC = observer(() => {
     }
 
   // Теперь берем нужные данные из info
-    const { result, testName, userName, percentage, completedAt } = info;
+    const { testName, userName, percentage, completedAt } = info;
 
     const name = userName|| 'Имя и Фамилия';
-    const total_score = 0;
     const test_name = testName || 'Название теста';
     const test_time = "0";
 
@@ -86,7 +85,7 @@ const TestUserResult: React.FC = observer(() => {
     const passed = percentage >= 50;
     const resultTest = passed ? 'Тест пройден!' : 'Тест не пройден!';
     const resultGood = passed ? 'Оценка удовлетворительная' : 'Оценка неудовлетворительная';
-    const resultColor = passed ? 'rgb(22, 119, 255)' : 'rgb(247, 100, 100)';
+    const resultColor = passed ? '#1677ff' : '#f76464';
 
     const formatDate = (dateStr: string | null): string => {
         if (!dateStr) return 'Неизвестно';
@@ -250,7 +249,6 @@ const TestUserResult: React.FC = observer(() => {
                     </Col>
                 </Row>
 
-                {/* Если хотите, раскомментируйте блоки ниже и замените заглушки на данные */}
 
                 {/* <Col span={24} className={styles['gutter-row']}>
                     <Typography component="div" className={styles.respondent}>

@@ -272,6 +272,8 @@ export interface ICheckDetails {
     user_choice: {
       answer: string;
     };
+    correct_count?: number;
+    total_correct?: number;
     correct_choice: string;
   };
   user_answer: {
