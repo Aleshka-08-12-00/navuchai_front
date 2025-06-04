@@ -7,6 +7,7 @@ import {
 } from "../interface/interfaceStore";
 import settingsNewTestStore from "./settingsNewTestStore";
 import userStore from "./userStore";
+import questionsStore from "./questionsStore";
 
 export default class ResultTableStore {
   result: ITestResultCreateResponse | null = null;
@@ -139,72 +140,69 @@ export default class ResultTableStore {
     // Обработка массива вопросов для таблицы
     const checkedAnswers = data?.result?.checked_answers || [];
 
-    const questions = checkedAnswers.map((answer: ICheckedAnswer, index: number) => {
-    const questionText = answer.question_text;
-    const correctAnswers = answer.check_details.correct_answer || [];
-
-    let userAnswers: string[] = [];
-
-    try {
-      const rawValue: any = answer.check_details?.user_answer?.value;
-
-      const parsedValue =
-        typeof rawValue === 'string'
-          ? rawValue.trim().startsWith('{') || rawValue.trim().startsWith('[')
-            ? JSON.parse(rawValue.trim())
-            : { answer: rawValue.trim() }
-          : rawValue;
-
-      if (Array.isArray(parsedValue)) {
-        // Если это массив - берем его как userAnswers
-        userAnswers = parsedValue.map(String);
-      } else if (parsedValue && typeof parsedValue === 'object') {
-        // Если объект, пытаемся взять поле answer
-        const extracted = parsedValue.answer;
-        userAnswers = Array.isArray(extracted)
-          ? extracted.map(String)
-          : extracted
-          ? [String(extracted)]
-          : [];
-      } else if (typeof parsedValue === 'string') {
-        // Если строка
-        userAnswers = [parsedValue];
-      } else {
-        userAnswers = [];
-      }
-
-      console.log('✅ userAnswers:', userAnswers);
-    } catch (e) {
-      console.error('❌ Ошибка при разборе user_answer:', e);
-      userAnswers = [];
+    if (testId) {
+      await questionsStore.fetchQuestionsByTestId(testId);
     }
-    // все возможные ответы, если есть
-    // const allAnswerOptions = answer.check_details?.details?.all_answers ?? [];
 
-    
-    const allAnswers = Array.from(new Set([
-      ...correctAnswers,
-      ...userAnswers,
-      // ...allAnswerOptions,
-    ]));
+      const questions = checkedAnswers.map((answer: ICheckedAnswer, index: number) => {
+        const questionText = answer.question_text;
+        const correctAnswers = answer.check_details.correct_answer || [];
 
-    const options = allAnswers.map((text, i) => ({
-      id: i,
-      text,
-      isCorrect: correctAnswers.includes(text),
-      isUserAnswer: userAnswers.includes(text),
-    }));
+        let userAnswers: string[] = [];
 
-    return {
-      question: `Вопрос №${index + 1}`,
-      title: questionText,
-      timeSpent: '—',
-      description: questionText,
-      options,
-      correctCount: answer.check_details.details.correct_count || 1,
-      totalCorrect: answer.check_details.details.total_correct || 1,
-    };
-  });
+        try {
+          const rawValue: any = answer.check_details?.user_answer?.value;
+          const parsedValue =
+            typeof rawValue === 'string'
+              ? rawValue.trim().startsWith('{') || rawValue.trim().startsWith('[')
+                ? JSON.parse(rawValue.trim())
+                : { answer: rawValue.trim() }
+              : rawValue;
+
+          if (Array.isArray(parsedValue)) {
+            userAnswers = parsedValue.map(String);
+          } else if (parsedValue && typeof parsedValue === 'object') {
+            const extracted = parsedValue.answer;
+            userAnswers = Array.isArray(extracted)
+              ? extracted.map(String)
+              : extracted
+              ? [String(extracted)]
+              : [];
+          } else if (typeof parsedValue === 'string') {
+            userAnswers = [parsedValue];
+          }
+        } catch (e) {
+          console.error('❌ Ошибка при разборе user_answer:', e);
+          userAnswers = [];
+        }
+        const questionsByTestId = questionsStore.questions;
+        // 🧠 Находим соответствующий вопрос по тексту
+          const matchedQuestion = questionsByTestId.find(
+          (q) => q.question.id === answer.question_id
+        );
+        console.log(matchedQuestion);
+
+        const allAnswers = matchedQuestion
+          ? matchedQuestion.question.answers.allAnswer
+          : Array.from(new Set([...correctAnswers, ...userAnswers]));
+
+        const options = allAnswers.map((text, i) => ({
+          id: i,
+          text,
+          isCorrect: correctAnswers.includes(text),
+          isUserAnswer: userAnswers.includes(text),
+        }));
+
+        return {
+          question: `Вопрос №${index + 1}`,
+          title: questionText,
+          timeSpent: '—',
+          description: questionText,
+          options,
+          correctCount: answer.check_details.details.correct_count || 1,
+          totalCorrect: answer.check_details.details.total_correct || 1,
+        };
+      });
 
 
       runInAction(() => {

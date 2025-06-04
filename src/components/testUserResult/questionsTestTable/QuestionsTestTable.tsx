@@ -34,7 +34,7 @@ interface QuestionData {
   description: string;
   options: Option[];
   correctCount: number;
-  userAnswerIds: number[];
+  totalCorrect?: number;
 }
 
 const stripHtml = (html: string): string => {
@@ -159,8 +159,8 @@ const QuestionsTestTable: React.FC = observer(() => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {questions.map((q, idx) => (
-            <Row key={idx} row={q} />
+          {questions.map((q) => (
+            <Row key={q.title} row={q} />
           ))}
         </TableBody>
       </Table>

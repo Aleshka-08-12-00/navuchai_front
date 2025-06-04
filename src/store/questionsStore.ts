@@ -2,7 +2,7 @@ import { makeAutoObservable, runInAction } from "mobx";
 import { IQuestionInTest} from "../interface/interfaceStore";
 import { fetchData } from "../api/index"; 
 
-export default class QuestionsStore {
+class QuestionsStore {
   questions: IQuestionInTest[] = [];
   loading = false;
   error: string | null = null;
@@ -27,5 +27,8 @@ export default class QuestionsStore {
         this.loading = false;
       });
     }
-  };
+  };  
 }
+
+const questionsStore = new QuestionsStore();
+export default questionsStore;

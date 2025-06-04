@@ -12,9 +12,6 @@ import PieChartResult from './pieChartResult/PieChartResult';
 // import TimeDisplay from './timeDisplay/TimeDisplay';
 // import TimeLinear from './timeLiner/TimeLinear';
 import QuestionsTestTable from './questionsTestTable/QuestionsTestTable';
-import JoditEditor from 'jodit-react';
-import TestResultStore from '../../store/testResultStore';
-import resultTableStore from '../../store/resultTableStore';
 import { Context } from '../..';
 
 const TestUserResult: React.FC = observer(() => {
@@ -70,7 +67,7 @@ const TestUserResult: React.FC = observer(() => {
     }
 
     if (!info) {
-        return <div>Загрузка...</div>; // или спиннер
+        return <div>Загрузка...</div>;
     }
 
   // Теперь берем нужные данные из info
