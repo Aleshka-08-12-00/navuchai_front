@@ -27,6 +27,7 @@ const CreateRespondentsPage = observer(() => {
         respondentListInfo,
         postUsersIntoList,
         deleteUsersFromList,
+        putUserGroupsById,
     } = respondentsStore
 
     React.useEffect(() => {
@@ -94,6 +95,23 @@ const CreateRespondentsPage = observer(() => {
         }
     };
 
+    const handleSave = async () => {
+        if (!id || id === 'new') {
+            console.error('Cannot save: no valid ID');
+            return;
+        }
+
+        try {
+            const data = {
+                name: title,
+                description: description
+            };
+            await putUserGroupsById(data, id);
+        } catch (error) {
+            console.error('Failed to save respondent list:', error);
+        }
+    };
+
     return (
         <>
             <MainCard contentSX={{ p: 2.25, pt: 3.3, }}>
@@ -126,7 +144,7 @@ const CreateRespondentsPage = observer(() => {
                 <MainCard contentSX={{ p: 2.25, pt: 3.3, }}>
                     <Stack spacing={3}>
                         <Typography variant="body1">
-                            добавление / удаление участников группы
+                            добавление участника в группу
                         </Typography>
 
                         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
@@ -180,11 +198,11 @@ const CreateRespondentsPage = observer(() => {
                             ))}
                         </List> */}
 
-                        {participants.length === 0 && (
+                        {/* {participants.length === 0 && (
                             <Typography variant="body2" color="text.secondary" align="center">
                                 Нет добавленных участников
                             </Typography>
-                        )}
+                        )} */}
                     </Stack>
                 </MainCard>
             </div>
@@ -194,6 +212,14 @@ const CreateRespondentsPage = observer(() => {
                     <RespondentListMembers />
                 </div>
             )}
+            <Button
+                variant='contained'
+                color='success'
+                style={{ textTransform: 'none', marginTop: 10 }}
+                onClick={handleSave}
+            >
+                сохранить
+            </Button>
 
         </>
     )

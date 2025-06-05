@@ -43,6 +43,15 @@ export default class RespondentsStore {
         this.usersArray = value
     }
 
+    putUserGroupsById = async (data: any, id: string) => {
+        const result = await putData('putUserGroupsById', data, id);
+        if (result)
+            alert('данные изменены')
+            this.getUserGroupsById(id)
+    }
+
+
+
     postUsersIntoList = async (group_id: number, user_id: number) => {
         try {
             const response = await fetch(`http://172.16.0.97:8012/api/user-groups/${group_id}/members/${user_id}`, {
@@ -75,7 +84,7 @@ export default class RespondentsStore {
                     'Content-Type': 'application/json'
                 }
             });
-            
+
             if (response) {
                 this.getUserGroupsById(String(group_id))
             }
