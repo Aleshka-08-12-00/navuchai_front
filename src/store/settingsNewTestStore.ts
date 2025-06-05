@@ -19,9 +19,6 @@ class SettingsNewTestStore {
     get timeLimitFromTest(): number {
         const test_limit_time = this.testMainInfo?.time_limit ?? 0;
 
-        if (window.AndroidBridge?.notifyTestPassed) {
-            window.AndroidBridge.notifyTestPassed();
-        }
         return test_limit_time;
     }
 
