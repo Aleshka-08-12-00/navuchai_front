@@ -17,10 +17,11 @@ const TestSingleChoiceCard = ({
   onNext,
 }: {
   question: any;
-  onNext: () => void;
+  onNext: (answer: any) => void;
 }) => {
   const [selected, setSelected] = useState<string | null>(null);
   const { text, answers, image } = question.question;
+  const stripHtml = (html: string) => html.replace(/<[^>]+>/g, "");
 
   return (
     <Box
@@ -39,7 +40,7 @@ const TestSingleChoiceCard = ({
             Вопрос
           </Typography>
           <Typography variant="body1" mb={2}>
-            {text}
+            {stripHtml(text)}
           </Typography>
 
           {image && (
@@ -66,18 +67,10 @@ const TestSingleChoiceCard = ({
             </>
           )}
 
-          <RadioGroup
-            value={selected || ""}
-            onChange={(e) => setSelected(e.target.value)}
-          >
+          <RadioGroup value={selected || ""} onChange={(e) => setSelected(e.target.value)}>
             <Stack spacing={1}>
-              {answers.allAnswer.map((answer: string, i: number) => (
-                <FormControlLabel
-                  key={i}
-                  value={answer}
-                  control={<Radio />}
-                  label={answer}
-                />
+              {answers?.allAnswer?.map((answer: string, i: number) => (
+                <FormControlLabel key={i} value={answer} control={<Radio />} label={stripHtml(answer)} />
               ))}
             </Stack>
           </RadioGroup>
@@ -85,7 +78,7 @@ const TestSingleChoiceCard = ({
           <Button
             fullWidth
             disabled={!selected}
-            onClick={onNext}
+            onClick={() => onNext(selected)} // передаем значение напрямую
             variant="contained"
             color="primary"
             sx={{ mt: 3 }}

@@ -46,7 +46,7 @@ const FontAwesomeSvgIcon = React.forwardRef<SVGSVGElement, FontAwesomeSvgIconPro
 
 const MainPage = observer(() => {
 
-  const { mainPageStore } = React.useContext(Context);
+  const { mainPageStore, authStore } = React.useContext(Context);
 
   const {
     getTests,
@@ -56,6 +56,7 @@ const MainPage = observer(() => {
     getTestStatuses,
     testStatusesArray,
     deleteTestById,
+    putTestById,
   } = mainPageStore
 
   const [category, setCategory] = useState<string>('all');
@@ -66,6 +67,7 @@ const MainPage = observer(() => {
     getTests();
     getCategories();
     getTestStatuses();
+    authStore.authMe();
   }, []);
 
   const navigate = useNavigate();
@@ -100,6 +102,10 @@ const MainPage = observer(() => {
     alert("Дублировать выбрано");
     handleCloseMenu(id);
   };
+
+  const handleEditTest = (id: number) => {
+    putTestById(id);
+  }
 
   const handleCategoryChange = (event: SelectChangeEvent) => {
     setCategory(event.target.value);
@@ -249,6 +255,7 @@ const MainPage = observer(() => {
                         >
                           <MenuItem onClick={() => handleDeleteTestById(item.id)}>Удалить</MenuItem>
                           <MenuItem onClick={() => handleDuplicate(item.id)}>Дублировать</MenuItem>
+                          <MenuItem onClick={() => handleEditTest(item.id)}>Редактировать</MenuItem>
                         </Menu>
                       </Box>
                     </div>

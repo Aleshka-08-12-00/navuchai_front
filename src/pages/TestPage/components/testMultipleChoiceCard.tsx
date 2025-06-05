@@ -11,9 +11,16 @@ import {
   Checkbox,
 } from "@mui/material";
 
-const TestMultipleChoiceCard = ({ question, onNext }: { question: any; onNext: () => void }) => {
+const TestMultipleChoiceCard = ({
+  question,
+  onNext,
+}: {
+  question: any;
+  onNext: (answer: any) => void;
+}) => {
   const [selected, setSelected] = useState<string[]>([]);
   const { text, answers, image } = question.question;
+  const stripHtml = (html: string) => html.replace(/<[^>]+>/g, "");
 
   const toggle = (answer: string) => {
     setSelected((prev) =>
@@ -37,7 +44,9 @@ const TestMultipleChoiceCard = ({ question, onNext }: { question: any; onNext: (
           <Typography variant="subtitle1" fontWeight="bold" mb={1}>
             Вопрос
           </Typography>
-          <Typography variant="body1" mb={2}>{text}</Typography>
+          <Typography variant="body1" mb={2}>
+            {stripHtml(text)}
+          </Typography>
 
           {image && (
             <>
@@ -60,7 +69,7 @@ const TestMultipleChoiceCard = ({ question, onNext }: { question: any; onNext: (
           )}
 
           <Stack spacing={1}>
-            {answers.allAnswer.map((answer: string, i: number) => (
+            {answers?.allAnswer?.map((answer: string, i: number) => (
               <FormControlLabel
                 key={i}
                 control={
@@ -69,7 +78,7 @@ const TestMultipleChoiceCard = ({ question, onNext }: { question: any; onNext: (
                     onChange={() => toggle(answer)}
                   />
                 }
-                label={answer}
+                label={stripHtml(answer)}
               />
             ))}
           </Stack>
@@ -77,7 +86,7 @@ const TestMultipleChoiceCard = ({ question, onNext }: { question: any; onNext: (
           <Button
             fullWidth
             disabled={selected.length === 0}
-            onClick={onNext}
+            onClick={() => onNext(selected)} // передаем массив выбранных ответов напрямую
             variant="contained"
             color="primary"
             sx={{ mt: 3 }}

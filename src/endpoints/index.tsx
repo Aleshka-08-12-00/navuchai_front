@@ -9,6 +9,7 @@ const endpoints = {
     //Авторизация 
     postAuth: 'auth/login',
     postRegistration: 'auth/register',
+    getAuthMe: 'auth/me',
 
     //Категории
     getCategories: 'api/categories',
@@ -27,9 +28,22 @@ const endpoints = {
     postQuestionsToTest: (question_id: string | number | null , test_id: string | number | null): string => `api/questions/${question_id}/add-to-test/${test_id}`,
     getQuestionsByTestId: (testId: string | number | null): string => `api/questions/by-test/${testId}`,
 
+    //Результат
+    postResults: 'api/results',
+    getResults: 'api/results',
+    getResultsByUserId: (user_id: string | number | null): string => `api/results/user/${user_id}`,
+    getResultByResultId: (result_id: string | number | null): string => `api/results/${result_id}`,
+
+    //Пользователи
+    getUserById: (user_id: string | number | null): string => `api/users/${user_id}`,
    
     //Статусы
     getTestStatuses: 'api/test-statuses',
+
+    //Профиль
+    getProfile: 'api/profile',
+    putProfile: 'api/profile',
+    putPassword: 'api/profile/password'
     
   };
   

@@ -1,9 +1,8 @@
 import { makeAutoObservable, runInAction } from "mobx";
-import { IQuestionInTest } from "../interface/interfaceStore";
+import { IQuestionInTest} from "../interface/interfaceStore";
 import { fetchData } from "../api/index"; 
-import endpoints from "../endpoints/index";
 
-export default class QuestionsStore {
+class QuestionsStore {
   questions: IQuestionInTest[] = [];
   loading = false;
   error: string | null = null;
@@ -17,13 +16,10 @@ export default class QuestionsStore {
     this.error = null;
 
     try {
-      
-      const data: IQuestionInTest[] = await fetchData('getQuestionsByTestId', {}, testId);
-
+      const data: IQuestionInTest[] = await fetchData("getQuestionsByTestId", {}, testId);
       runInAction(() => {
         this.questions = data;
         this.loading = false;
-        console.log(data);
       });
     } catch (error: any) {
       runInAction(() => {
@@ -31,5 +27,8 @@ export default class QuestionsStore {
         this.loading = false;
       });
     }
-  };
+  };  
 }
+
+const questionsStore = new QuestionsStore();
+export default questionsStore;

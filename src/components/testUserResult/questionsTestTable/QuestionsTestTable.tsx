@@ -1,83 +1,152 @@
+// QuestionsTestTable.tsx
 import * as React from 'react';
-import Box from '@mui/material/Box';
-import Collapse from '@mui/material/Collapse';
-import IconButton from '@mui/material/IconButton';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Typography from '@mui/material/Typography';
-import Paper from '@mui/material/Paper';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import {
+  Box,
+  Collapse,
+  IconButton,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+  Paper,
+  Chip,
+} from '@mui/material';
+import { KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
+import { observer } from 'mobx-react-lite';
+import { useParams } from 'react-router-dom';
+import { Context } from '../../..';
 
-function createData(
-  question: string,
-  title: string,
-  time: string,
-  category: string,
-  description: string
-) {
-  return {
-    question,
-    title,
-    time,
-    category,
-    description,
-  };
+interface Option {
+  id: number;
+  text: string;
+  isCorrect: boolean;
+  isUserAnswer: boolean;
 }
 
-function Row(props: { row: ReturnType<typeof createData> }) {
-  const { row } = props;
+
+interface QuestionData {
+  question: string;
+  title: string;
+  timeSpent: string;
+  description: string;
+  options: Option[];
+  correctCount: number;
+  totalCorrect?: number;
+}
+
+const stripHtml = (html: string): string => {
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  return div.textContent || div.innerText || '';
+};
+
+const Row = ({ row }: { row: QuestionData }) => {
   const [open, setOpen] = React.useState(false);
 
   return (
-    <React.Fragment>
+    <>
       <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
         <TableCell>
-          <IconButton
-            aria-label="expand row"
-            size="small"
-            onClick={() => setOpen(!open)}
-          >
-            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          <IconButton size="small" onClick={() => setOpen(!open)}>
+            {open ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
           </IconButton>
         </TableCell>
-        <TableCell component="th" scope="row">
-          {row.question}
-        </TableCell>
-        <TableCell align="right">{row.title}</TableCell>
-        <TableCell align="right">{row.time}</TableCell>
-        <TableCell align="right">{row.category}</TableCell>
+        <TableCell>{row.question}</TableCell>
+        <TableCell align="right">{stripHtml(row.title)}</TableCell>
+        <TableCell align="right">{stripHtml(row.timeSpent)}</TableCell>
       </TableRow>
+
       <TableRow>
-        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={5}>
+        <TableCell colSpan={6} style={{ paddingBottom: 0, paddingTop: 0 }}>
           <Collapse in={open} timeout="auto" unmountOnExit>
-            <Box sx={{ margin: 1 }}>
-              <Typography variant="h6" gutterBottom component="div">
+            <Box sx={{ margin: 2 }}>
+              <Typography variant="subtitle1" gutterBottom>
                 Описание вопроса
               </Typography>
-              <Typography>{row.description}</Typography>
+              <Typography variant="body2" gutterBottom>{stripHtml(row.description)}</Typography>
+
+              <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>
+                Правильный/Неправильный ответ
+              </Typography>
+              <Box component="ol" sx={{ pl: 3, m: 0 }}>
+                {row.options.map((option) => {
+                  const { isCorrect, isUserAnswer } = option;
+                  const isMultiple = row.correctCount > 1;
+  
+              let bgColor = 'transparent';
+              let textColor = 'inherit';
+              let borderColor = '#ccc';
+
+                            if (isMultiple) {
+                  if (isCorrect && isUserAnswer) {
+                    bgColor = '#9af49e';
+                    textColor = '#000';
+                  } else if (!isCorrect && isUserAnswer) {
+                    bgColor = '#f58d8f';
+                    textColor = '#000';
+                  } else if (isCorrect && !isUserAnswer) {
+                    borderColor = '#9af49e';
+                    textColor = '#000';
+                  }
+                } else {
+                  if (isUserAnswer) {
+                    if (isCorrect) {
+                      bgColor = '#9af49e';
+                      textColor = '#000';
+                    } else {
+                      bgColor = '#f58d8f';
+                      textColor = '#000';
+                    }
+                  }
+                }
+
+                return (
+                  <li key={option.id} style={{ marginBottom: 4, listStyle: 'decimal', paddingLeft: 8 }}>
+                    <Chip
+                      label={stripHtml(option.text)}
+                      variant="outlined"
+                      sx={{
+                        my: 0.5,
+                        backgroundColor: bgColor,
+                        color: textColor,
+                        borderColor: bgColor !== 'transparent' ? 'transparent' : borderColor,
+                      }}
+                    />
+                  </li>
+                  );
+                })}
+              </Box>
             </Box>
           </Collapse>
         </TableCell>
       </TableRow>
-    </React.Fragment>
+    </>
   );
-}
+};
 
-const rows = [
-  createData('Вопрос №1', 'Название вопроса 1', '00:30', 'Категория №1', 'Описание вопроса 1'),
-  createData('Вопрос №2', 'Название вопроса 2', '01:00', 'Категория №1', 'Описание вопроса 2'),
-  createData('Вопрос №3', 'Название вопроса 3', '00:45', 'Категория №2', 'Описание вопроса 3'),
-  createData('Вопрос №4', 'Название вопроса 4', '00:20', 'Категория №2', 'Описание вопроса 4'),
-  createData('Вопрос №5', 'Название вопроса 5', '00:50', 'Категория №3', 'Описание вопроса 5'),
-  createData('Вопрос №6', 'Название вопроса 6', '00:40', 'Категория №3', 'Описание вопроса 6'),
-];
+const QuestionsTestTable: React.FC = observer(() => {
+  const { resultTableStore } = React.useContext(Context);
+  const { resultId } = useParams();
+  const [questions, setQuestions] = React.useState<QuestionData[]>([]);
 
-export default function QuestionsTestTable() {
+  React.useEffect(() => {
+    const load = async () => {
+      if (!resultId) return;
+      const parsedId = parseInt(resultId, 10);
+      if (isNaN(parsedId)) return;
+
+      const data = await resultTableStore.getInfoByIdResultTest(parsedId);
+
+      if (data && Array.isArray(data.questions)) {
+        setQuestions(data.questions);
+      }
+    };
+    load();
+  }, [resultId]);
+
   return (
     <TableContainer component={Paper}>
       <Table aria-label="collapsible table">
@@ -87,15 +156,16 @@ export default function QuestionsTestTable() {
             <TableCell>Вопрос</TableCell>
             <TableCell align="right">Название</TableCell>
             <TableCell align="right">Время</TableCell>
-            <TableCell align="right">Категория</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row) => (
-            <Row key={row.question} row={row} />
+          {questions.map((q) => (
+            <Row key={q.title} row={q} />
           ))}
         </TableBody>
       </Table>
     </TableContainer>
   );
-}
+});
+
+export default QuestionsTestTable;
