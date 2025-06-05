@@ -43,24 +43,51 @@ export default class RespondentsStore {
         this.usersArray = value
     }
 
-     postUsersIntoList = async (group_id: number, user_id: number) => {
-            try {
-                    const response = await fetch(`http://172.16.0.97:8012/api/user-groups/${group_id}/members/${user_id}`, {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${localStorage.getItem('tokenNavuchai')}`,
-                            'Content-Type': 'application/json'
-                        }
-                    });
-                    
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    
-            } catch (error) {
-                console.error('Error creating question:', error);
-                alert('Ошибка при создании вопроса');
+    postUsersIntoList = async (group_id: number, user_id: number) => {
+        try {
+            const response = await fetch(`http://172.16.0.97:8012/api/user-groups/${group_id}/members/${user_id}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('tokenNavuchai')}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response) {
+                this.getUserGroupsById(String(group_id))
             }
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+        } catch (error) {
+            console.error('Error creating question:', error);
+            alert('Ошибка при создании вопроса');
         }
-   
+    }
+
+    deleteUsersFromList = async (group_id: number, user_id: number) => {
+        try {
+            const response = await fetch(`http://172.16.0.97:8012/api/user-groups/${group_id}/members/${user_id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('tokenNavuchai')}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response) {
+                this.getUserGroupsById(String(group_id))
+            }
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+        } catch (error) {
+            console.error('Error creating question:', error);
+            alert('Ошибка при создании вопроса');
+        }
+    }
+
+
 }

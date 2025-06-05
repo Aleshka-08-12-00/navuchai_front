@@ -20,15 +20,22 @@ const CreateRespondentsPage = observer(() => {
     const { id } = useParams<{ id: string }>();
     const { respondentsStore } = React.useContext(Context);
 
-    const { getUsers, usersArray, getUserGroupsById, respondentListInfo, postUsersIntoList } = respondentsStore
+    const {
+        getUsers,
+        usersArray,
+        getUserGroupsById,
+        respondentListInfo,
+        postUsersIntoList,
+        deleteUsersFromList,
+    } = respondentsStore
 
     React.useEffect(() => {
         getUsers()
     }, []);
 
     React.useEffect(() => {
-        if(id !== 'new')
-        getUserGroupsById(String(id))
+        if (id !== 'new')
+            getUserGroupsById(String(id))
     }, [id]);
 
     const [title, setTitle] = useState('');
@@ -68,8 +75,23 @@ const CreateRespondentsPage = observer(() => {
         }
     };
 
-    const handleRemoveParticipant = (id: number) => {
-        setParticipants(participants.filter(p => p.id !== id));
+    const handleRemoveParticipant = async (userId: number) => {
+        if (id && id !== 'new') {
+            const groupId = parseInt(id, 10);
+            if (isNaN(groupId)) {
+                console.error('Invalid group ID');
+                return;
+            }
+            try {
+                await deleteUsersFromList(groupId, userId);
+                setParticipants(participants.filter(p => p.id !== userId));
+            } catch (error) {
+                console.error('Failed to remove user from list:', error);
+            }
+        } else {
+            // For new lists that haven't been saved yet, just remove from local state
+            setParticipants(participants.filter(p => p.id !== userId));
+        }
     };
 
     return (
@@ -99,11 +121,6 @@ const CreateRespondentsPage = observer(() => {
                 </Stack>
             </MainCard>
 
-            {id !== 'new' && (
-                <div style={{ marginTop: 20 }}>
-                    <RespondentListMembers />
-                </div>
-            )}
 
             <div style={{ marginTop: 20 }}>
                 <MainCard contentSX={{ p: 2.25, pt: 3.3, }}>
@@ -143,7 +160,7 @@ const CreateRespondentsPage = observer(() => {
                             </IconButton>
                         </Box>
 
-                        <List>
+                        {/* <List>
                             {participants.map((participant) => (
                                 <ListItem key={participant.id}>
                                     <ListItemText
@@ -161,7 +178,7 @@ const CreateRespondentsPage = observer(() => {
                                     </ListItemSecondaryAction>
                                 </ListItem>
                             ))}
-                        </List>
+                        </List> */}
 
                         {participants.length === 0 && (
                             <Typography variant="body2" color="text.secondary" align="center">
@@ -171,6 +188,13 @@ const CreateRespondentsPage = observer(() => {
                     </Stack>
                 </MainCard>
             </div>
+
+            {id !== 'new' && (
+                <div style={{ marginTop: 20 }}>
+                    <RespondentListMembers />
+                </div>
+            )}
+
         </>
     )
 });
