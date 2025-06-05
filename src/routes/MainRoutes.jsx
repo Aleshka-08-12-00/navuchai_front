@@ -8,6 +8,7 @@ import NewTestPage from 'pages/new-test-page/new-test-page';
 import TestQuestionListPage from 'pages/test-question-list-page/test-question-list-page';
 import TestPage from 'pages/TestPage/TestPage';
 import TestUserResult from 'components/testUserResult/TestUserResult';
+import CreateRespondentsPage from 'pages/respondents-page/create-respondents-list';
 
 
 // ==============================|| MAIN ROUTING ||============================== //
@@ -59,6 +60,10 @@ const MainRoutes = {
         {
           path: '/respondents',
           element: <RespondentsPage />
+        },
+        {
+          path: '/respondents/:id',
+          element: <CreateRespondentsPage />
         },
         {
           path: '/settings',

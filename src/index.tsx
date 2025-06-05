@@ -41,6 +41,7 @@ import userStore from './store/userStore';
 import ProfileStore from './store/profileStore';
 import ResultTableStore from './store/resultTableStore';
 import questionsStore from './store/questionsStore';
+import RespondentsStore from './store/respondentsStore';
 
 
 
@@ -54,6 +55,7 @@ const testResultStore = new TestResultStore();
 const userAnswerStore = new UserAnswerStore();
 const profileStore = new ProfileStore();
 const resultTableStore = new ResultTableStore();
+const respondentsStore = new RespondentsStore();
 
 
 
@@ -71,6 +73,7 @@ const obStore = {
   resultTableStore,
   userStore,
   profileStore,
+  respondentsStore
 }
 
 export const Context = createContext(obStore);

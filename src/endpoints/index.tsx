@@ -43,7 +43,15 @@ const endpoints = {
     //Профиль
     getProfile: 'api/profile',
     putProfile: 'api/profile',
-    putPassword: 'api/profile/password'
+    putPassword: 'api/profile/password',
+
+    //Группы пользователей
+    getUserGroups: 'api/user-groups',
+    postUserGroups: 'api/user-groups',
+    getUserGroupsById: (id: string | number | null ): string => `api/user-groups/${id}`,
+
+    //Пользователи
+    getUsers: 'api/users',
     
   };
   
