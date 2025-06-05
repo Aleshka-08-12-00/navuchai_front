@@ -7,6 +7,14 @@ import {
 } from "../interface/interfaceStore";
 import authStore from "./authStore";
 
+declare global {
+  interface Window {
+    AndroidBridge?: {
+      notifyTestPassed: () => void;
+    }
+  }
+}
+
 export default class TestResultStore {
   result: ITestResultCreateResponse | null = null;
   loading = false;
@@ -90,6 +98,10 @@ export default class TestResultStore {
         this.loading = false;
         console.log("Результат теста:", data);
       });
+
+      if (window.AndroidBridge?.notifyTestPassed) {
+        window.AndroidBridge.notifyTestPassed();
+      }
 
       return data; // ✅ возвращаем результат
     } catch (error: any) {
