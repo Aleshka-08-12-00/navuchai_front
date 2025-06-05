@@ -229,12 +229,16 @@ export interface ITestStatus {
 /**
  * Тип значения ответа на вопрос
  */
+/**
+ * Payload одного ответа
+ */
 export interface ITestResultAnswerPayload {
-  value: string | number | string[] | number[] | Record<string, any>;
+  value: string | string[] | boolean; // например: "ДА", ["<p>Температура</p>"], true
+  time_spent: number; // секунды, потраченные на ответ
 }
 
 /**
- * Массив ответов
+ * Один ответ пользователя
  */
 export interface ITestResultAnswerRequest {
   question_id: number;
@@ -270,16 +274,14 @@ export interface ICheckDetails {
       stopIfIncorrect: boolean;
     };
     user_choice: {
-      answer: string;
+      answer: string | string[] | boolean;
     };
     correct_count?: number;
     total_correct?: number;
-    correct_choice: string;
+    correct_choice: string | string[];
   };
   user_answer: {
-    value: {
-      answer: string;
-    };
+    value: ITestResultAnswerPayload;
   };
   correct_answer: string[];
 }
@@ -314,9 +316,10 @@ export interface ITestResultCreateResponse {
   user_id: number;
   test_id: number;
   score: number;
-  completed_at?: number,
+  completed_at?: number;
   result: ITestResultAnalysis;
 }
+
 
 
 /**

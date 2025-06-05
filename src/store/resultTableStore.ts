@@ -120,13 +120,16 @@ export default class ResultTableStore {
       const data = await fetchData('getResultByResultId', {}, resultId);
       runInAction(() => {
         this.selectedResult = data;
+        console.log(data)
       });
 
       const testId = data?.test_id;
       const userId = data?.user_id;
       const percentage = data?.result?.percentage;
       const completedAt = data?.completed_at;
-      
+      const timeSpent = data?.result?.checked_answers?.check_details?.user_answer?.time_limit;
+      console.log(timeSpent)
+
 
       await Promise.all([
         testId ? this.fetchAndStoreTestName(testId) : Promise.resolve(),
@@ -137,6 +140,14 @@ export default class ResultTableStore {
       const testName = testId ? this.testNamesMap.get(testId) : "Неизвестно";
       const userName = userId ? userStore.getUserField(userId, "name") : "Неизвестно";
 
+
+
+      const formatTime = (totalSeconds: number): string => {
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+      return `${minutes} мин ${seconds.toString().padStart(2, '0')} сек`;
+    };
+
     // Обработка массива вопросов для таблицы
     const checkedAnswers = data?.result?.checked_answers || [];
 
@@ -144,65 +155,74 @@ export default class ResultTableStore {
       await questionsStore.fetchQuestionsByTestId(testId);
     }
 
-      const questions = checkedAnswers.map((answer: ICheckedAnswer, index: number) => {
-        const questionText = answer.question_text;
-        const correctAnswers = answer.check_details.correct_answer || [];
+    let totalTimeSpent = 0;
 
-        let userAnswers: string[] = [];
+    const questions = checkedAnswers.map((answer: ICheckedAnswer, index: number) => {
+      const questionText = answer.question_text;
+      const correctAnswers = answer.check_details.correct_answer || [];
 
-        try {
-          const rawValue: any = answer.check_details?.user_answer?.value;
-          const parsedValue =
-            typeof rawValue === 'string'
-              ? rawValue.trim().startsWith('{') || rawValue.trim().startsWith('[')
-                ? JSON.parse(rawValue.trim())
-                : { answer: rawValue.trim() }
-              : rawValue;
+      
 
-          if (Array.isArray(parsedValue)) {
-            userAnswers = parsedValue.map(String);
-          } else if (parsedValue && typeof parsedValue === 'object') {
-            const extracted = parsedValue.answer;
-            userAnswers = Array.isArray(extracted)
-              ? extracted.map(String)
-              : extracted
-              ? [String(extracted)]
-              : [];
-          } else if (typeof parsedValue === 'string') {
-            userAnswers = [parsedValue];
-          }
-        } catch (e) {
-          console.error('❌ Ошибка при разборе user_answer:', e);
-          userAnswers = [];
+      let userAnswers: string[] = [];
+
+      try {
+        const rawValue: any = answer.check_details?.user_answer?.value;
+        const parsedValue =
+          typeof rawValue === 'string'
+            ? rawValue.trim().startsWith('{') || rawValue.trim().startsWith('[')
+              ? JSON.parse(rawValue.trim())
+              : { answer: rawValue.trim() }
+            : rawValue;
+
+        if (Array.isArray(parsedValue)) {
+          userAnswers = parsedValue.map(String);
+        } else if (parsedValue && typeof parsedValue === 'object') {
+          const extracted = parsedValue.answer;
+          userAnswers = Array.isArray(extracted)
+            ? extracted.map(String)
+            : extracted
+            ? [String(extracted)]
+            : [];
+        } else if (typeof parsedValue === 'string') {
+          userAnswers = [parsedValue];
         }
-        const questionsByTestId = questionsStore.questions;
-        // 🧠 Находим соответствующий вопрос по тексту
-          const matchedQuestion = questionsByTestId.find(
-          (q) => q.question.id === answer.question_id
-        );
-        console.log(matchedQuestion);
+      } catch (e) {
+        console.error('❌ Ошибка при разборе user_answer:', e);
+        userAnswers = [];
+      }
 
-        const allAnswers = matchedQuestion
-          ? matchedQuestion.question.answers.allAnswer
-          : Array.from(new Set([...correctAnswers, ...userAnswers]));
+      const questionsByTestId = questionsStore.questions;
+      const matchedQuestion = questionsByTestId.find(
+        (q) => q.question.id === answer.question_id
+      );
 
-        const options = allAnswers.map((text, i) => ({
-          id: i,
-          text,
-          isCorrect: correctAnswers.includes(text),
-          isUserAnswer: userAnswers.includes(text),
-        }));
+      const allAnswers = matchedQuestion
+        ? matchedQuestion.question.answers.allAnswer
+        : Array.from(new Set([...correctAnswers, ...userAnswers]));
 
-        return {
-          question: `Вопрос №${index + 1}`,
-          title: questionText,
-          timeSpent: '—',
-          description: questionText,
-          options,
-          correctCount: answer.check_details.details.correct_count || 1,
-          totalCorrect: answer.check_details.details.total_correct || 1,
-        };
-      });
+      const options = allAnswers.map((text, i) => ({
+        id: i,
+        text,
+        isCorrect: correctAnswers.includes(text),
+        isUserAnswer: userAnswers.includes(text),
+      }));
+
+      // Вытаскиваем время
+      const timeSpent = answer.check_details?.user_answer?.value?.time_spent || 0;
+      totalTimeSpent += timeSpent;
+      const formattedTotalTime = formatTime(totalTimeSpent);
+
+      return {
+        question: `Вопрос №${index + 1}`,
+        title: questionText,
+        timeSpent: `${timeSpent} сек.`,
+        description: questionText,
+        options,
+        correctCount: answer.check_details.details.correct_count || 1,
+        totalCorrect: answer.check_details.details.total_correct || 1,
+      };
+    });
+
 
 
       runInAction(() => {
@@ -216,6 +236,7 @@ export default class ResultTableStore {
         percentage,
         completedAt,
         questions,
+        totalTimeSpent,
         error: null,
       };
     } catch (error: any) {

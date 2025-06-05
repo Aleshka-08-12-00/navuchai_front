@@ -69,7 +69,7 @@ const Row = ({ row }: { row: QuestionData }) => {
               <Typography variant="body2" gutterBottom>{stripHtml(row.description)}</Typography>
 
               <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>
-                Правильный/Неправильный ответ
+                Ответ пользователя
               </Typography>
               <Box component="ol" sx={{ pl: 3, m: 0 }}>
                 {row.options.map((option) => {
@@ -80,7 +80,7 @@ const Row = ({ row }: { row: QuestionData }) => {
               let textColor = 'inherit';
               let borderColor = '#ccc';
 
-                            if (isMultiple) {
+                      if (isMultiple) {
                   if (isCorrect && isUserAnswer) {
                     bgColor = '#9af49e';
                     textColor = '#000';
@@ -131,6 +131,7 @@ const QuestionsTestTable: React.FC = observer(() => {
   const { resultTableStore } = React.useContext(Context);
   const { resultId } = useParams();
   const [questions, setQuestions] = React.useState<QuestionData[]>([]);
+  const [timeSpent, setTimeSpent] = React.useState<QuestionData[]>([]);
 
   React.useEffect(() => {
     const load = async () => {
@@ -142,6 +143,7 @@ const QuestionsTestTable: React.FC = observer(() => {
 
       if (data && Array.isArray(data.questions)) {
         setQuestions(data.questions);
+        // setTimeSpent(data.)
       }
     };
     load();
@@ -161,6 +163,7 @@ const QuestionsTestTable: React.FC = observer(() => {
         <TableBody>
           {questions.map((q) => (
             <Row key={q.title} row={q} />
+            // <Row key={q.timeSpent} row={q} />
           ))}
         </TableBody>
       </Table>
