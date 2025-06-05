@@ -10,9 +10,15 @@ class SettingsNewTestStore {
     testCategories: ITestCategories[] = [];
     locales: ILocales[] = [];
     testMainInfo: InterfaceTests = {} as InterfaceTests
+    timeLimit: number = 0;
 
     constructor() {
         makeAutoObservable(this);
+    }
+
+    get timeLimitFromTest(): number {
+       const test_limit_time = this.testMainInfo?.time_limit ?? 0;
+       return test_limit_time;
     }
 
     getTestCategories = async () => {
@@ -74,7 +80,6 @@ class SettingsNewTestStore {
             .map((v) => charset[v % charset.length])
             .join('');
     }
-
 
 }
 

@@ -82,7 +82,7 @@ export default class TestResultStore {
 
       const formattedAnswers = payload.answers.map((a) => ({
         question_id: a.question_id,
-        answer: { value: a.answer },
+        answer:  a.answer ,
       }));
 
       const fullPayload: ITestResultCreateRequest = {

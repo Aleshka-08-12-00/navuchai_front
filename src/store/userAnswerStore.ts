@@ -27,15 +27,23 @@ export default class UserAnswerStore {
     this.score = score;
   }
 
-  saveAnswer(question_id: number, answer: ITestResultAnswerPayload) {
-    console.log("Saving answer", question_id, answer);
-    const existing = this.answers.find((a) => a.question_id === question_id);
-    if (existing) {
-      existing.answer = answer;
+  saveAnswer(questionId: number, answer: ITestResultAnswerPayload) {
+    const existingIndex = this.answers.findIndex(
+      (ans) => ans.question_id === questionId
+    );
+
+    const payload: ITestResultAnswerRequest = {
+      question_id: questionId,
+      answer: answer, // <-- передаём напрямую
+    };
+
+    if (existingIndex !== -1) {
+      this.answers[existingIndex] = payload;
     } else {
-      this.answers.push({ question_id, answer });
+      this.answers.push(payload);
     }
   }
+
 
     getPayload(): ITestResultCreateRequest | null {
     console.log("getPayload called");
