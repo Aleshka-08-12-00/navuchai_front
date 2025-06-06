@@ -7,9 +7,11 @@ export default class ProfileStore {
 
     error: string = '';
     profile: IProfileUser | null = null;
+    onAlert?: (message: string, severity: 'success' | 'error') => void;
  
-    constructor() {
+    constructor(onAlert?: (message: string, severity: 'success' | 'error') => void) {
         makeAutoObservable(this);
+        this.onAlert = onAlert;
     }
 
 
@@ -63,7 +65,9 @@ export default class ProfileStore {
                 this.error = message;
             });
 
-            alert(message);
+            if (this.onAlert) {
+                this.onAlert(message, 'error');
+            }
             return false;
         }
     }

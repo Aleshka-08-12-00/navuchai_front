@@ -50,6 +50,7 @@ const endpoints = {
     postUserGroups: 'api/user-groups',
     getUserGroupsById: (id: string | number | null ): string => `api/user-groups/${id}`,
     putUserGroupsById: (id: string | number | null ): string => `api/user-groups/${id}`,
+    deleteUserGroupsById: (id: string | number | null ): string => `api/user-groups/${id}`,
 
     //Пользователи
     getUsers: 'api/users',

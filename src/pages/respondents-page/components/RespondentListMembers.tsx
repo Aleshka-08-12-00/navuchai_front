@@ -1,6 +1,5 @@
 import React from 'react';
 import { observer } from 'mobx-react-lite';
-import { Context } from '../..';
 import {
   Table,
   TableBody,
@@ -14,7 +13,8 @@ import {
   IconButton
 } from '@mui/material';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import MainCard from '../MainCard';
+import { Context } from '../../..';
+import MainCard from '../../../components/MainCard';
 
 const RespondentListMembers: React.FC = observer(() => {
   const { respondentsStore } = React.useContext(Context);

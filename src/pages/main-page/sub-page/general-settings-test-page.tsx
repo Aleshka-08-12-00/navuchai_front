@@ -16,7 +16,9 @@ import {
     Select,
     SelectChangeEvent,
     TextField,
-    Typography
+    Typography,
+    Alert,
+    Snackbar
 } from '@mui/material';
 import { minWidth, Stack } from '@mui/system';
 import { Context } from '../../..';
@@ -76,6 +78,19 @@ const GeneralSettingsTestPage = observer(() => {
         img_id: 0,
     });
 
+    const [alertOpen, setAlertOpen] = React.useState(false);
+    const [alertMessage, setAlertMessage] = React.useState('');
+    const [alertSeverity, setAlertSeverity] = React.useState<'success' | 'error'>('success');
+
+    const showAlert = (message: string, severity: 'success' | 'error') => {
+        setAlertMessage(message);
+        setAlertSeverity(severity);
+        setAlertOpen(true);
+    };
+
+    const handleCloseAlert = () => {
+        setAlertOpen(false);
+    };
 
     const handleChange = (event: SelectChangeEvent) => {
         const selectedValue = event.target.value;
@@ -134,7 +149,7 @@ const GeneralSettingsTestPage = observer(() => {
             if (file.type.startsWith('image/')) {
                 setSelectedFile(file);
             } else {
-                alert('Пожалуйста, выберите файл изображения');
+                showAlert('Пожалуйста, выберите файл изображения', 'error');
             }
         }
     };
@@ -180,7 +195,7 @@ const GeneralSettingsTestPage = observer(() => {
         try {
             const response = await postData('uploadLogo', formData);
             if (response) {
-                alert('Логотип успешно загружен');
+                showAlert('Логотип успешно загружен', 'success');
                 setSelectedFile(null);
                 setLogoOption('1'); // Set to custom logo option when uploading
                 setImageUrl(response.url);
@@ -195,7 +210,7 @@ const GeneralSettingsTestPage = observer(() => {
             }
         } catch (error) {
             console.error('Ошибка при загрузке логотипа:', error);
-            alert('Ошибка при загрузке логотипа');
+            showAlert('Ошибка при загрузке логотипа', 'error');
         }
     };
 
@@ -206,19 +221,16 @@ const GeneralSettingsTestPage = observer(() => {
     const handleCloseDialogNewCategory = async () => {
         if (newCategoryName.trim()) {
             try {
-                // Assuming you have a method in your store to create a new category
                 postTestCategories(newCategoryName);
-                // Refresh categories list
                 getTestCategories();
-                // Reset form
                 setNewCategoryName('');
                 setOpenDialogNewCategory(false);
             } catch (error) {
                 console.error('Ошибка при создании категории:', error);
-                alert('Ошибка при создании категории');
+                showAlert('Ошибка при создании категории', 'error');
             }
         } else {
-            alert('Пожалуйста, введите название категории');
+            showAlert('Пожалуйста, введите название категории', 'error');
         }
     };
 
@@ -457,6 +469,16 @@ const GeneralSettingsTestPage = observer(() => {
                 value={newCategoryName}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewCategoryName(e.target.value)}
             />
+            <Snackbar 
+                open={alertOpen} 
+                autoHideDuration={6000} 
+                onClose={handleCloseAlert}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert onClose={handleCloseAlert} severity={alertSeverity} sx={{ width: '100%' }}>
+                    {alertMessage}
+                </Alert>
+            </Snackbar>
         </div>
     );
 })

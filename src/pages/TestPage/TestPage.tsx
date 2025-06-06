@@ -3,7 +3,7 @@ import { observer } from "mobx-react-lite";
 import { useParams } from "react-router-dom";
 import { Context } from "../..";
 
-import { Typography, Box } from "@mui/material";
+import { Typography, Box, Card, CardContent, Button, Divider, Alert, Snackbar } from "@mui/material";
 import TestStartPage from "./components/test-start-page";
 import TestSingleChoiceCard from "./components/testSingleChoiceCard";
 import TestTextAnswerCard from "./components/testTextAnswerCard";
@@ -27,6 +27,19 @@ const TestPage = observer(() => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [questionStartTime, setQuestionStartTime] = useState<number | null>(null);
   const { testId } = useParams<{ testId: string }>();
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertSeverity, setAlertSeverity] = useState<'success' | 'error'>('success');
+
+  const showAlert = (message: string, severity: 'success' | 'error') => {
+    setAlertMessage(message);
+    setAlertSeverity(severity);
+    setAlertOpen(true);
+  };
+
+  const handleCloseAlert = () => {
+    setAlertOpen(false);
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -68,19 +81,18 @@ const TestPage = observer(() => {
   const test = settingsNewTestStore.testMainInfo;
   const timeLimit = settingsNewTestStore.timeLimitFromTest;
 
-const handleAnswer = async (answerValue: any) => {
-  const current = questions[currentQuestionIndex];
-  if (!current || questionStartTime === null) return;
+  const handleAnswer = async (answerValue: any) => {
+    const current = questions[currentQuestionIndex];
+    if (!current || questionStartTime === null) return;
 
-  const time_spent = Math.floor((Date.now() - questionStartTime) / 1000);
+    const time_spent = Math.floor((Date.now() - questionStartTime) / 1000);
 
-  const answerPayload: ITestResultAnswerPayload = {
-    value: answerValue, // answerValue должен быть string | boolean | string[]
-    time_spent,
-  };
+    const answerPayload: ITestResultAnswerPayload = {
+      value: answerValue, // answerValue должен быть string | boolean | string[]
+      time_spent,
+    };
 
-  userAnswerStore.saveAnswer(current.question.id, answerPayload);
-
+    userAnswerStore.saveAnswer(current.question.id, answerPayload);
 
     const isLastQuestion = currentQuestionIndex >= questions.length - 1;
 
@@ -100,7 +112,7 @@ const handleAnswer = async (answerValue: any) => {
       const fullPayload = userAnswerStore.getPayload();
 
       if (!fullPayload) {
-        alert("Недостаточно данных для отправки результатов");
+        showAlert("Недостаточно данных для отправки результатов", "error");
         return;
       }
 
@@ -110,13 +122,13 @@ const handleAnswer = async (answerValue: any) => {
         const result = testResultStore.result;
 
         if (result?.result?.percentage !== undefined) {
-          alert(`Тест завершён! Вы набрали ${result.result.percentage}%`);
+          showAlert(`Тест завершён! Вы набрали ${result.result.percentage}%`, "success");
         } else {
-          alert("Результаты теста отправлены!");
+          showAlert("Результаты теста отправлены!", "success");
         }
       } catch (e) {
         console.error(e);
-        alert("Ошибка при отправке результатов");
+        showAlert("Ошибка при отправке результатов", "error");
       } finally {
         userAnswerStore.reset();
         setStart(false);
@@ -191,26 +203,38 @@ const handleAnswer = async (answerValue: any) => {
   })();
 
   return (
-    <Box>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-        <Typography variant="h5">
-          Вопрос №{currentQuestionIndex + 1} / {questions.length}
-        </Typography>
+    <>
+      <Box>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+          <Typography variant="h5">
+            Вопрос №{currentQuestionIndex + 1} / {questions.length}
+          </Typography>
 
-        <TestTimer
-          timeLimit={timeLimit}
-          onTimeEnd={() => {
-            alert("Время вышло! Отправляем результаты...");
-            handleAnswer(null);
-          }}
+          <TestTimer
+            timeLimit={timeLimit}
+            onTimeEnd={() => {
+              showAlert("Время вышло! Отправляем результаты...", "error");
+              handleAnswer(null);
+            }}
+          />
+        </Box>
+
+        <QuestionComponent
+          question={current}
+          onNext={handleAnswer}
         />
       </Box>
-
-      <QuestionComponent
-        question={current}
-        onNext={handleAnswer}
-      />
-    </Box>
+      <Snackbar 
+        open={alertOpen} 
+        autoHideDuration={6000} 
+        onClose={handleCloseAlert}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert onClose={handleCloseAlert} severity={alertSeverity} sx={{ width: '100%' }}>
+          {alertMessage}
+        </Alert>
+      </Snackbar>
+    </>
   );
 });
 

@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, FormHelperText, Grid, IconButton, InputAdornment, InputLabel, OutlinedInput, Stack } from '@mui/material';
+import { Button, FormHelperText, Grid, IconButton, InputAdornment, InputLabel, OutlinedInput, Stack, Typography, Alert, Snackbar } from '@mui/material';
 
 import { Formik } from 'formik';
 
@@ -18,6 +18,19 @@ const AuthLogin = observer(() => {
   const { error } = authStore;
   const [password, setPassword] = React.useState('');
   const [email, setEmail] = React.useState('');
+  const [alertOpen, setAlertOpen] = React.useState(false);
+  const [alertMessage, setAlertMessage] = React.useState('');
+  const [alertSeverity, setAlertSeverity] = React.useState('success');
+
+  const showAlert = (message, severity) => {
+    setAlertMessage(message);
+    setAlertSeverity(severity);
+    setAlertOpen(true);
+  };
+
+  const handleCloseAlert = () => {
+    setAlertOpen(false);
+  };
 
   const [showPassword, setShowPassword] = React.useState(false);
   const handleClickShowPassword = () => {
@@ -107,9 +120,25 @@ const AuthLogin = observer(() => {
                 </Grid>
                 <Grid item xs={12} sx={{ mt: -1 }}>
                   <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={2}>
-                    <div variant="h6" onClick={() => alert('Пароль как в Битрикс')} color="text.primary">
+                    <Typography
+                      component="button"
+                      type="button"
+                      variant="h6"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        showAlert('Пароль как в Битрикс', 'info');
+                      }}
+                      color="text.primary"
+                      sx={{ 
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        padding: 0,
+                        '&:hover': { textDecoration: 'underline' }
+                      }}
+                    >
                       Забыли пароль?
-                    </div>
+                    </Typography>
                   </Stack>
                 </Grid>
                 {errors.submit && (
@@ -152,6 +181,16 @@ const AuthLogin = observer(() => {
           );
         }}
       </Formik>
+      <Snackbar 
+        open={alertOpen} 
+        autoHideDuration={6000} 
+        onClose={handleCloseAlert}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert onClose={handleCloseAlert} severity={alertSeverity} sx={{ width: '100%' }}>
+          {alertMessage}
+        </Alert>
+      </Snackbar>
     </>
   );
 });
