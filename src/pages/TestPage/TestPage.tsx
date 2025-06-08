@@ -75,7 +75,7 @@ const handleAnswer = async (answerValue: any) => {
   const time_spent = Math.floor((Date.now() - questionStartTime) / 1000);
 
   const answerPayload: ITestResultAnswerPayload = {
-    value: answerValue, // answerValue должен быть string | boolean | string[]
+    value: answerValue,
     time_spent,
   };
 
@@ -105,7 +105,6 @@ const handleAnswer = async (answerValue: any) => {
       }
 
       try {
-        console.log("Payload перед отправкой:", JSON.stringify(fullPayload, null, 2));
         await testResultStore.createTestResult(fullPayload);
         const result = testResultStore.result;
 
