@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Radio, RadioGroup, FormControlLabel, TextField, Button, Slider, Box, Typography } from '@mui/material';
+import { Radio, RadioGroup, FormControlLabel, TextField, Button, Slider, Box, Typography, Alert, Snackbar } from '@mui/material';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import MainCard from '../../../../../components/MainCard';
 
@@ -8,6 +8,19 @@ const TestDuration: React.FC = () => {
     const [hours, setHours] = useState<number>(0);
     const [minutes, setMinutes] = useState<number>(0);
     const [seconds, setSeconds] = useState<number>(0);
+    const [alertOpen, setAlertOpen] = useState(false);
+    const [alertMessage, setAlertMessage] = useState('');
+    const [alertSeverity, setAlertSeverity] = useState<'success' | 'error'>('success');
+
+    const showAlert = (message: string, severity: 'success' | 'error') => {
+        setAlertMessage(message);
+        setAlertSeverity(severity);
+        setAlertOpen(true);
+    };
+
+    const handleCloseAlert = () => {
+        setAlertOpen(false);
+    };
 
     const handleOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSelectedOption(event.target.value);
@@ -32,15 +45,15 @@ const TestDuration: React.FC = () => {
     };
 
     const handleConfirmComplete = () => {
-        alert(`Test duration set to ${hours} hours and ${minutes} minutes`);
+        showAlert(`Test duration set to ${hours} hours and ${minutes} minutes`, 'success');
     };
 
     const handleConfirmQuestion = () => {
-        alert(`Time limit for each question set to ${minutes} minutes and ${seconds} seconds`);
+        showAlert(`Time limit for each question set to ${minutes} minutes and ${seconds} seconds`, 'success');
     };
 
     return (
-        <div style={{ marginBottom: 20 }}>
+        <>
             <MainCard contentSX={{ p: 2.25, pt: 3.3 }}>
                 <RadioGroup value={selectedOption} onChange={handleOptionChange}>
                     <FormControlLabel value="complete" control={<Radio />} label="Time to complete the test: (hh:mm)" />
@@ -187,7 +200,17 @@ const TestDuration: React.FC = () => {
                     </Box>
                 )}
             </MainCard>
-        </div>
+            <Snackbar 
+                open={alertOpen} 
+                autoHideDuration={6000} 
+                onClose={handleCloseAlert}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert onClose={handleCloseAlert} severity={alertSeverity} sx={{ width: '100%' }}>
+                    {alertMessage}
+                </Alert>
+            </Snackbar>
+        </>
     );
 };
 

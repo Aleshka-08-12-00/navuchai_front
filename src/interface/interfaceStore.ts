@@ -370,3 +370,36 @@ export interface IEditProfileReq {
   username: string;
   email: string;
 }
+
+export interface IRespondentMember {
+  user_id: number;
+  group_id: number;
+  id: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface IRespondentLists {
+  name: string;
+  description: string;
+  id: number;
+  creator_id: number;
+  created_at: string;
+  updated_at: string;
+  members: IRespondentMember[];
+}
+
+export interface IUsers {
+  name: string;
+  role_id: number;
+  username: string;
+  email: string;
+  id: number;
+  role: {
+    name: string;
+    code: string;
+  };
+  created_at: string;
+  updated_at: string;
+}
+

@@ -40,22 +40,24 @@ import settingsNewTestStore from './store/settingsNewTestStore';
 import userStore from './store/userStore';
 import ProfileStore from './store/profileStore';
 import ResultTableStore from './store/resultTableStore';
+import RespondentsStore from './store/respondentsStore';
 import questionsStore from './store/questionsStore';
 
-
-
+const showAlert = (message: string, severity: 'success' | 'error') => {
+  // This will be implemented by each component that needs alerts
+  console.log(`${severity}: ${message}`);
+};
 
 const store = new Store();
 const settingsStore = new SettingsStore();
 const mainPageStore = new MainPageStore();
-const createQuestionsStore  = new CreateQuestionsStore();
-const testQuestionListPageStore  = new TestQuestionListPageStore();
+const createQuestionsStore = new CreateQuestionsStore(showAlert);
+const testQuestionListPageStore = new TestQuestionListPageStore(showAlert);
 const testResultStore = new TestResultStore();
 const userAnswerStore = new UserAnswerStore();
-const profileStore = new ProfileStore();
+const profileStore = new ProfileStore(showAlert);
 const resultTableStore = new ResultTableStore();
-
-
+const respondentsStore = new RespondentsStore(showAlert);
 
 const obStore = {
   store,
@@ -71,6 +73,7 @@ const obStore = {
   resultTableStore,
   userStore,
   profileStore,
+  respondentsStore
 }
 
 export const Context = createContext(obStore);

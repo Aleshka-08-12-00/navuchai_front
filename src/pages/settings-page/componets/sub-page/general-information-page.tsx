@@ -7,7 +7,9 @@ import {
     Modal,
     TextField,
     Typography,
-    Box
+    Box,
+    Alert,
+    Snackbar
 } from '@mui/material';
 import { Stack } from '@mui/system';
 
@@ -25,6 +27,21 @@ const modalStyle = {
 
 const GeneralInformationPage = observer(() => {
     const { profileStore } = React.useContext(Context);
+    const [openModal, setOpenModal] = React.useState(false);
+    const [openPasswordModal, setOpenPasswordModal] = React.useState(false);
+    const [alertOpen, setAlertOpen] = React.useState(false);
+    const [alertMessage, setAlertMessage] = React.useState('');
+    const [alertSeverity, setAlertSeverity] = React.useState<'success' | 'error'>('success');
+
+    const showAlert = (message: string, severity: 'success' | 'error') => {
+        setAlertMessage(message);
+        setAlertSeverity(severity);
+        setAlertOpen(true);
+    };
+
+    const handleCloseAlert = () => {
+        setAlertOpen(false);
+    };
 
     React.useEffect(() => {
         if (!profileStore.profile) {
@@ -33,9 +50,6 @@ const GeneralInformationPage = observer(() => {
     }, [profileStore]);
 
     const profile = profileStore.profile;
-
-    const [openModal, setOpenModal] = React.useState(false);
-    const [openPasswordModal, setOpenPasswordModal] = React.useState(false);
 
     const [formData, setFormData] = React.useState({
         name: '',
@@ -75,13 +89,14 @@ const GeneralInformationPage = observer(() => {
 
     const handleSave = async () => {
         if (formData.username !== formData.email) {
-            alert('Username должен совпадать с email');
+            showAlert('Username должен совпадать с email', 'error');
             return;
         }
 
         const success = await profileStore.putProfile(formData);
         if (success) {
             setOpenModal(false);
+            showAlert('Профиль успешно обновлен', 'success');
         }
     };
 
@@ -89,12 +104,12 @@ const GeneralInformationPage = observer(() => {
         const { oldPassword, newPassword, confirmPassword } = passwordData;
 
         if (!newPassword || !confirmPassword) {
-            alert('Пожалуйста, заполните все поля');
+            showAlert('Пожалуйста, заполните все поля', 'error');
             return;
         }
 
         if (newPassword !== confirmPassword) {
-            alert('Пароли не совпадают');
+            showAlert('Пароли не совпадают', 'error');
             return;
         }
 
@@ -102,6 +117,7 @@ const GeneralInformationPage = observer(() => {
         if (success) {
             setOpenPasswordModal(false);
             setPasswordData({ oldPassword: '', newPassword: '', confirmPassword: '' });
+            showAlert('Пароль успешно изменен', 'success');
         }
     };
 
@@ -226,6 +242,17 @@ const GeneralInformationPage = observer(() => {
                     </Box>
                 </Box>
             </Modal>
+
+            <Snackbar 
+                open={alertOpen} 
+                autoHideDuration={6000} 
+                onClose={handleCloseAlert}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert onClose={handleCloseAlert} severity={alertSeverity} sx={{ width: '100%' }}>
+                    {alertMessage}
+                </Alert>
+            </Snackbar>
         </>
     );
 });

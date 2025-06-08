@@ -1,4 +1,4 @@
-import { Box, Button, IconButton, Stack, Typography, FormControl, Select, MenuItem, TextField, SelectChangeEvent } from "@mui/material";
+import { Box, Button, IconButton, Stack, Typography, FormControl, Select, MenuItem, TextField, SelectChangeEvent, Alert, Snackbar } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { Grid } from "@mui/material";
 import AddBoxIcon from '@mui/icons-material/AddBox';
@@ -62,6 +62,9 @@ const MainPage = observer(() => {
   const [category, setCategory] = useState<string>('all');
   const [status, setStatus] = useState<string>('all');
   const [search, setSearch] = useState('');
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertSeverity, setAlertSeverity] = useState<'success' | 'error'>('success');
 
   React.useEffect(() => {
     getTests();
@@ -98,8 +101,18 @@ const MainPage = observer(() => {
     handleCloseMenu(id);
   };
 
+  const showAlert = (message: string, severity: 'success' | 'error') => {
+    setAlertMessage(message);
+    setAlertSeverity(severity);
+    setAlertOpen(true);
+  };
+
+  const handleCloseAlert = () => {
+    setAlertOpen(false);
+  };
+
   const handleDuplicate = (id: number) => {
-    alert("Дублировать выбрано");
+    showAlert("Дублировать выбрано", "success");
     handleCloseMenu(id);
   };
 
@@ -307,6 +320,16 @@ const MainPage = observer(() => {
           </Grid>
         </>
       </Box>
+      <Snackbar 
+        open={alertOpen} 
+        autoHideDuration={6000} 
+        onClose={handleCloseAlert}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert onClose={handleCloseAlert} severity={alertSeverity} sx={{ width: '100%' }}>
+          {alertMessage}
+        </Alert>
+      </Snackbar>
     </>
   )
 });
