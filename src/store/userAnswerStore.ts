@@ -1,6 +1,6 @@
 import { makeAutoObservable } from "mobx";
 import {
-  ITestResultAnswerPayload,
+  IAnswerValue,
   ITestResultAnswerRequest,
   ITestResultCreateRequest,
 } from "../interface/interfaceStore";
@@ -9,7 +9,8 @@ export default class UserAnswerStore {
   answers: ITestResultAnswerRequest[] = [];
   userId: number | null = null;
   testId: number | null = null;
-  score: number = 0;
+  timeStart: string | null = null;
+  timeEnd: string | null = null;
 
   constructor() {
     makeAutoObservable(this);
@@ -23,18 +24,29 @@ export default class UserAnswerStore {
     this.testId = id;
   }
 
-  setScore(score: number) {
-    this.score = score;
+  setTimeStart(start: string) {
+    this.timeStart = start;
   }
 
-  saveAnswer(questionId: number, answer: ITestResultAnswerPayload) {
+  setTimeEnd(end: string) {
+    this.timeEnd = end;
+  }
+
+  saveAnswer(
+    questionId: number,
+    answer: IAnswerValue,
+    timeStart: string,
+    timeEnd: string
+  ) {
     const existingIndex = this.answers.findIndex(
       (ans) => ans.question_id === questionId
     );
 
     const payload: ITestResultAnswerRequest = {
       question_id: questionId,
-      answer: answer, // <-- передаём напрямую
+      time_start: timeStart,
+      time_end: timeEnd,
+      answer,
     };
 
     if (existingIndex !== -1) {
@@ -44,39 +56,30 @@ export default class UserAnswerStore {
     }
   }
 
-
-    getPayload(): ITestResultCreateRequest | null {
-    console.log("getPayload called");
-    console.log("userId:", this.userId);
-    console.log("testId:", this.testId);
-    console.log("score:", this.score);
-    console.log("answers:", this.answers);
-
-    if (this.userId === null) {
-        console.warn("getPayload: userId is null");
-        return null;
-    }
-    if (this.testId === null) {
-        console.warn("getPayload: testId is null");
-        return null;
-    }
-
-    if (this.answers.length === 0) {
-        console.warn("getPayload: answers array is empty");
+getPayload(): ITestResultCreateRequest | null {
+    if (
+      this.userId === null ||
+      this.testId === null ||
+      this.timeStart === null ||
+      this.timeEnd === null
+    ) {
+      return null;
     }
 
     return {
-        user_id: this.userId,
-        test_id: this.testId,
-        score: this.score,
-        answers: this.answers,
+      user_id: this.userId,
+      test_id: this.testId,
+      time_start: this.timeStart,
+      time_end: this.timeEnd,
+      answers: this.answers,
     };
-    }
+  }
 
   reset() {
     this.answers = [];
     this.testId = null;
     this.userId = null;
-    this.score = 0;
+    this.timeStart = null;
+    this.timeEnd = null;
   }
 }

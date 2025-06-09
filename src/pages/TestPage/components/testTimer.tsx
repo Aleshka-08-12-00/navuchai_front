@@ -1,40 +1,48 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Typography } from '@mui/material';
 
-interface testTimerProps {
-  timeLimit: number; // в секундах
-  onTimeEnd?: () => void; // колбэк при завершении таймера
+interface TestTimerProps {
+  timeLimit: number; // в секундах, 0 — бесконечный
+  onTimeEnd?: () => void;
 }
 
-const testTimer: React.FC<testTimerProps> = ({ timeLimit, onTimeEnd }) => {
+const TestTimer: React.FC<TestTimerProps> = ({ timeLimit, onTimeEnd }) => {
   const [secondsLeft, setSecondsLeft] = useState(timeLimit);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    if (secondsLeft <= 0) {
-      if (onTimeEnd) onTimeEnd();
-      return;
-    }
+    if (timeLimit === 0) return; // не запускаем таймер, если нет лимита
 
-    const timer = setInterval(() => {
-      setSecondsLeft((prev) => prev - 1);
+    setSecondsLeft(timeLimit); // сброс при старте
+    intervalRef.current = setInterval(() => {
+      setSecondsLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(intervalRef.current!);
+          onTimeEnd?.();
+          return 0;
+        }
+        return prev - 1;
+      });
     }, 1000);
 
-    return () => clearInterval(timer);
-  }, [secondsLeft, onTimeEnd]);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [timeLimit, onTimeEnd]);
 
   const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60)
-      .toString()
-      .padStart(2, '0');
+    const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
     const secs = (seconds % 60).toString().padStart(2, '0');
     return `${mins}:${secs}`;
   };
 
   return (
-    <Typography variant="h6" color={secondsLeft <= 10 ? 'error' : 'textPrimary'}>
-      Осталось времени: {formatTime(secondsLeft)}
+    <Typography variant="h6" color={secondsLeft <= 10 && timeLimit !== 0 ? 'error' : 'textPrimary'}>
+      {timeLimit === 0
+        ? 'Время не ограничено'
+        : `Осталось времени: ${formatTime(secondsLeft)}`}
     </Typography>
   );
 };
 
-export default testTimer;
+export default TestTimer;

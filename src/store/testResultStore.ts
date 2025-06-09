@@ -11,7 +11,7 @@ declare global {
   interface Window {
     AndroidBridge?: {
       notifyTestPassed: () => void;
-    }
+    };
   }
 }
 
@@ -25,9 +25,6 @@ export default class TestResultStore {
     makeAutoObservable(this);
   }
 
-  /**
-   * Получить все результаты по user_id
-   */
   getResultByUser = async (user_id: number) => {
     try {
       const result = await fetchData("getResultsByUserId", {}, user_id);
@@ -43,31 +40,22 @@ export default class TestResultStore {
     }
   };
 
-  /**
-   * Установить массив результатов пользователя
-   */
   setResultsArrays = (value: ITestResultCreateResponse[]) => {
     this.resultsByUserIdArray = value;
   };
 
-  /**
-   * Отформатированные данные для таблицы
-   */
   getFormattedUserResults = (): IUserTestResultRow[] => {
     return this.resultsByUserIdArray.map((result) => ({
       key: result.id.toString(),
-      test_name: "Неизвестно", // можно заменить, если появится поле test_name
+      test_name: "Неизвестно",
       name: authStore.name || "—",
       email: authStore.email || "—",
       total_score: result.result?.total_score ?? result.score,
       end_date: "—",
-      test_time: "—", // если появится продолжительность, можно вставить
+      test_time: "—",
     }));
   };
 
-  /**
-   * Отправка результата прохождения теста
-   */
   createTestResult = async (
     payload: Omit<ITestResultCreateRequest, "user_id">
   ): Promise<ITestResultCreateResponse | null> => {
@@ -80,16 +68,12 @@ export default class TestResultStore {
         throw new Error("Пользователь не авторизован. user_id отсутствует.");
       }
 
-      const formattedAnswers = payload.answers.map((a) => ({
-        question_id: a.question_id,
-        answer:  a.answer ,
-      }));
-
       const fullPayload: ITestResultCreateRequest = {
         ...payload,
         user_id: authStore.userId,
-        answers: formattedAnswers,
       };
+
+      console.log("Отправка payload:", fullPayload);
 
       const data: ITestResultCreateResponse = await postData("postResults", fullPayload);
 
@@ -103,13 +87,13 @@ export default class TestResultStore {
         window.AndroidBridge.notifyTestPassed();
       }
 
-      return data; // ✅ возвращаем результат
+      return data;
     } catch (error: any) {
       runInAction(() => {
         this.error = error.message || "Ошибка создания результата теста";
         this.loading = false;
       });
-      return null; // ✅ возвращаем null при ошибке
+      return null;
     }
   };
 }

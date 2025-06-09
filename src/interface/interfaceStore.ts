@@ -168,159 +168,91 @@ export interface ITestStatus {
   updated_at: string;
 }
 
-// // ---------- результат теста ----------
-// /**
-//  * Тип значения ответа на вопрос
-//  */
-// export interface ITestResultAnswerPayload {
-//   value: string | number | boolean | string[] | number[] | Record<string, any>;
-// }
+/** ----------------------------------------------------------- * API RESULTS ------------------------------------------------------ */
 
-// /**
-//  * Массив ответов
-//  */
-// export interface ITestResultAnswerRequest {
-//   question_id: number;
-//   answer: ITestResultAnswerPayload;
-// }
+/** * POST METHOD RESULT */
 
-// /**
-//  * Тело POST-запроса для создания результата теста
-//  */
-// export interface ITestResultCreateRequest {
-//   test_id: number;
-//   user_id?: number;
-//   score: number;
-//   completed_at?: string;
-//   created_at?: string;
-//   updated_at?: string;
-//   answers: ITestResultAnswerRequest[];
-// }
-
-// /**
-//  * Ответ сервера по каждому ответу на вопрос.
-//  */
-// export interface ITestResultAnswerResponse {
-//   id: number;
-//   result_id: number;
-//   question_id: number;
-//   user_id: number;
-//   answer: ITestResultAnswerPayload;
-//   created_at: string;
-//   updated_at: string;
-// }
-
-// /**
-//  * Полный результат теста от сервера.
-//  */
-// export interface ITestResultCreateResponse {
-//   id: number;
-//   user_id: number;
-//   test_id: number;
-//   score: number;
-//   completed_at: string;
-//   created_at: string;
-//   updated_at: string;
-//   answers: ITestResultAnswerResponse[];
-// }
-
-// ---------- результат теста ----------
-
-/**
- * Тип значения ответа на вопрос
- */
-/**
- * Payload одного ответа
- */
-export interface ITestResultAnswerPayload {
-  value: string | string[] | boolean; // например: "ДА", ["<p>Температура</p>"], true
-  time_spent: number; // секунды, потраченные на ответ
+export interface IAnswerValue {
+  value: string | string[] | boolean;
 }
 
-/**
- * Один ответ пользователя
- */
 export interface ITestResultAnswerRequest {
   question_id: number;
-  answer: ITestResultAnswerPayload;
+  time_start: string; 
+  time_end: string;   
+  answer: IAnswerValue;
 }
 
-/**
- * Тело POST-запроса для создания результата теста
- */
 export interface ITestResultCreateRequest {
   test_id: number;
-  user_id?: number;
-  score: number;
-  completed_at?: string;
-  created_at?: string;
-  updated_at?: string;
+  user_id: number;
+  time_start: string; 
+  time_end: string;  
   answers: ITestResultAnswerRequest[];
 }
 
-/**
- * Детальная проверка ответа на вопрос
- */
-export interface ICheckDetails {
-  score: number;
-  max_score: number;
-  is_correct: boolean;
-  details: {
-    settings: {
-      correctScore: number;
-      showMaxScore: boolean;
-      requireAnswer: boolean;
-      incorrectScore: number;
-      stopIfIncorrect: boolean;
-    };
-    user_choice: {
-      answer: string | string[] | boolean;
-    };
-    correct_count?: number;
-    total_correct?: number;
-    correct_choice: string | string[];
-  };
-  user_answer: {
-    value: ITestResultAnswerPayload;
-  };
-  correct_answer: string[];
+/** * RESPONSE BY RESULT (SUCCESS or BAD) */
+
+export interface ITextCheckDetails {
+  correct_answer: string;
+  user_answer: string;
 }
 
-/**
- * Проверенный ответ на вопрос
- */
+export interface IChoiceCheckDetails {
+  correct_answers: string[];
+  user_answers: string[];
+}
+
+export type ICheckDetails = ITextCheckDetails | IChoiceCheckDetails;
+
 export interface ICheckedAnswer {
-  score: number;
-  max_score: number;
-  is_correct: boolean;
   question_id: number;
   question_text: string;
   question_type: string;
+  max_score: number;
+  score: number;
+  is_correct: boolean;
   check_details: ICheckDetails;
+  time_start: string;
+  time_end: string;
+  time_seconds: number;
+  time_limit: number;
+  is_time_exceeded: boolean;
 }
 
-/**
- * Поле "result" в ответе на создание теста
- */
 export interface ITestResultAnalysis {
-  percentage: number;
   total_score: number;
+  max_possible_score: number;
+  percentage: number;
   checked_answers: ICheckedAnswer[];
+  time_start: string;
+  time_end: string;
+  total_time_seconds: number;
+  test_time_limit: number;
+  is_passed: boolean;
+  message?: string;
 }
 
-/**
- * Ответ сервера при создании результата теста
- */
+/** * GENERAL RESPONSE BY RESULT */
+
 export interface ITestResultCreateResponse {
   id: number;
-  user_id: number;
   test_id: number;
+  user_id: number;
   score: number;
-  completed_at?: number;
   result: ITestResultAnalysis;
+  time_start: string;
+  time_end: string;
+  completed_at: string;
+  created_at: string;
+  updated_at: string;
 }
 
+/** * ERROR HANDLER BY RESULT */
 
+export interface IErrorResponse {
+  detail: string;
+}
 
 /**
  * Интерфейс для таблицы с результами тестов

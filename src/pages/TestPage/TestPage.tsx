@@ -3,7 +3,13 @@ import { observer } from "mobx-react-lite";
 import { useParams } from "react-router-dom";
 import { Context } from "../..";
 
-import { Typography, Box, Card, CardContent, Button, Divider, Alert, Snackbar } from "@mui/material";
+import {
+  Typography,
+  Box,
+  Snackbar,
+  Alert,
+} from "@mui/material";
+
 import TestStartPage from "./components/test-start-page";
 import TestSingleChoiceCard from "./components/testSingleChoiceCard";
 import TestTextAnswerCard from "./components/testTextAnswerCard";
@@ -12,7 +18,6 @@ import TestDescriptiveCard from "./components/testDescriptiveCard";
 import TestSurveyCard from "./components/testSurveyCard";
 import TestMultipleChoiceCard from "./components/testMultipleChoiceCard";
 import TestTimer from "./components/testTimer";
-import { ITestResultAnswerPayload } from "../../interface/interfaceStore";
 
 const TestPage = observer(() => {
   const {
@@ -46,7 +51,6 @@ const TestPage = observer(() => {
 
     const initialize = async () => {
       if (!testId) return;
-
       const parsedId = parseInt(testId, 10);
       if (isNaN(parsedId)) return;
 
@@ -69,30 +73,54 @@ const TestPage = observer(() => {
     };
 
     initialize();
-
     return () => {
       isMounted = false;
     };
-  }, [testId]);
+  }, [testId, authStore.userId, questionsStore, settingsNewTestStore, userAnswerStore, authStore]);
 
   const questions = questionsStore.questions;
   const loading = questionsStore.loading;
   const error = questionsStore.error;
   const test = settingsNewTestStore.testMainInfo;
   const timeLimit = settingsNewTestStore.timeLimitFromTest;
+  console.log(timeLimit);
+
+  useEffect(() => {
+    if (start) {
+      userAnswerStore.reset();
+      if (testId) userAnswerStore.setTestId(parseInt(testId, 10));
+      if (authStore.userId) userAnswerStore.setUserId(authStore.userId);
+      console.log(authStore.userId)
+      const now = new Date().toISOString();
+      userAnswerStore.setTimeStart(now);
+      setQuestionStartTime(Date.now());
+      setCurrentQuestionIndex(0);
+    }
+  }, [start, testId, authStore.userId, userAnswerStore]);
 
   const handleAnswer = async (answerValue: any) => {
+    if (answerValue === null || answerValue === undefined) {
+      showAlert("Пожалуйста, выберите ответ перед продолжением", "error");
+      return;
+    }
+
     const current = questions[currentQuestionIndex];
-    if (!current || questionStartTime === null) return;
+    if (!current) {
+      showAlert("Ошибка: текущий вопрос не найден", "error");
+      return;
+    }
 
-    const time_spent = Math.floor((Date.now() - questionStartTime) / 1000);
+    const questionEndTime = new Date().toISOString();
+    const questionStart = questionStartTime
+      ? new Date(questionStartTime).toISOString()
+      : questionEndTime;
 
-    const answerPayload: ITestResultAnswerPayload = {
-      value: answerValue, // answerValue должен быть string | boolean | string[]
-      time_spent,
-    };
-
-    userAnswerStore.saveAnswer(current.question.id, answerPayload);
+    userAnswerStore.saveAnswer(
+      current.question.id,
+      { value: answerValue },
+      questionStart,
+      questionEndTime
+    );
 
     const isLastQuestion = currentQuestionIndex >= questions.length - 1;
 
@@ -100,18 +128,15 @@ const TestPage = observer(() => {
       setCurrentQuestionIndex((prev) => prev + 1);
       setQuestionStartTime(Date.now());
     } else {
-      let userId = authStore.userId;
-      if (!userId) {
-        const user = await authStore.authMe();
-        if (user?.id) {
-          userId = user.id;
-          userAnswerStore.setUserId(user.id);
-        }
-      }
+      userAnswerStore.setTimeEnd(new Date().toISOString());
 
       const fullPayload = userAnswerStore.getPayload();
 
-      if (!fullPayload) {
+      if (
+        !fullPayload ||
+        !fullPayload.answers ||
+        fullPayload.answers.length === 0
+      ) {
         showAlert("Недостаточно данных для отправки результатов", "error");
         return;
       }
@@ -119,7 +144,6 @@ const TestPage = observer(() => {
       try {
         await testResultStore.createTestResult(fullPayload);
         const result = testResultStore.result;
-
         if (result?.result?.percentage !== undefined) {
           showAlert(`Тест завершён! Вы набрали ${result.result.percentage}%`, "success");
         } else {
@@ -137,11 +161,39 @@ const TestPage = observer(() => {
     }
   };
 
-  useEffect(() => {
-    if (start) {
-      setQuestionStartTime(Date.now());
+  const handleTimeEnd = async () => {
+    showAlert("Время вышло! Отправляем результаты...", "error");
+
+    userAnswerStore.setTimeEnd(new Date().toISOString());
+
+    const fullPayload = userAnswerStore.getPayload();
+    if (
+      !fullPayload ||
+      !fullPayload.answers ||
+      fullPayload.answers.length === 0
+    ) {
+      showAlert("Нет данных для отправки", "error");
+      return;
     }
-  }, [start, currentQuestionIndex]);
+
+    try {
+      await testResultStore.createTestResult(fullPayload);
+      const result = testResultStore.result;
+      if (result?.result?.percentage !== undefined) {
+        showAlert(`Тест завершён! Вы набрали ${result.result.percentage}%`, "success");
+      } else {
+        showAlert("Результаты теста отправлены!", "success");
+      }
+    } catch (e) {
+      console.error(e);
+      showAlert("Ошибка при отправке результатов", "error");
+    } finally {
+      userAnswerStore.reset();
+      setStart(false);
+      setCurrentQuestionIndex(0);
+      setQuestionStartTime(null);
+    }
+  };
 
   if (!start) {
     return (
@@ -180,6 +232,14 @@ const TestPage = observer(() => {
   }
 
   const current = questions[currentQuestionIndex];
+  if (!current) {
+    return (
+      <Typography sx={{ mt: 4, textAlign: "center", color: "red" }}>
+        Ошибка: Вопрос не найден
+      </Typography>
+    );
+  }
+
   const { question } = current;
 
   const QuestionComponent = (() => {
@@ -209,27 +269,23 @@ const TestPage = observer(() => {
             Вопрос №{currentQuestionIndex + 1} / {questions.length}
           </Typography>
 
-          <TestTimer
-            timeLimit={timeLimit}
-            onTimeEnd={() => {
-              showAlert("Время вышло! Отправляем результаты...", "error");
-              handleAnswer(null);
-            }}
-          />
+        <TestTimer
+          key={questionStartTime}
+          timeLimit={timeLimit}
+          onTimeEnd={handleTimeEnd}
+        />
         </Box>
 
-        <QuestionComponent
-          question={current}
-          onNext={handleAnswer}
-        />
+        <QuestionComponent question={current} onNext={handleAnswer} />
       </Box>
-      <Snackbar 
-        open={alertOpen} 
-        autoHideDuration={6000} 
+
+      <Snackbar
+        open={alertOpen}
+        autoHideDuration={6000}
         onClose={handleCloseAlert}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
-        <Alert onClose={handleCloseAlert} severity={alertSeverity} sx={{ width: '100%' }}>
+        <Alert onClose={handleCloseAlert} severity={alertSeverity} sx={{ width: "100%" }}>
           {alertMessage}
         </Alert>
       </Snackbar>
