@@ -11,6 +11,7 @@ import TestPage from 'pages/TestPage/TestPage';
 import CoursesPage from 'pages/courses-page/CoursesPage';
 import ModulesPage from 'pages/modules-page/ModulesPage';
 import LessonsPage from 'pages/lessons-page/LessonsPage';
+import LessonViewPage from 'pages/lessons-page/LessonViewPage';
 
 
 // ==============================|| MAIN ROUTING ||============================== //
@@ -78,6 +79,10 @@ const MainRoutes = {
         {
           path: '/courses/:courseId/modules/:moduleId/lessons',
           element: <LessonsPage />
+        },
+        {
+          path: '/courses/:courseId/modules/:moduleId/lessons/:lessonId',
+          element: <LessonViewPage />
         },
       ]
     },
