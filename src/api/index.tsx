@@ -137,3 +137,18 @@ const deleteData = async (endpointKey: string, params: Params = {}, dynamicParam
 };
 
 export { fetchData, postData, putData, deleteData }
+
+export const getCourses   = () => fetchData('courses')
+export const postCourse   = (data: any)                 => postData('courses', data)
+export const putCourse    = (id: number, d: any)        => putData('courseById', d, id)
+export const deleteCourse = (id: number)                => deleteData('courseById', {}, id)
+
+export const getModules   = (courseId: number)          => fetchData('modulesByCourse', {}, courseId)
+export const postModule   = (courseId: number, d: any)  => postData('modulesByCourse', d, courseId)
+export const putModule    = (id: number, d: any)        => putData('moduleById', d, id)
+export const deleteModule = (id: number)                => deleteData('moduleById', {}, id)
+
+export const getLessons   = (moduleId: number)          => fetchData('lessonsByModule', {}, moduleId)
+export const postLesson   = (moduleId: number, d: any)  => postData('lessonsByModule', d, moduleId)
+export const putLesson    = (id: number, d: any)        => putData('lessonById', d, id)
+export const deleteLesson = (id: number)                => deleteData('lessonById', {}, id)

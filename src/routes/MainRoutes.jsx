@@ -8,6 +8,9 @@ import SettingsPage from 'pages/settings-page/settings-page';
 import NewTestPage from 'pages/new-test-page/new-test-page';
 import TestQuestionListPage from 'pages/test-question-list-page/test-question-list-page';
 import TestPage from 'pages/TestPage/TestPage';
+import CoursesPage from 'pages/courses-page/CoursesPage';
+import ModulesPage from 'pages/modules-page/ModulesPage';
+import LessonsPage from 'pages/lessons-page/LessonsPage';
 
 
 // ==============================|| MAIN ROUTING ||============================== //
@@ -63,6 +66,18 @@ const MainRoutes = {
         {
           path: '/start_test/:testId',  // динамический параметр testId
           element: <TestPage />
+        },
+        {
+          path: '/courses',
+          element: <CoursesPage />
+        },
+        {
+          path: '/courses/:courseId/modules',
+          element: <ModulesPage />
+        },
+        {
+          path: '/courses/:courseId/modules/:moduleId/lessons',
+          element: <LessonsPage />
         },
       ]
     },
