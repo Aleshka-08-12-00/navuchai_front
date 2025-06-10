@@ -149,6 +149,7 @@ export const putModule    = (id: number, d: any)        => putData('moduleById',
 export const deleteModule = (id: number)                => deleteData('moduleById', {}, id)
 
 export const getLessons   = (moduleId: number)          => fetchData('lessonsByModule', {}, moduleId)
+export const getLesson    = (id: number)                => fetchData('lessonById', {}, id)
 export const postLesson   = (moduleId: number, d: any)  => postData('lessonsByModule', d, moduleId)
 export const putLesson    = (id: number, d: any)        => putData('lessonById', d, id)
 export const deleteLesson = (id: number)                => deleteData('lessonById', {}, id)
