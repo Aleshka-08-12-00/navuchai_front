@@ -1,16 +1,22 @@
 // ResultTable.tsx
 import React, { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
-import { Button, Table } from "antd";
+import { Table } from "antd";
 import type { TableColumnsType, TableProps } from "antd";
 import styles from "./style.module.scss";
-
-import SearchInput from "./searchInput/SearchInput";
 import { useNavigate } from "react-router";
 import DropDownDowload from "./dropDownDowload/dropDownDowload";
 import { IUserTestResultRow } from "../../interface/interfaceStore";
 import authStore from "../../store/authStore";
 import { Context } from "../..";
+import {
+  Box,
+  Button,
+  IconButton,
+  TextField,
+  CircularProgress
+} from "@mui/material";
+import SearchIcon from '@mui/icons-material/Search';
 
 type TableRowSelection<T extends object = object> = TableProps<T>["rowSelection"];
 
@@ -25,8 +31,23 @@ const columns: TableColumnsType<IUserTestResultRow> = [
     render: (score: number) => {
       const color = score >= 50 ? "#9af49e" : "#f58d8f";
       return (
-        <div className={styles["box-score"]} style={{ backgroundColor: color }}>
-          {score}%
+        <div className={styles["box-score"]} style={{ 
+          backgroundColor: "#e0e0e0", 
+          position: "relative",
+          overflow: "hidden"
+        }}>
+          <div style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            height: "100%",
+            width: `${score}%`,
+            backgroundColor: color,
+            transition: "width 0.3s ease"
+          }} />
+          <span style={{ position: "relative", zIndex: 1 }}>
+            {score}%
+          </span>
         </div>
       );
     },
@@ -81,9 +102,9 @@ const ResultTable: React.FC = observer(() => {
   const allResults = resultTableStore.getFormattedUserResults();
 
   const filteredData = allResults.filter((item) =>
-    Object.values(item).some((field) =>
-      String(field).toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    item.test_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const hasSelected = selectedRowKeys.length > 0;
@@ -91,20 +112,43 @@ const ResultTable: React.FC = observer(() => {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        <Button
-          type="primary"
-          onClick={loadData}
-          disabled={resultTableStore.loading}
-          loading={resultTableStore.loading}
-        >
-          Обновить
-        </Button>
         {hasSelected && <span>Выделено: {selectedRowKeys.length}</span>}
       </div>
 
-      <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
-        <DropDownDowload dataSource={filteredData} columns={columns} />
-        <SearchInput onSearch={onSearch} />
+      <div style={{
+         display: "flex",
+         justifyContent: "space-between",
+         gap: 12 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <TextField
+            size="small"
+            variant="outlined"
+            placeholder="Поиск по словам..."
+            value={searchQuery}
+            onChange={(e) => onSearch(e.target.value)}
+            sx={{ minWidth: 200, background: '#fff', borderRadius: 1 }}
+            InputProps={{
+              endAdornment: (
+                <IconButton size="small">
+                  <SearchIcon />
+                </IconButton>
+              )
+            }}
+          />
+        </Box>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+           <Button
+            variant='outlined'
+            color='primary'
+            onClick={loadData}
+            disabled={resultTableStore.loading}
+            startIcon={resultTableStore.loading ? <CircularProgress size={16} /> : null}
+          >
+             Обновить
+          </Button>
+          <DropDownDowload dataSource={filteredData} columns={columns} />
+        </div>
       </div>
 
       <Table<IUserTestResultRow>
