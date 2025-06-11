@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import {
   List,
   ListItem,
+  ListItemIcon,
   ListItemButton,
   ListItemText,
   Collapse,
@@ -13,7 +14,7 @@ import {
   DialogContent,
   DialogTitle,
   Stack,
-  TextField,
+  TextField
 } from '@mui/material'
 import ExpandLess from '@mui/icons-material/ExpandLess'
 import ExpandMore from '@mui/icons-material/ExpandMore'
@@ -33,7 +34,7 @@ import {
   deleteModule,
   postLesson,
   putLesson,
-  deleteLesson,
+  deleteLesson
 } from 'api'
 import JoditEditor from 'jodit-react'
 
@@ -128,7 +129,7 @@ const CoursesPage = () => {
                   ...c,
                   modules: c.modules?.map(m =>
                     m.id === moduleId ? { ...m, lessons: lessonsData, open: !m.open } : m
-                  ),
+                  )
                 }
               : c
           )
@@ -144,7 +145,7 @@ const CoursesPage = () => {
                 ...c,
                 modules: c.modules?.map(m =>
                   m.id === moduleId ? { ...m, open: !m.open } : m
-                ),
+                )
               }
             : c
         )
@@ -266,7 +267,12 @@ const CoursesPage = () => {
       setCourses(prev =>
         prev.map(c =>
           c.id === lessonCourseId
-            ? { ...c, modules: c.modules?.map(m => m.id === lessonModuleId ? { ...m, lessons: lessonsData } : m) }
+            ? {
+                ...c,
+                modules: c.modules?.map(m =>
+                  m.id === lessonModuleId ? { ...m, lessons: lessonsData } : m
+                )
+              }
             : c
         )
       )
@@ -283,7 +289,12 @@ const CoursesPage = () => {
       setCourses(prev =>
         prev.map(c =>
           c.id === courseId
-            ? { ...c, modules: c.modules?.map(m => m.id === moduleId ? { ...m, lessons: lessonsData } : m) }
+            ? {
+                ...c,
+                modules: c.modules?.map(m =>
+                  m.id === moduleId ? { ...m, lessons: lessonsData } : m
+                )
+              }
             : c
         )
       )
@@ -300,9 +311,7 @@ const CoursesPage = () => {
     <div>
       <Typography variant="h4" sx={{ mb: 2 }}>Курсы</Typography>
       <Stack direction="row" justifyContent="flex-end" sx={{ mb: 2 }}>
-        <Button variant="contained" color="success" startIcon={<AddIcon />} onClick={handleAddCourse}>
-          Добавить курс
-        </Button>
+        <Button variant="contained" color="success" startIcon={<AddIcon />} onClick={handleAddCourse}>Добавить курс</Button>
       </Stack>
       <List>
         {courses.map(course => (
@@ -317,13 +326,13 @@ const CoursesPage = () => {
               disablePadding
             >
               <ListItemButton onClick={() => toggleCourse(course.id)}>
+                <ListItemIcon sx={{ minWidth: 28 }}>{course.open ? <ExpandLess /> : <ExpandMore />}</ListItemIcon>
                 <ListItemText primary={course.title} />
-                {course.open ? <ExpandLess /> : <ExpandMore />}
               </ListItemButton>
             </ListItem>
             <Collapse in={course.open} timeout="auto" unmountOnExit>
               <Stack direction="row" justifyContent="flex-end" sx={{ mb: 1, pl: 4 }}>
-                <Button size="small" startIcon={<AddIcon />} onClick={() => handleAddModule(course.id)}>Добавить модуль</Button>
+                <Button size="small" variant="contained" color="success" startIcon={<AddIcon />} sx={{ textTransform: 'none' }} onClick={() => handleAddModule(course.id)}>Добавить модуль</Button>
               </Stack>
               <List component="div" disablePadding sx={{ pl: 4 }}>
                 {course.modules?.map(mod => (
@@ -338,13 +347,13 @@ const CoursesPage = () => {
                       disablePadding
                     >
                       <ListItemButton onClick={() => toggleModule(course.id, mod.id)} sx={{ pl: 2 }}>
+                        <ListItemIcon sx={{ minWidth: 28 }}>{mod.open ? <ExpandLess /> : <ExpandMore />}</ListItemIcon>
                         <ListItemText primary={mod.title} />
-                        {mod.open ? <ExpandLess /> : <ExpandMore />}
                       </ListItemButton>
                     </ListItem>
                     <Collapse in={mod.open} timeout="auto" unmountOnExit>
                       <Stack direction="row" justifyContent="flex-end" sx={{ mb: 1, pl: 6 }}>
-                        <Button size="small" startIcon={<AddIcon />} onClick={() => handleAddLesson(course.id, mod.id)}>Добавить урок</Button>
+                        <Button size="small" variant="contained" color="success" startIcon={<AddIcon />} sx={{ textTransform: 'none' }} onClick={() => handleAddLesson(course.id, mod.id)}>Добавить урок</Button>
                       </Stack>
                       <List component="div" disablePadding sx={{ pl: 4 }}>
                         {mod.lessons?.map(lesson => (
@@ -372,7 +381,6 @@ const CoursesPage = () => {
           </React.Fragment>
         ))}
       </List>
-
       <Dialog open={openCourseDialog} onClose={() => setOpenCourseDialog(false)}>
         <DialogTitle>{editingCourseId ? 'Редактировать курс' : 'Новый курс'}</DialogTitle>
         <DialogContent>
@@ -383,7 +391,6 @@ const CoursesPage = () => {
           <Button onClick={saveCourse} variant="contained" color="success">Сохранить</Button>
         </DialogActions>
       </Dialog>
-
       <Dialog open={openModuleDialog} onClose={() => setOpenModuleDialog(false)}>
         <DialogTitle>{editingModuleId ? 'Редактировать модуль' : 'Новый модуль'}</DialogTitle>
         <DialogContent>
@@ -394,7 +401,6 @@ const CoursesPage = () => {
           <Button onClick={saveModule} variant="contained" color="success">Сохранить</Button>
         </DialogActions>
       </Dialog>
-
       <Dialog open={openLessonDialog} onClose={() => setOpenLessonDialog(false)} maxWidth="md" fullWidth>
         <DialogTitle>{editingLessonId ? 'Редактировать урок' : 'Новый урок'}</DialogTitle>
         <DialogContent dividers>

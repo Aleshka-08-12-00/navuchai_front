@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Stack, Typography } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getLessons, getLesson } from 'api';
+import { getLessons } from 'api';
 
 interface Lesson {
   id: number;
@@ -25,11 +25,11 @@ const LessonViewPage = () => {
 
   useEffect(() => {
     if (!lessonId) return;
-    (async () => {
-      const data = await getLesson(Number(lessonId));
-      setLesson(data);
-    })();
-  }, [lessonId]);
+    const current = lessons.find((l) => l.id === Number(lessonId));
+    if (current) {
+      setLesson(current);
+    }
+  }, [lessonId, lessons]);
 
   if (!lesson) return null;
 
