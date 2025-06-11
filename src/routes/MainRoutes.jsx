@@ -11,6 +11,8 @@ import CoursesPage from 'pages/courses-page/CoursesPage';
 import ModulesPage from 'pages/modules-page/ModulesPage';
 import LessonsPage from 'pages/lessons-page/LessonsPage';
 import LessonViewPage from 'pages/lessons-page/LessonViewPage';
+import TestUserResult from 'components/testUserResult/TestUserResult';
+import CreateRespondentsPage from 'pages/respondents-page/create-respondents-list';
 
 
 // ==============================|| MAIN ROUTING ||============================== //
