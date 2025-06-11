@@ -1,3 +1,4 @@
+  ListItemIcon,
 import React, { useEffect, useState, useRef } from 'react'
 import {
   List,
@@ -310,10 +311,28 @@ const CoursesPage = () => {
             <ListItem
               secondaryAction={
                 <>
-                  <IconButton edge="end" onClick={() => handleEditCourse(course)}><EditIcon /></IconButton>
-                  <IconButton edge="end" color="error" onClick={() => handleDeleteCourse(course.id)}><DeleteIcon /></IconButton>
-                </>
-              }
+                <ListItemIcon sx={{ minWidth: 28 }}>
+                  {course.open ? <ExpandLess /> : <ExpandMore />}
+                </ListItemIcon>
+                <Button
+                  size="small"
+                  variant="contained"
+                  color="success"
+                  startIcon={<AddIcon />}
+                  sx={{ textTransform: 'none' }}
+                  onClick={() => handleAddModule(course.id)}
+                >
+                        <ListItemIcon sx={{ minWidth: 28 }}>
+                          {mod.open ? <ExpandLess /> : <ExpandMore />}
+                        </ListItemIcon>
+                        <Button
+                          size="small"
+                          variant="contained"
+                          color="success"
+                          startIcon={<AddIcon />}
+                          sx={{ textTransform: 'none' }}
+                          onClick={() => handleAddLesson(course.id, mod.id)}
+                        >
               disablePadding
             >
               <ListItemButton onClick={() => toggleCourse(course.id)}>
