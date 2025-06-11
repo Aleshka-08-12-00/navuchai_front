@@ -1,17 +1,20 @@
-import React, { useEffect, useState } from 'react';
-import { Typography } from '@mui/material';
+import React, { useEffect, useState } from "react";
+import { Box, Typography } from "@mui/material";
 
-interface testTimerProps {
+interface TestTimerProps {
   timeLimit: number; // в секундах
-  onTimeEnd?: () => void; // колбэк при завершении таймера
+  onTimeEnd?: () => void;
+  label?: string;
 }
 
-const testTimer: React.FC<testTimerProps> = ({ timeLimit, onTimeEnd }) => {
+const TestTimer: React.FC<TestTimerProps> = ({ timeLimit, onTimeEnd }) => {
   const [secondsLeft, setSecondsLeft] = useState(timeLimit);
 
   useEffect(() => {
+    if (timeLimit === 0) return;
+
     if (secondsLeft <= 0) {
-      if (onTimeEnd) onTimeEnd();
+      onTimeEnd?.();
       return;
     }
 
@@ -25,16 +28,34 @@ const testTimer: React.FC<testTimerProps> = ({ timeLimit, onTimeEnd }) => {
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60)
       .toString()
-      .padStart(2, '0');
-    const secs = (seconds % 60).toString().padStart(2, '0');
+      .padStart(2, "0");
+    const secs = (seconds % 60).toString().padStart(2, "0");
     return `${mins}:${secs}`;
   };
 
   return (
-    <Typography variant="h6" color={secondsLeft <= 10 ? 'error' : 'textPrimary'}>
-      Осталось времени: {formatTime(secondsLeft)}
-    </Typography>
+    <Box
+      sx={{
+        backgroundColor: "#e3f2fd",
+        borderRadius: 2,
+        px: 2,
+        py: 1,
+        mb: 2,
+        display: "inline-block",
+        textAlign: "center",
+      }}
+    >
+      <Typography
+        variant="subtitle1"
+        fontWeight="bold"
+        color={secondsLeft <= 10 && timeLimit !== 0 ? "error" : "primary"}
+      >
+        {timeLimit === 0
+          ? "Время не ограничено"
+          : `Осталось времени: ${formatTime(secondsLeft)}`}
+      </Typography>
+    </Box>
   );
 };
 
-export default testTimer;
+export default TestTimer;

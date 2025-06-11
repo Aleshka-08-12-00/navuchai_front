@@ -207,15 +207,10 @@ export default class ResultTableStore {
         isUserAnswer: userAnswers.includes(text),
       }));
 
-      // Вытаскиваем время
-      const timeSpent = answer.check_details?.user_answer?.value?.time_spent || 0;
-      totalTimeSpent += timeSpent;
-      const formattedTotalTime = formatTime(totalTimeSpent);
-
       return {
         question: `Вопрос №${index + 1}`,
         title: questionText,
-        timeSpent: `${timeSpent} сек.`,
+        timeSpent: 0,
         description: questionText,
         options,
         correctCount: answer.check_details.details.correct_count || 1,
@@ -236,7 +231,6 @@ export default class ResultTableStore {
         percentage,
         completedAt,
         questions,
-        totalTimeSpent,
         error: null,
       };
     } catch (error: any) {
@@ -259,4 +253,3 @@ export default class ResultTableStore {
     }
   };
 }
-

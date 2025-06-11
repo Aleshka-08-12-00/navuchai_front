@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { observer } from 'mobx-react-lite';
 import { Box, Card, CardContent, Typography, Button, TextField, Divider, Alert, Snackbar } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
+import authStore from '../../../store/authStore';
 
 interface TestStartPageProps {
   setStart: (value: boolean) => void;
@@ -10,12 +12,23 @@ interface TestStartPageProps {
   testLogo?: string;
 }
 
-const TestStartPage: React.FC<TestStartPageProps> = ({ setStart, start, questionsLength, testTitle, testLogo }) => {
+const TestStartPage: React.FC<TestStartPageProps> = observer(({ setStart, start, questionsLength, testTitle, testLogo }) => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertSeverity, setAlertSeverity] = useState<'success' | 'error'>('success');
+
+  const isAuthorized = authStore.isAuth;
+
+  useEffect(() => {
+    if (isAuthorized && authStore.name) {
+      const [fname, ...rest] = authStore.name.split(' ');
+      const lname = rest.join(' ');
+      setFirstName(fname || '');
+      setLastName(lname || '');
+    }
+  }, [isAuthorized]);
 
   const showAlert = (message: string, severity: 'success' | 'error') => {
     setAlertMessage(message);
@@ -28,6 +41,11 @@ const TestStartPage: React.FC<TestStartPageProps> = ({ setStart, start, question
   };
 
   const handleStartTest = () => {
+    if (!isAuthorized && (!firstName.trim() || !lastName.trim())) {
+      showAlert('Пожалуйста, введите имя и фамилию перед началом теста.', 'error');
+      return;
+    }
+
     showAlert(`Начинаем тест для: ${firstName} ${lastName}`, 'success');
     setStart(!start);
   };
@@ -46,7 +64,6 @@ const TestStartPage: React.FC<TestStartPageProps> = ({ setStart, start, question
       >
         <Card sx={{ maxWidth: 600, borderRadius: '10px', boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)' }}>
           <CardContent>
-            {/* Логотип и название теста */}
             {testLogo && (
               <Box sx={{ textAlign: 'center', mb: 2 }}>
                 <img src={testLogo} alt="Test Logo" style={{ maxHeight: 80 }} />
@@ -69,7 +86,6 @@ const TestStartPage: React.FC<TestStartPageProps> = ({ setStart, start, question
 
             <Divider sx={{ marginY: 2 }} />
 
-            {/* Блок технологии контроля */}
             <Box sx={{ display: 'flex', alignItems: 'flex-start', background: '#e3e3e3', padding: 2, borderRadius: 2 }}>
               <InfoIcon sx={{ marginRight: 1 }} />
               <Typography variant="body2">
@@ -77,12 +93,13 @@ const TestStartPage: React.FC<TestStartPageProps> = ({ setStart, start, question
               </Typography>
             </Box>
 
-            {/* Форма для имени и фамилии */}
             <Typography variant="h5" align="center" sx={{ marginTop: 3 }} gutterBottom>
               Начать тест
             </Typography>
             <Typography variant="body2" color="textSecondary" align="center" paragraph>
-              Пожалуйста, заполните форму перед началом теста.
+              {isAuthorized
+                ? 'Вы вошли в систему. Данные подставлены автоматически.'
+                : 'Пожалуйста, заполните форму перед началом теста.'}
             </Typography>
 
             <Box component="form" noValidate autoComplete="off" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -92,6 +109,14 @@ const TestStartPage: React.FC<TestStartPageProps> = ({ setStart, start, question
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
                 fullWidth
+                disabled={isAuthorized}
+                sx={{
+                  '& .MuiInputBase-input': {
+                    color: isAuthorized ? '#000' : undefined,
+                    fontWeight: '500',
+                    fontSize: '1.1rem',
+                  },
+                }}
               />
               <TextField
                 label="Фамилия"
@@ -99,6 +124,14 @@ const TestStartPage: React.FC<TestStartPageProps> = ({ setStart, start, question
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
                 fullWidth
+                disabled={isAuthorized}
+                sx={{
+                  '& .MuiInputBase-input': {
+                    color: isAuthorized ? '#000' : undefined,
+                    fontWeight: '500',
+                    fontSize: '1.1rem',
+                  },
+                }}
               />
               <Button variant="contained" color="success" size="large" onClick={handleStartTest} fullWidth>
                 Начать тест
@@ -107,9 +140,9 @@ const TestStartPage: React.FC<TestStartPageProps> = ({ setStart, start, question
           </CardContent>
         </Card>
       </Box>
-      <Snackbar 
-        open={alertOpen} 
-        autoHideDuration={6000} 
+      <Snackbar
+        open={alertOpen}
+        autoHideDuration={6000}
         onClose={handleCloseAlert}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
@@ -119,6 +152,6 @@ const TestStartPage: React.FC<TestStartPageProps> = ({ setStart, start, question
       </Snackbar>
     </>
   );
-};
+});
 
 export default TestStartPage;

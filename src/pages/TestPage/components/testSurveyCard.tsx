@@ -8,15 +8,17 @@ import {
   CardMedia,
   Slider,
 } from "@mui/material";
+import TestTimer from "./testTimer";
 
 interface QuestionProps {
   question: {
     question: {
       text: string;
       image?: string;
+      time_limit?: number;
     };
   };
-  onNext: (answer: { answer: number }) => void;
+  onNext: (answer: { answer: number } | null) => void;
 }
 
 const TestSurveyCard: React.FC<QuestionProps> = ({ question, onNext }) => {
@@ -25,6 +27,10 @@ const TestSurveyCard: React.FC<QuestionProps> = ({ question, onNext }) => {
   const stripHtml = (html: string) => html.replace(/<[^>]+>/g, "");
 
   if (!qData) return null;
+
+  const handleTimeEnd = () => {
+    onNext({ answer: value });
+  };
 
   return (
     <Box
@@ -39,9 +45,21 @@ const TestSurveyCard: React.FC<QuestionProps> = ({ question, onNext }) => {
     >
       <Card sx={{ maxWidth: 600, width: "100%", p: 3, borderRadius: 2, boxShadow: 3 }}>
         <CardContent>
-          <Typography variant="subtitle1" fontWeight="bold" mb={1}>
-            Вопрос
-          </Typography>
+          <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 2,
+              }}
+            >
+            <Typography variant="subtitle1" fontWeight="bold">
+              Вопрос
+            </Typography>
+              {qData.time_limit && (
+                <TestTimer timeLimit={qData.time_limit} onTimeEnd={handleTimeEnd} />
+              )}
+          </Box>
           <Typography variant="body1" mb={2}>
             {stripHtml(qData.text)}
           </Typography>
