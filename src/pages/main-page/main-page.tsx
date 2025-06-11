@@ -1,4 +1,21 @@
-import { Box, Button, IconButton, Stack, Typography, FormControl, Select, MenuItem, TextField, SelectChangeEvent, Alert, Snackbar, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
+import {
+  Box,
+  Button,
+  IconButton,
+  Stack,
+  Typography,
+  FormControl,
+  Select,
+  MenuItem,
+  TextField,
+  SelectChangeEvent,
+  Alert,
+  Snackbar,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions
+} from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { Grid } from "@mui/material";
 import AddBoxIcon from '@mui/icons-material/AddBox';
@@ -271,17 +288,17 @@ const MainPage = observer(() => {
                       <Typography variant="h6" color="textSecondary" >
                         создан: {moment(item.access_timestamp).format('DD-MM-YYYY')}
                       </Typography>
-                         <Button
-                          variant="outlined"
-                          size="small"
-                          color="secondary"
-                          style={{
-                            textTransform: 'none',
-                            marginRight: 10
-                          }}
-                          onClick={() => window.open(`/start_test/${item.id}`, '_blank')}>
-                          Начать тест
-                        </Button>
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        color="secondary"
+                        style={{
+                          textTransform: 'none',
+                          marginRight: 10
+                        }}
+                        onClick={() => window.open(`/start_test/${item.id}`, '_blank')}>
+                        Начать тест
+                      </Button>
                       <Box>
                         <IconButton aria-label="Example" onClick={(e) => handleOpenMenu(e, item.id)}>
                           <FontAwesomeSvgIcon icon={faEllipsisV} />
@@ -299,7 +316,7 @@ const MainPage = observer(() => {
                           }}
                         >
                           <MenuItem onClick={() => handleDeleteTestById(item.id)}>Удалить</MenuItem>
-                           <MenuItem onClick={() => window.open(`/start_test/${item.id}`, '_blank')}>Начать тест</MenuItem>
+                          <MenuItem onClick={() => window.open(`/start_test/${item.id}`, '_blank')}>Начать тест</MenuItem>
                           {/* <MenuItem onClick={() => handleDuplicate(item.id)}>Дублировать</MenuItem> */}
                           <MenuItem onClick={() => window.open(`/main-page/test/${item.id}`, '_blank')}>Редактировать</MenuItem>
                         </Menu>
@@ -326,9 +343,9 @@ const MainPage = observer(() => {
                       <div style={{ display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center", textAlign: "left", gap: "10px" }}>
                         <Typography variant="h6" color="textSecondary">
                           <DonutLargeIcon color={
-                            (Number(item.percent) || 0) <= 20 ? 'error' : 
-                            (Number(item.percent) || 0) <= 50 ? 'warning' : 
-                            'success'
+                            (Number(item.percent) || 0) <= 20 ? 'error' :
+                              (Number(item.percent) || 0) <= 50 ? 'warning' :
+                                'success'
                           } />
                         </Typography>
                         <Typography variant="h6" >
@@ -346,30 +363,11 @@ const MainPage = observer(() => {
                       </div>
 
                       <div style={{ flex: "1", textAlign: "right" }}>
-                        {/* <Button
-                          variant="outlined"
-                          size="small"
-                          color="secondary"
-                          style={{
-                            textTransform: 'uppercase',
-                            marginRight: 10
-                          }}
-                          onClick={() => window.open(`/start_test/${item.id}`, '_blank')}>
-                          начать тест
-                        </Button> */}
-                          <Typography variant="h6">
-                         {item.category_name}
+                        <Typography variant="h6">
+                          <Typography variant="h6" color="textSecondary" component="span">
+                            категория:
+                          </Typography> {item.category_name}
                         </Typography>
-                        {/* <Button
-                          variant="outlined"
-                          size="small"
-                          color="secondary"
-                          style={{
-                            textTransform: 'uppercase'
-                          }}>
-                          {item.category_name}
-                        </Button> */}
-
                       </div>
                     </div>
                   </>

@@ -4,8 +4,6 @@ import { observer } from "mobx-react-lite";
 import { Button, Progress, Table, Tooltip, Typography } from "antd";
 import type { TableColumnsType, TableProps } from "antd";
 import styles from "./style.module.scss";
-
-import SearchInput from "./searchInput/SearchInput";
 import { useNavigate } from "react-router";
 import { IUserTestResultRow } from "../../interface/interfaceStore";
 import authStore from "../../store/authStore";
@@ -13,6 +11,7 @@ import { Context } from "../..";
 import DropDownDownload from "./dropDownDowload/dropDownDowload";
 import { ReloadOutlined } from "@ant-design/icons";
 import { Box } from "@mui/system";
+import { IconButton, TextField } from "@mui/material";
 
 type TableRowSelection<T extends object = object> = TableProps<T>["rowSelection"];
 
@@ -122,9 +121,9 @@ const ResultTable: React.FC = observer(() => {
   const allResults = resultTableStore.getFormattedUserResults();
 
   const filteredData = allResults.filter((item) =>
-    Object.values(item).some((field) =>
-      String(field).toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    item.test_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const hasSelected = selectedRowKeys.length > 0;
@@ -160,7 +159,21 @@ const ResultTable: React.FC = observer(() => {
           </Tooltip>
         </Box>
         <Box>
-          <SearchInput onSearch={onSearch} />
+          <TextField
+            size="small"
+            variant="outlined"
+            placeholder="Поиск по словам..."
+            value={searchQuery}
+            onChange={(e) => onSearch(e.target.value)}
+            sx={{ minWidth: 200, background: '#fff', borderRadius: 1 }}
+            InputProps={{
+              endAdornment: (
+                <IconButton size="small">
+                  <SearchIcon />
+                </IconButton>
+              )
+            }}
+          />
         </Box>
       </Box>
       <Table<IUserTestResultRow>

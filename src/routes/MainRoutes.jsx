@@ -7,6 +7,10 @@ import SettingsPage from 'pages/settings-page/settings-page';
 import NewTestPage from 'pages/new-test-page/new-test-page';
 import TestQuestionListPage from 'pages/test-question-list-page/test-question-list-page';
 import TestPage from 'pages/TestPage/TestPage';
+import CoursesPage from 'pages/courses-page/CoursesPage';
+import ModulesPage from 'pages/modules-page/ModulesPage';
+import LessonsPage from 'pages/lessons-page/LessonsPage';
+import LessonViewPage from 'pages/lessons-page/LessonViewPage';
 import TestUserResult from 'components/testUserResult/TestUserResult';
 import CreateRespondentsPage from 'pages/respondents-page/create-respondents-list';
 
@@ -72,6 +76,22 @@ const MainRoutes = {
         {
           path: '/start_test/:testId',  // динамический параметр testId
           element: <TestPage />
+        },
+        {
+          path: '/courses',
+          element: <CoursesPage />
+        },
+        {
+          path: '/courses/:courseId/modules',
+          element: <ModulesPage />
+        },
+        {
+          path: '/courses/:courseId/modules/:moduleId/lessons',
+          element: <LessonsPage />
+        },
+        {
+          path: '/courses/:courseId/modules/:moduleId/lessons/:lessonId',
+          element: <LessonViewPage />
         },
       ]
     },

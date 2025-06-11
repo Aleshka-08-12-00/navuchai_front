@@ -1,5 +1,5 @@
 const endpoints = {
-    //Тесты
+   //Тесты
     getTests: 'api/tests',
     postTests: 'api/tests',
     getTestsById: (id: string | number | null ): string => `api/tests/${id}`,
@@ -55,7 +55,23 @@ const endpoints = {
 
     //Пользователи
     getUsers: 'api/users',
-    
+
+
+  /* КУРСЫ */
+  courses: 'api/courses',                                   // GET list, POST create
+  courseById:    (id: string | number) => `api/courses/${id}`,          // GET/PUT/DELETE
+  modulesByCourse: (courseId: string | number) => `api/courses/${courseId}/modules`,
+
+  /* МОДУЛИ */
+  modules:      'api/modules',                              // POST если нужен «глобальный» create
+  moduleById:   (id: string | number) => `api/modules/${id}`,
+
+  /* УРОКИ */
+  lessons:      'api/lessons',
+  lessonById:   (id: string | number) => `api/lessons/${id}`,
+  lessonsByModule: (moduleId: string | number) => `api/modules/${moduleId}/lessons`,
   };
   
   export default endpoints;
+
+
