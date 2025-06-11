@@ -150,6 +150,7 @@ export interface IQuestionInTest {
       allAnswer: string[];
       correctAnswer: string[];
     };
+    time_limit: number;
     created_at: string;
     updated_at: string;
   };

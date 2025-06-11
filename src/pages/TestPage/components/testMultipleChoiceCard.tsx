@@ -10,6 +10,7 @@ import {
   FormControlLabel,
   Checkbox,
 } from "@mui/material";
+import TestTimer from "./testTimer";
 
 const TestMultipleChoiceCard = ({
   question,
@@ -19,13 +20,21 @@ const TestMultipleChoiceCard = ({
   onNext: (answer: any) => void;
 }) => {
   const [selected, setSelected] = useState<string[]>([]);
-  const { text, answers, image } = question.question;
+  const { text, answers, image, time_limit } = question.question;
   const stripHtml = (html: string) => html.replace(/<[^>]+>/g, "");
 
   const toggle = (answer: string) => {
     setSelected((prev) =>
       prev.includes(answer) ? prev.filter((a) => a !== answer) : [...prev, answer]
     );
+  };
+
+  const handleTimeEnd = () => {
+    if (selected.length > 0) {
+      onNext(selected);
+    } else {
+      onNext(null); // или [], если нужно явно указывать пустой ответ
+    }
   };
 
   return (
@@ -41,9 +50,21 @@ const TestMultipleChoiceCard = ({
     >
       <Card sx={{ maxWidth: 600, width: "100%", p: 3, borderRadius: 2, boxShadow: 3 }}>
         <CardContent>
-          <Typography variant="subtitle1" fontWeight="bold" mb={1}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 2,
+          }}
+        >
+          <Typography variant="subtitle1" fontWeight="bold">
             Вопрос
           </Typography>
+
+          <TestTimer timeLimit={time_limit} onTimeEnd={handleTimeEnd} />
+        </Box>
+
           <Typography variant="body1" mb={2}>
             {stripHtml(text)}
           </Typography>
@@ -86,7 +107,7 @@ const TestMultipleChoiceCard = ({
           <Button
             fullWidth
             disabled={selected.length === 0}
-            onClick={() => onNext(selected)} // передаем массив выбранных ответов напрямую
+            onClick={() => onNext(selected)}
             variant="contained"
             color="primary"
             sx={{ mt: 3 }}

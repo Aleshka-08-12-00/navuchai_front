@@ -11,6 +11,7 @@ import {
   RadioGroup,
   Stack,
 } from "@mui/material";
+import TestTimer from "./testTimer";
 
 const TestYesNoCard = ({
   question,
@@ -22,6 +23,14 @@ const TestYesNoCard = ({
   const [value, setValue] = useState<string | null>(null);
   const { question: qData } = question;
   const stripHtml = (html: string) => html.replace(/<[^>]+>/g, "");
+
+  const handleTimeEnd = () => {
+    if (value !== null) {
+      onNext(value);
+    } else {
+      onNext(null); // или onNext("НЕТ") — если нужно по умолчанию
+    }
+  };
 
   return (
     <Box
@@ -36,9 +45,20 @@ const TestYesNoCard = ({
     >
       <Card sx={{ maxWidth: 600, width: "100%", p: 3, borderRadius: 2, boxShadow: 3 }}>
         <CardContent>
-          <Typography variant="subtitle1" fontWeight="bold" mb={1}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 2,
+          }}
+        >
+          <Typography variant="subtitle1" fontWeight="bold">
             Вопрос
           </Typography>
+
+          <TestTimer timeLimit={qData.time_limit} onTimeEnd={handleTimeEnd} />
+        </Box>
           <Typography variant="body1" mb={2}>
             {stripHtml(qData.text)}
           </Typography>
@@ -76,7 +96,7 @@ const TestYesNoCard = ({
           <Button
             fullWidth
             disabled={value === null}
-            onClick={() => onNext(value)} // передаём булево, а не объект
+            onClick={() => onNext(value)}
             variant="contained"
             color="primary"
             sx={{ mt: 3 }}

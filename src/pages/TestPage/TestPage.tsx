@@ -18,6 +18,8 @@ import TestDescriptiveCard from "./components/testDescriptiveCard";
 import TestSurveyCard from "./components/testSurveyCard";
 import TestMultipleChoiceCard from "./components/testMultipleChoiceCard";
 import TestTimer from "./components/testTimer";
+import { ITestResultCreateResponse } from "../../interface/interfaceStore";
+import TestResultCard from "./components/testResultCard";
 
 const TestPage = observer(() => {
   const {
@@ -35,6 +37,8 @@ const TestPage = observer(() => {
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertSeverity, setAlertSeverity] = useState<'success' | 'error'>('success');
+  const [showResultCard, setShowResultCard] = useState(false);
+  const [resultData, setResultData] = useState<ITestResultCreateResponse | null>(null);
 
   const showAlert = (message: string, severity: 'success' | 'error') => {
     setAlertMessage(message);
@@ -82,8 +86,8 @@ const TestPage = observer(() => {
   const loading = questionsStore.loading;
   const error = questionsStore.error;
   const test = settingsNewTestStore.testMainInfo;
-  const timeLimit = settingsNewTestStore.timeLimitFromTest;
-  console.log(timeLimit);
+
+  const timeLimit = Number(settingsNewTestStore.timeLimitFromTest) || 0;
 
   useEffect(() => {
     if (start) {
@@ -142,8 +146,18 @@ const TestPage = observer(() => {
       }
 
       try {
-        await testResultStore.createTestResult(fullPayload);
-        const result = testResultStore.result;
+       const result = await testResultStore.createTestResult(fullPayload);
+        if (result) {
+          setResultData(result);
+          setShowResultCard(true);
+
+          setTimeout(() => {
+            userAnswerStore.reset();
+            setStart(false);
+            setCurrentQuestionIndex(0);
+            setQuestionStartTime(null);
+          }, 500); // 500 мс, чтобы дать карточке время показаться
+        }
         if (result?.result?.percentage !== undefined) {
           showAlert(`Тест завершён! Вы набрали ${result.result.percentage}%`, "success");
         } else {
@@ -195,6 +209,16 @@ const TestPage = observer(() => {
     }
   };
 
+  if (showResultCard && resultData) {
+  return (
+    <TestResultCard
+      open={showResultCard}
+      resultTestData={resultData}
+      onClose={() => setShowResultCard(false)}
+    />
+  );
+}
+
   if (!start) {
     return (
       <TestStartPage
@@ -241,6 +265,7 @@ const TestPage = observer(() => {
   }
 
   const { question } = current;
+  console.log(`Лимит времени на данный вопрос: ${question.time_limit}`);
 
   const QuestionComponent = (() => {
     switch (question.type) {
@@ -269,11 +294,11 @@ const TestPage = observer(() => {
             Вопрос №{currentQuestionIndex + 1} / {questions.length}
           </Typography>
 
-        <TestTimer
-          key={questionStartTime}
-          timeLimit={timeLimit}
-          onTimeEnd={handleTimeEnd}
-        />
+          <TestTimer
+            key={start ? 'running' : 'stopped'}
+            timeLimit={timeLimit}
+            onTimeEnd={handleTimeEnd}
+          />
         </Box>
 
         <QuestionComponent question={current} onNext={handleAnswer} />
@@ -289,6 +314,14 @@ const TestPage = observer(() => {
           {alertMessage}
         </Alert>
       </Snackbar>
+
+    {resultData && (
+      <TestResultCard
+        open={showResultCard}
+        resultTestData={resultData}
+        onClose={() => setShowResultCard(false)}
+      />
+    )}
     </>
   );
 });

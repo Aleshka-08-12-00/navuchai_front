@@ -8,6 +8,7 @@ import {
   CardMedia,
   TextField,
 } from "@mui/material";
+import TestTimer from "./testTimer";
 
 const TestTextAnswerCard = ({
   question,
@@ -19,6 +20,15 @@ const TestTextAnswerCard = ({
   const [text, setText] = useState("");
   const { question: qData } = question;
   const stripHtml = (html: string) => html.replace(/<[^>]+>/g, "");
+
+  const handleTimeEnd = () => {
+    const trimmed = text.trim();
+    if (trimmed !== "") {
+      onNext(trimmed);
+    } else {
+      onNext(null);
+    }
+  };
 
   return (
     <Box
@@ -33,9 +43,20 @@ const TestTextAnswerCard = ({
     >
       <Card sx={{ maxWidth: 600, width: "100%", p: 3, borderRadius: 2, boxShadow: 3 }}>
         <CardContent>
-          <Typography variant="subtitle1" fontWeight="bold" mb={1}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 2,
+          }}
+        >
+          <Typography variant="subtitle1" fontWeight="bold">
             Вопрос
           </Typography>
+
+          <TestTimer timeLimit={qData.time_limit} onTimeEnd={handleTimeEnd} />
+        </Box>
           <Typography variant="body1" mb={2}>
             {stripHtml(qData.text)}
           </Typography>
@@ -71,7 +92,7 @@ const TestTextAnswerCard = ({
           <Button
             fullWidth
             disabled={text.trim() === ""}
-            onClick={() => onNext(text.trim())} // передаем строку напрямую
+            onClick={() => onNext(text.trim())}
             variant="contained"
             color="primary"
             sx={{ mt: 3 }}
