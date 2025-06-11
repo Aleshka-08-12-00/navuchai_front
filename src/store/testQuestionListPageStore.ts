@@ -6,9 +6,11 @@ export default class testQuestionSPageStore {
 
     error: string = '';
     questionArray: IQuestionInTest[] = []
+    onAlert?: (message: string, severity: 'success' | 'error') => void;
 
-    constructor() {
+    constructor(onAlert?: (message: string, severity: 'success' | 'error') => void) {
         makeAutoObservable(this);
+        this.onAlert = onAlert;
     }
 
 
@@ -21,7 +23,9 @@ export default class testQuestionSPageStore {
 
     setQuestionArrays = (value: IQuestionInTest[]) => {
         this.questionArray = value
-        alert('Вопрос загружены')
+        if (this.onAlert) {
+            this.onAlert('Вопросы загружены', 'success');
+        }
     }
 
 

@@ -1,6 +1,8 @@
 body{
     margin: 0;
-    background-image: Url('https://img.freepik.com/free-photo/3d-rendering-of-pen-ai-generated_23-2150695385.jpg?size=626&ext=jpg&ga=GA1.1.1775161176.1724325586&semt=ais_hybrid') !important;
+    min-height: 100vh;
+    background-image: Url('https://i.pinimg.com/originals/76/74/af/7674afaab0239fcc95db982e75bdc684.jpg') !important;
     background-repeat: no-repeat;
     background-size: cover;
+    background-position: center;
 }

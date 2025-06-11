@@ -11,16 +11,26 @@ import {
   FormControlLabel,
   RadioGroup,
 } from "@mui/material";
+import TestTimer from "./testTimer";
 
 const TestSingleChoiceCard = ({
   question,
   onNext,
 }: {
   question: any;
-  onNext: () => void;
+  onNext: (answer: any) => void;
 }) => {
   const [selected, setSelected] = useState<string | null>(null);
-  const { text, answers, image } = question.question;
+  const { text, answers, image, time_limit } = question.question;
+  const stripHtml = (html: string) => html.replace(/<[^>]+>/g, "");
+
+  const handleTimeEnd = () => {
+    if (selected) {
+      onNext(selected);
+    } else {
+      onNext(null);
+    }
+  };
 
   return (
     <Box
@@ -35,11 +45,23 @@ const TestSingleChoiceCard = ({
     >
       <Card sx={{ maxWidth: 600, width: "100%", p: 3, borderRadius: 2, boxShadow: 3 }}>
         <CardContent>
-          <Typography variant="subtitle1" fontWeight="bold" mb={1}>
-            Вопрос
-          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 2,
+            }}
+          >
+            <Typography variant="subtitle1" fontWeight="bold">
+              Вопрос
+            </Typography>
+
+            <TestTimer timeLimit={time_limit} onTimeEnd={handleTimeEnd} />
+          </Box>
+
           <Typography variant="body1" mb={2}>
-            {text}
+            {stripHtml(text)}
           </Typography>
 
           {image && (
@@ -66,18 +88,10 @@ const TestSingleChoiceCard = ({
             </>
           )}
 
-          <RadioGroup
-            value={selected || ""}
-            onChange={(e) => setSelected(e.target.value)}
-          >
+          <RadioGroup value={selected || ""} onChange={(e) => setSelected(e.target.value)}>
             <Stack spacing={1}>
-              {answers.allAnswer.map((answer: string, i: number) => (
-                <FormControlLabel
-                  key={i}
-                  value={answer}
-                  control={<Radio />}
-                  label={answer}
-                />
+              {answers?.allAnswer?.map((answer: string, i: number) => (
+                <FormControlLabel key={i} value={answer} control={<Radio />} label={stripHtml(answer)} />
               ))}
             </Stack>
           </RadioGroup>
@@ -85,7 +99,7 @@ const TestSingleChoiceCard = ({
           <Button
             fullWidth
             disabled={!selected}
-            onClick={onNext}
+            onClick={() => onNext(selected)}
             variant="contained"
             color="primary"
             sx={{ mt: 3 }}

@@ -1,74 +1,90 @@
-import React, { useState } from "react";
+// ResultTable.tsx
+import React, { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
-import { Button, Flex, Table } from "antd";
+import { Table } from "antd";
 import type { TableColumnsType, TableProps } from "antd";
 import styles from "./style.module.scss";
-
-import SearchInput from "./searchInput/SearchInput";
-import { store } from "../../store/store"; // Импорт MobX-стора
 import { useNavigate } from "react-router";
 import DropDownDowload from "./dropDownDowload/dropDownDowload";
-
+import { IUserTestResultRow } from "../../interface/interfaceStore";
+import authStore from "../../store/authStore";
+import { Context } from "../..";
+import {
+  Box,
+  Button,
+  IconButton,
+  TextField,
+  CircularProgress
+} from "@mui/material";
+import SearchIcon from '@mui/icons-material/Search';
 
 type TableRowSelection<T extends object = object> = TableProps<T>["rowSelection"];
 
-interface DataType {
-  key: React.Key;
-  test_name: string;
-  last_name: string;
-  first_name: string;
-  total_score: number;
-  end_date: string;
-  test_time: string;
-}
-
-const columns: TableColumnsType<DataType> = [
-  { title: "#", dataIndex: "key", sorter: (a, b) => Number(a.key) - Number(b.key) },
+const columns: TableColumnsType<IUserTestResultRow> = [
+  { title: "id", dataIndex: "key", sorter: (a, b) => Number(a.key) - Number(b.key) },
   { title: "Название теста", dataIndex: "test_name", sorter: (a, b) => a.test_name.localeCompare(b.test_name) },
-  { title: "Фамилия", dataIndex: "last_name", sorter: (a, b) => a.last_name.localeCompare(b.last_name) },
-  { title: "Имя", dataIndex: "first_name", sorter: (a, b) => a.first_name.localeCompare(b.first_name) },
+  { title: "ФИО", dataIndex: "name" },
+  { title: "Email", dataIndex: "email" },
   {
     title: "Результат",
     dataIndex: "total_score",
-    sorter: (a, b) => a.total_score - b.total_score,
     render: (score: number) => {
-      const color = score >= 50 ? "rgb(154, 244, 158)" : "rgb(245, 141, 142)";
+      const color = score >= 50 ? "#9af49e" : "#f58d8f";
       return (
-        <div className={styles["box-score"]} style={{ backgroundColor: color }}>
-          {score}%
+        <div className={styles["box-score"]} style={{ 
+          backgroundColor: "#e0e0e0", 
+          position: "relative",
+          overflow: "hidden"
+        }}>
+          <div style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            height: "100%",
+            width: `${score}%`,
+            backgroundColor: color,
+            transition: "width 0.3s ease"
+          }} />
+          <span style={{ position: "relative", zIndex: 1 }}>
+            {score}%
+          </span>
         </div>
       );
     },
   },
-  {
-    title: "Дата",
-    dataIndex: "end_date",
-    sorter: (a, b) => new Date(a.end_date).getTime() - new Date(b.end_date).getTime(),
-  },
-  { title: "Время", dataIndex: "test_time", sorter: (a, b) => a.test_time.localeCompare(b.test_time) },
+  { title: "Дата", dataIndex: "end_date" },
+  { title: "Время", dataIndex: "test_time" },
 ];
 
 const ResultTable: React.FC = observer(() => {
+  const { resultTableStore } = React.useContext(Context);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-  const [loading, setLoading] = useState(false);
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState("");
+
   const navigate = useNavigate();
 
-  const start = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setSelectedRowKeys([]);
-      setLoading(false);
-    }, 1000);
+  const loadData = async () => {
+    await resultTableStore.getResults();
+    setSelectedRowKeys([]);
   };
+
+  useEffect(() => {
+    if (!authStore.userId) {
+      authStore.authMe().then(() => {
+        if (authStore.userId) loadData();
+      });
+    } else {
+      loadData();
+    }
+  }, []);
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
     setSelectedRowKeys(newSelectedRowKeys);
   };
 
-  const rowSelection: TableRowSelection<DataType> = {
+  const rowSelection: TableRowSelection<IUserTestResultRow> = {
     selectedRowKeys,
     onChange: onSelectChange,
   };
@@ -80,30 +96,62 @@ const ResultTable: React.FC = observer(() => {
 
   const onSearch = (value: string) => {
     setSearchQuery(value);
+    setCurrent(1);
   };
 
-  // Фильтрация данных по поисковому запросу
-  const filteredData = store.dataSource.filter((item) =>
-    Object.values(item).some((field) =>
-      String(field).toLowerCase().includes(searchQuery.toLowerCase())
-    )
+  const allResults = resultTableStore.getFormattedUserResults();
+
+  const filteredData = allResults.filter((item) =>
+    item.test_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
-  
+
   const hasSelected = selectedRowKeys.length > 0;
 
   return (
-    <Flex gap="middle" vertical>
-      <Flex align="center" gap="middle">
-        <Button type="primary" onClick={start} disabled={!hasSelected} loading={loading}>
-          Обновить
-        </Button>
-        {hasSelected ? `Выделено: ${selectedRowKeys.length}` : null}
-      </Flex>
-      <Flex align="center" gap="middle" justify="space-between">
-        <DropDownDowload dataSource={store.dataSource} columns={columns} />
-        <SearchInput onSearch={onSearch} />
-      </Flex>
-      <Table<DataType>
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        {hasSelected && <span>Выделено: {selectedRowKeys.length}</span>}
+      </div>
+
+      <div style={{
+         display: "flex",
+         justifyContent: "space-between",
+         gap: 12 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <TextField
+            size="small"
+            variant="outlined"
+            placeholder="Поиск по словам..."
+            value={searchQuery}
+            onChange={(e) => onSearch(e.target.value)}
+            sx={{ minWidth: 200, background: '#fff', borderRadius: 1 }}
+            InputProps={{
+              endAdornment: (
+                <IconButton size="small">
+                  <SearchIcon />
+                </IconButton>
+              )
+            }}
+          />
+        </Box>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+           <Button
+            variant='outlined'
+            color='primary'
+            onClick={loadData}
+            disabled={resultTableStore.loading}
+            startIcon={resultTableStore.loading ? <CircularProgress size={16} /> : null}
+          >
+             Обновить
+          </Button>
+          <DropDownDowload dataSource={filteredData} columns={columns} />
+        </div>
+      </div>
+
+      <Table<IUserTestResultRow>
         rowSelection={rowSelection}
         columns={columns}
         dataSource={filteredData}
@@ -112,21 +160,20 @@ const ResultTable: React.FC = observer(() => {
           pageSize,
           pageSizeOptions: ["10", "20", "50"],
           showSizeChanger: true,
-          total: store.dataSource.length,
-          locale: {
-            items_per_page: "",
-          },
+          total: filteredData.length,
+          locale: { items_per_page: "" },
         }}
         rowClassName={styles["clickable-row"]}
         onRow={(record) => ({
           onClick: () => {
-            store.setSelectedUser(record);
-            navigate(`/results/${record.key}`)
+            console.log('Clicked resultId:', record.key);
+            navigate(`/results/${record.key}`);
           }
         })}
         onChange={handleTableChange}
+        loading={resultTableStore.loading}
       />
-    </Flex>
+    </div>
   );
 });
 

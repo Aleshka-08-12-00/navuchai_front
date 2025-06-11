@@ -8,22 +8,77 @@ import {
   CardMedia,
   Slider,
 } from "@mui/material";
+import TestTimer from "./testTimer";
 
-const TestSurveyCard = ({ question, onNext }: { question: any; onNext: () => void }) => {
-  const [value, setValue] = useState(5);
-  const { text, image } = question.question;
+interface QuestionProps {
+  question: {
+    question: {
+      text: string;
+      image?: string;
+      time_limit?: number;
+    };
+  };
+  onNext: (answer: { answer: number } | null) => void;
+}
+
+const TestSurveyCard: React.FC<QuestionProps> = ({ question, onNext }) => {
+  const [value, setValue] = useState<number>(5);
+  const qData = question.question;
+  const stripHtml = (html: string) => html.replace(/<[^>]+>/g, "");
+
+  if (!qData) return null;
+
+  const handleTimeEnd = () => {
+    onNext({ answer: value });
+  };
 
   return (
-    <Box sx={{ backgroundColor: "#f4f7fa", minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "flex-start", py: 4 }}>
+    <Box
+      sx={{
+        backgroundColor: "#f4f7fa",
+        minHeight: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "flex-start",
+        py: 4,
+      }}
+    >
       <Card sx={{ maxWidth: 600, width: "100%", p: 3, borderRadius: 2, boxShadow: 3 }}>
         <CardContent>
-          <Typography variant="subtitle1" fontWeight="bold" mb={1}>Вопрос</Typography>
-          <Typography variant="body1" mb={2}>{text}</Typography>
+          <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 2,
+              }}
+            >
+            <Typography variant="subtitle1" fontWeight="bold">
+              Вопрос
+            </Typography>
+              {qData.time_limit && (
+                <TestTimer timeLimit={qData.time_limit} onTimeEnd={handleTimeEnd} />
+              )}
+          </Box>
+          <Typography variant="body1" mb={2}>
+            {stripHtml(qData.text)}
+          </Typography>
 
-          {image && (
+          {qData.image && (
             <>
-              <CardMedia component="img" height="240" image={image} alt="question image" sx={{ borderRadius: 2, objectFit: "cover", mb: 1 }} />
-              <Typography variant="caption" color="primary" sx={{ cursor: "pointer", mb: 2, display: "block" }} onClick={() => window.open(image, "_blank")}>
+              <CardMedia
+                component="img"
+                height="240"
+                image={qData.image}
+                alt="question image"
+                sx={{ borderRadius: 2, objectFit: "cover", mb: 1 }}
+              />
+              <Typography
+                variant="caption"
+                color="primary"
+                sx={{ cursor: "pointer", mb: 2, display: "block" }}
+                onClick={() => window.open(qData.image, "_blank")}
+              >
                 Увеличить изображение
               </Typography>
             </>
@@ -31,20 +86,19 @@ const TestSurveyCard = ({ question, onNext }: { question: any; onNext: () => voi
 
           <Slider
             value={value}
-            onChange={(_, newValue) => setValue(newValue as number)}
-            min={0}
+            onChange={(_, val) => setValue(val as number)}
+            min={1}
             max={10}
             step={1}
-            marks
             valueLabelDisplay="auto"
+            sx={{ mb: 3 }}
           />
 
           <Button
             fullWidth
-            onClick={onNext}
+            onClick={() => onNext({ answer: value })}
             variant="contained"
             color="primary"
-            sx={{ mt: 3 }}
           >
             Следующий вопрос
           </Button>

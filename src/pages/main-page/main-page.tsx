@@ -1,8 +1,26 @@
-import { Box, Button, IconButton, Stack, Typography, FormControl, Select, MenuItem, TextField, SelectChangeEvent } from "@mui/material";
+import {
+  Box,
+  Button,
+  IconButton,
+  Stack,
+  Typography,
+  FormControl,
+  Select,
+  MenuItem,
+  TextField,
+  SelectChangeEvent,
+  Alert,
+  Snackbar,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions
+} from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { Grid } from "@mui/material";
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
+import SearchIcon from '@mui/icons-material/Search';
 import MainCard from "../../components/MainCard";
 
 import { faEllipsisV } from '@fortawesome/free-solid-svg-icons/faEllipsisV';
@@ -14,6 +32,7 @@ import { Context } from "../..";
 import { useNavigate } from "react-router";
 import { Menu } from '@mui/material';
 import { InterfaceTests } from "../../interface/interfaceStore";
+import moment from "moment";
 
 
 type FontAwesomeSvgIconProps = {
@@ -46,7 +65,7 @@ const FontAwesomeSvgIcon = React.forwardRef<SVGSVGElement, FontAwesomeSvgIconPro
 
 const MainPage = observer(() => {
 
-  const { mainPageStore } = React.useContext(Context);
+  const { mainPageStore, authStore } = React.useContext(Context);
 
   const {
     getTests,
@@ -56,16 +75,23 @@ const MainPage = observer(() => {
     getTestStatuses,
     testStatusesArray,
     deleteTestById,
+    putTestById,
   } = mainPageStore
 
   const [category, setCategory] = useState<string>('all');
   const [status, setStatus] = useState<string>('all');
   const [search, setSearch] = useState('');
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertSeverity, setAlertSeverity] = useState<'success' | 'error'>('success');
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [testToDelete, setTestToDelete] = useState<number | null>(null);
 
   React.useEffect(() => {
     getTests();
     getCategories();
     getTestStatuses();
+    authStore.authMe();
   }, []);
 
   const navigate = useNavigate();
@@ -92,14 +118,43 @@ const MainPage = observer(() => {
   };
 
   const handleDeleteTestById = (id: number) => {
-    deleteTestById(id);
-    handleCloseMenu(id);
+    setTestToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const showAlert = (message: string, severity: 'success' | 'error') => {
+    setAlertMessage(message);
+    setAlertSeverity(severity);
+    setAlertOpen(true);
+  };
+
+  const handleCloseAlert = () => {
+    setAlertOpen(false);
+  };
+
+  const handleConfirmDelete = () => {
+    if (testToDelete) {
+      deleteTestById(testToDelete);
+      handleCloseMenu(testToDelete);
+      setDeleteDialogOpen(false);
+      setTestToDelete(null);
+      showAlert('Тест успешно удален', 'success');
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteDialogOpen(false);
+    setTestToDelete(null);
   };
 
   const handleDuplicate = (id: number) => {
-    alert("Дублировать выбрано");
+    showAlert("Дублировать выбрано", "success");
     handleCloseMenu(id);
   };
+
+  const handleEditTest = (id: number) => {
+    putTestById(id);
+  }
 
   const handleCategoryChange = (event: SelectChangeEvent) => {
     setCategory(event.target.value);
@@ -135,6 +190,7 @@ const MainPage = observer(() => {
                   variant="contained"
                   startIcon={<AutoFixHighIcon />}
                   size="large"
+                  disabled
                 >
                   Генерация тестов
                 </Button>
@@ -192,14 +248,14 @@ const MainPage = observer(() => {
                 <TextField
                   size="small"
                   variant="outlined"
-                  placeholder="Поиск по словам"
+                  placeholder="Поиск по словам..."
                   value={search}
                   onChange={handleSearchChange}
                   sx={{ minWidth: 200, background: '#fff', borderRadius: 1 }}
                   InputProps={{
                     endAdornment: (
                       <IconButton size="small">
-                        <svg width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="9" cy="9" r="7" stroke="#757575" strokeWidth="2" /><path d="M15 15l-3-3" stroke="#757575" strokeWidth="2" strokeLinecap="round" /></svg>
+                        <SearchIcon />
                       </IconButton>
                     )
                   }}
@@ -224,13 +280,25 @@ const MainPage = observer(() => {
                           color: item.status_color,
                           borderColor: item.status_color
                         }}
+                        onClick={() => window.open(`/main-page/test/${item.id}`, '_blank')}
                         size="small"
                       >
                         {item.status_name_ru}
                       </Button>
                       <Typography variant="h6" color="textSecondary" >
-                        создан: {item.access_timestamp}
+                        создан: {moment(item.access_timestamp).format('DD-MM-YYYY')}
                       </Typography>
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        color="secondary"
+                        style={{
+                          textTransform: 'none',
+                          marginRight: 10
+                        }}
+                        onClick={() => window.open(`/start_test/${item.id}`, '_blank')}>
+                        Начать тест
+                      </Button>
                       <Box>
                         <IconButton aria-label="Example" onClick={(e) => handleOpenMenu(e, item.id)}>
                           <FontAwesomeSvgIcon icon={faEllipsisV} />
@@ -248,7 +316,9 @@ const MainPage = observer(() => {
                           }}
                         >
                           <MenuItem onClick={() => handleDeleteTestById(item.id)}>Удалить</MenuItem>
-                          <MenuItem onClick={() => handleDuplicate(item.id)}>Дублировать</MenuItem>
+                          <MenuItem onClick={() => window.open(`/start_test/${item.id}`, '_blank')}>Начать тест</MenuItem>
+                          {/* <MenuItem onClick={() => handleDuplicate(item.id)}>Дублировать</MenuItem> */}
+                          <MenuItem onClick={() => window.open(`/main-page/test/${item.id}`, '_blank')}>Редактировать</MenuItem>
                         </Menu>
                       </Box>
                     </div>
@@ -272,7 +342,11 @@ const MainPage = observer(() => {
                     >
                       <div style={{ display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center", textAlign: "left", gap: "10px" }}>
                         <Typography variant="h6" color="textSecondary">
-                          <DonutLargeIcon />
+                          <DonutLargeIcon color={
+                            (Number(item.percent) || 0) <= 20 ? 'error' :
+                              (Number(item.percent) || 0) <= 50 ? 'warning' :
+                                'success'
+                          } />
                         </Typography>
                         <Typography variant="h6" >
                           {item.percent}%
@@ -289,8 +363,30 @@ const MainPage = observer(() => {
                       </div>
 
                       <div style={{ flex: "1", textAlign: "right" }}>
-                        <Button variant="outlined" size="small" color="secondary" style={{ textTransform: 'uppercase', marginRight: 10 }} onClick={() => window.open(`/start_test/${item.id}`, '_blank')}>начать тест</Button>
-                        <Button variant="outlined" size="small" color="secondary" style={{ textTransform: 'uppercase', }}>{item.category_name}</Button>
+                        {/* <Button
+                          variant="outlined"
+                          size="small"
+                          color="secondary"
+                          style={{
+                            textTransform: 'uppercase',
+                            marginRight: 10
+                          }}
+                          onClick={() => window.open(`/start_test/${item.id}`, '_blank')}>
+                          начать тест
+                        </Button> */}
+                        <Typography variant="h6">
+                          {item.category_name}
+                        </Typography>
+                        {/* <Button
+                          variant="outlined"
+                          size="small"
+                          color="secondary"
+                          style={{
+                            textTransform: 'uppercase'
+                          }}>
+                          {item.category_name}
+                        </Button> */}
+
                       </div>
                     </div>
                   </>
@@ -300,6 +396,39 @@ const MainPage = observer(() => {
           </Grid>
         </>
       </Box>
+      <Snackbar
+        open={alertOpen}
+        autoHideDuration={6000}
+        onClose={handleCloseAlert}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert onClose={handleCloseAlert} severity={alertSeverity} sx={{ width: '100%' }}>
+          {alertMessage}
+        </Alert>
+      </Snackbar>
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={handleCancelDelete}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          Подтверждение удаления
+        </DialogTitle>
+        <DialogContent>
+          <Typography>
+            Вы уверены, что хотите удалить этот тест?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelDelete} variant='outlined' color='inherit'>
+            Отмена
+          </Button>
+          <Button onClick={handleConfirmDelete} color="error" variant='outlined'>
+            Удалить
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   )
 });

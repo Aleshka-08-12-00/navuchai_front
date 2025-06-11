@@ -6,10 +6,11 @@ import endpoints from '../endpoints';
 export default class CreateQuestionsStore {
 
     error: string = '';
- 
+    onAlert?: (message: string, severity: 'success' | 'error') => void;
 
-    constructor() {
+    constructor(onAlert?: (message: string, severity: 'success' | 'error') => void) {
         makeAutoObservable(this);
+        this.onAlert = onAlert;
     }
 
     postQuestion = async (data: IPostQuestion, testId: number) => {
@@ -28,11 +29,15 @@ export default class CreateQuestionsStore {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 
-                alert(`Вопрос создан и добавлен в тест № ${testId}`);
+                if (this.onAlert) {
+                    this.onAlert(`Вопрос создан и добавлен в тест № ${testId}`, 'success');
+                }
             }
         } catch (error) {
             console.error('Error creating question:', error);
-            alert('Ошибка при создании вопроса');
+            if (this.onAlert) {
+                this.onAlert('Ошибка при создании вопроса', 'error');
+            }
         }
     }
 

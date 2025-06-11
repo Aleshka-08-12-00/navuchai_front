@@ -27,26 +27,37 @@ import '@fontsource/public-sans/700.css';
 // project import
 import App from './App';
 import Store from './store/store';
-import AuthStore from './store/authStore';
+import authStore from './store/authStore';
 import { createContext } from 'react';
 import ReactDOM from 'react-dom/client';
 import SettingsStore from './store/settingsStore';
 import MainPageStore from './store/mainPageStore';
-import SettingsNewTestStore from './store/settingsNewTestStore';
 import CreateQuestionsStore from './store/createQuestionsStore';
 import TestQuestionListPageStore from './store/testQuestionListPageStore';
-import QuestionsStore from './store/questionsStore';
+import TestResultStore from './store/testResultStore';
+import UserAnswerStore from './store/userAnswerStore';
+import settingsNewTestStore from './store/settingsNewTestStore';
+import userStore from './store/userStore';
+import ProfileStore from './store/profileStore';
+import ResultTableStore from './store/resultTableStore';
+import RespondentsStore from './store/respondentsStore';
+import questionsStore from './store/questionsStore';
+
+const showAlert = (message: string, severity: 'success' | 'error') => {
+  // This will be implemented by each component that needs alerts
+  console.log(`${severity}: ${message}`);
+};
 
 const store = new Store();
-const authStore = new AuthStore();
 const settingsStore = new SettingsStore();
 const mainPageStore = new MainPageStore();
-const settingsNewTestStore = new SettingsNewTestStore();
-const createQuestionsStore  = new CreateQuestionsStore();
-const testQuestionListPageStore  = new TestQuestionListPageStore();
-const questionsStore = new QuestionsStore();
-
-
+const createQuestionsStore = new CreateQuestionsStore(showAlert);
+const testQuestionListPageStore = new TestQuestionListPageStore(showAlert);
+const testResultStore = new TestResultStore();
+const userAnswerStore = new UserAnswerStore();
+const profileStore = new ProfileStore(showAlert);
+const resultTableStore = new ResultTableStore();
+const respondentsStore = new RespondentsStore(showAlert);
 
 const obStore = {
   store,
@@ -57,6 +68,12 @@ const obStore = {
   createQuestionsStore,
   testQuestionListPageStore,
   questionsStore,
+  testResultStore,
+  userAnswerStore,
+  resultTableStore,
+  userStore,
+  profileStore,
+  respondentsStore
 }
 
 export const Context = createContext(obStore);

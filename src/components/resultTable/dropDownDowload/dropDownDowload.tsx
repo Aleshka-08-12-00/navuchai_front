@@ -1,8 +1,9 @@
 import React from 'react';
-import { DownOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Dropdown, Space, Typography } from 'antd';
 import * as XLSX from 'xlsx';
+import { Button } from '@mui/material';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
 interface DropDownDownloadProps {
   dataSource: any[];
@@ -33,10 +34,9 @@ const DropDownDownload: React.FC<DropDownDownloadProps> = ({ dataSource }) => {
   return (
     <Dropdown menu={{ items }} trigger={['click']}>
       <a onClick={(e) => e.preventDefault()}>
-        <Space>
-          Экспорт
-          <DownOutlined />
-        </Space>
+        <Button variant='outlined' color='inherit' endIcon={<KeyboardArrowDownIcon />}>
+          Экспортировать
+        </Button>
       </a>
     </Dropdown>
   );

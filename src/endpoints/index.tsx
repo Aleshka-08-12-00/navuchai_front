@@ -9,6 +9,7 @@ const endpoints = {
     //Авторизация 
     postAuth: 'auth/login',
     postRegistration: 'auth/register',
+    getAuthMe: 'auth/me',
 
     //Категории
     getCategories: 'api/categories',

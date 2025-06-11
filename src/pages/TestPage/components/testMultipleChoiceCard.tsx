@@ -10,15 +10,31 @@ import {
   FormControlLabel,
   Checkbox,
 } from "@mui/material";
+import TestTimer from "./testTimer";
 
-const TestMultipleChoiceCard = ({ question, onNext }: { question: any; onNext: () => void }) => {
+const TestMultipleChoiceCard = ({
+  question,
+  onNext,
+}: {
+  question: any;
+  onNext: (answer: any) => void;
+}) => {
   const [selected, setSelected] = useState<string[]>([]);
-  const { text, answers, image } = question.question;
+  const { text, answers, image, time_limit } = question.question;
+  const stripHtml = (html: string) => html.replace(/<[^>]+>/g, "");
 
   const toggle = (answer: string) => {
     setSelected((prev) =>
       prev.includes(answer) ? prev.filter((a) => a !== answer) : [...prev, answer]
     );
+  };
+
+  const handleTimeEnd = () => {
+    if (selected.length > 0) {
+      onNext(selected);
+    } else {
+      onNext(null); // или [], если нужно явно указывать пустой ответ
+    }
   };
 
   return (
@@ -34,10 +50,24 @@ const TestMultipleChoiceCard = ({ question, onNext }: { question: any; onNext: (
     >
       <Card sx={{ maxWidth: 600, width: "100%", p: 3, borderRadius: 2, boxShadow: 3 }}>
         <CardContent>
-          <Typography variant="subtitle1" fontWeight="bold" mb={1}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 2,
+          }}
+        >
+          <Typography variant="subtitle1" fontWeight="bold">
             Вопрос
           </Typography>
-          <Typography variant="body1" mb={2}>{text}</Typography>
+
+          <TestTimer timeLimit={time_limit} onTimeEnd={handleTimeEnd} />
+        </Box>
+
+          <Typography variant="body1" mb={2}>
+            {stripHtml(text)}
+          </Typography>
 
           {image && (
             <>
@@ -60,7 +90,7 @@ const TestMultipleChoiceCard = ({ question, onNext }: { question: any; onNext: (
           )}
 
           <Stack spacing={1}>
-            {answers.allAnswer.map((answer: string, i: number) => (
+            {answers?.allAnswer?.map((answer: string, i: number) => (
               <FormControlLabel
                 key={i}
                 control={
@@ -69,7 +99,7 @@ const TestMultipleChoiceCard = ({ question, onNext }: { question: any; onNext: (
                     onChange={() => toggle(answer)}
                   />
                 }
-                label={answer}
+                label={stripHtml(answer)}
               />
             ))}
           </Stack>
@@ -77,7 +107,7 @@ const TestMultipleChoiceCard = ({ question, onNext }: { question: any; onNext: (
           <Button
             fullWidth
             disabled={selected.length === 0}
-            onClick={onNext}
+            onClick={() => onNext(selected)}
             variant="contained"
             color="primary"
             sx={{ mt: 3 }}

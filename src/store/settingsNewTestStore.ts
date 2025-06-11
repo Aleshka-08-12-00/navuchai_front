@@ -3,16 +3,23 @@ import { fetchData, postData } from '../api';
 import { ILocales, InterfaceTests, IPostTest, ITestCategories } from '../interface/interfaceStore';
 
 
-export default class SettingsNewTestStore {
+class SettingsNewTestStore {
 
     error: string = '';
     publicLink: string = '';
     testCategories: ITestCategories[] = [];
     locales: ILocales[] = [];
     testMainInfo: InterfaceTests = {} as InterfaceTests
+    timeLimit: number = 0;
 
     constructor() {
         makeAutoObservable(this);
+    }
+
+    get timeLimitFromTest(): number {
+        const test_limit_time = this.testMainInfo?.time_limit ?? 0;
+
+        return test_limit_time;
     }
 
     getTestCategories = async () => {
@@ -31,15 +38,11 @@ export default class SettingsNewTestStore {
     getTestById = async (id: number) => {
         const result = await fetchData('getTestsById', {}, id);
         if (result)
-        this.setTestById(result)
+            this.setTestById(result)
     }
 
     setTestById = (value: InterfaceTests) => {
-        console.log('33333333')
-        console.log(value)
-
         this.testMainInfo = value
-        console.log(this.testMainInfo)
     }
 
     getLocales = async () => {
@@ -79,5 +82,7 @@ export default class SettingsNewTestStore {
             .join('');
     }
 
-
 }
+
+export const settingsNewTestStore = new SettingsNewTestStore();
+export default settingsNewTestStore;

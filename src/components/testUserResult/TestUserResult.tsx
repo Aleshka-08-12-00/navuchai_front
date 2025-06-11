@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Col, Divider, Progress, Row } from 'antd';
-import { useNavigate } from 'react-router';
+import { useNavigate, useParams } from 'react-router-dom';
 import { CheckCircleOutlined, CloseCircleOutlined, FieldTimeOutlined, LeftOutlined, MessageOutlined, ProjectOutlined, UserOutlined } from '@ant-design/icons';
 import { Typography, Link as MuiLink } from '@mui/material';
 import styles from './style.module.scss';
@@ -9,29 +9,94 @@ import EmailIcon from '@mui/icons-material/Email';
 import AccountBoxOutlinedIcon from '@mui/icons-material/AccountBoxOutlined';
 import { observer } from 'mobx-react-lite';
 import PieChartResult from './pieChartResult/PieChartResult';
-import { store } from '../../store/store';
-import TimeDisplay from './timeDisplay/TimeDisplay';
-import TimeLinear from './timeLiner/TimeLinear';
+// import TimeDisplay from './timeDisplay/TimeDisplay';
+// import TimeLinear from './timeLiner/TimeLinear';
 import QuestionsTestTable from './questionsTestTable/QuestionsTestTable';
-import JoditEditor from 'jodit-react';
+import { Context } from '../..';
 
 const TestUserResult: React.FC = observer(() => {
+    const { resultTableStore } = React.useContext(Context);
     const navigate = useNavigate();
     const [visible, setVisible] = useState(false);
     const [value, setValue] = useState('');
     const [hasFeedback, setHasFeedback] = useState(false);
+    const { resultId } = useParams();
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    console.log(resultId);
+    
+    const [info, setInfo] = useState<{
+        result: any;
+        testName: string;
+        userName: string;
+        percentage: number;
+        completedAt: string | null;
+    } | null>(null);
 
-    if (!store.selectedUser) {
-        return <Typography>Выберите пользователя</Typography>;
+        useEffect(() => {
+        if (!resultId) return;
+
+        const parsedId = parseInt(resultId, 10);
+        if (isNaN(parsedId)) return;
+
+        resultTableStore.getInfoByIdResultTest(parsedId).then((data) => {
+            if (data?.error) {
+            console.error("Ошибка:", data.error);
+            setInfo(null);
+            setErrorMessage(data.error); // новое состояние
+            } else {
+            setInfo({
+                result: data.result,
+                testName: data.testName ?? "Неизвестно",
+                userName: data.userName ?? "Неизвестно",
+                percentage: data.percentage ?? 0,
+                completedAt: data.completedAt ?? null,
+            });
+            setErrorMessage(null);
+            }
+        });
+        }, [resultId]);
+
+
+    if (errorMessage) {
+        return (
+            <div style={{ padding: '30px', color: 'red', fontSize: '18px' }}>
+            <p>{errorMessage}</p>
+            <Button onClick={() => navigate(-1)}>Вернуться назад</Button>
+            </div>
+        );
     }
 
-    const { total_score, test_name, first_name, last_name, test_time, end_date } = store.selectedUser;
-    const timeInSeconds = store.getTimeInSeconds(test_time);
+    if (!info) {
+        return <div>Загрузка...</div>;
+    }
 
-    const passed = total_score >= 50 && timeInSeconds <= 720;
+  // Теперь берем нужные данные из info
+    const { testName, userName, percentage, completedAt } = info;
+
+    const name = userName|| 'Имя и Фамилия';
+    const test_name = testName || 'Название теста';
+    const test_time = "0";
+
+    // const timeInSeconds = store.getTimeInSeconds ? store.getTimeInSeconds(test_time) : test_time;
+    // && timeInSeconds <= 720;
+    const passed = percentage >= 50;
     const resultTest = passed ? 'Тест пройден!' : 'Тест не пройден!';
     const resultGood = passed ? 'Оценка удовлетворительная' : 'Оценка неудовлетворительная';
-    const resultColor = passed ? 'rgb(22, 119, 255)' : 'rgb(247, 100, 100)';
+    const resultColor = passed ? '#1677ff' : '#f58d8f';
+
+    const formatDate = (dateStr: string | null): string => {
+        if (!dateStr) return 'Неизвестно';
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('ru-RU', {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+        });
+    };
+
+    const end_date = formatDate(completedAt);
 
     const toggleVisibility = () => {
         setVisible(!visible);
@@ -46,61 +111,75 @@ const TestUserResult: React.FC = observer(() => {
 
     return (
         <>
-            <Divider orientation="start">
-                <MuiLink component="button" className={styles.link} sx={{ textAlign: 'left' }} onClick={() => navigate(-1)}>
-                    <LeftOutlined /> Вернуться к списку
-                </MuiLink>
-            </Divider>
-
             <Row gutter={[10, 10]}>
                 <Col span={24} className={styles['gutter-row']} style={{ paddingRight: 0 }}>
-                    <Typography component="div" className={styles['actions-bar']} style={{ marginLeft: '15px'}}>
+                    <Typography component="div" className={styles['actions-bar']} style={{ marginLeft: '15px' }}>
                         <Typography component="div" className={styles['actions-bar-left']}>
-                            <MuiLink component="button" className={styles.link} sx={{ fontSize: 18, fontWeight: 400}}>
+                            <MuiLink component="button" className={styles.link} sx={{ textAlign: 'left', marginRight: 10 }} onClick={() => navigate(-1)}>
+                                <LeftOutlined /> Вернуться к списку
+                            </MuiLink>
+
+                            <MuiLink component="button" className={styles.link} sx={{ fontSize: 18, fontWeight: 400 }}>
                                 {test_name}
                             </MuiLink>
                         </Typography>
 
-                        <Typography component="div" className={styles['actions-bar-right']} style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+                        <Typography
+                            component="div"
+                            className={styles['actions-bar-right']}
+                            style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}
+                        >
                             <Typography component="div" style={{ display: 'flex', borderRight: '1px solid rgb(80, 93, 107, 0.2)' }} className={styles.btnBackground}>
                                 <UserOutlined style={{ marginRight: '5px', color: '#505d6b' }} />
-                                <MuiLink component="button" sx={{ 
-                                    fontSize: 16, 
-                                    fontWeight: 400, 
-                                    color: '#505d6b', 
-                                    textDecoration: 'none', 
-                                    lineHeight: '50px',
-                                    '&:hover': {
+                                <MuiLink
+                                    component="button"
+                                    sx={{
+                                        fontSize: 16,
+                                        fontWeight: 400,
+                                        color: '#505d6b',
                                         textDecoration: 'none',
-                                    },  }}>
-                                    {last_name} {first_name}
+                                        lineHeight: '50px',
+                                        '&:hover': {
+                                            textDecoration: 'none',
+                                        },
+                                    }}
+                                >
+                                    {name}
                                 </MuiLink>
                             </Typography>
                             <Typography component="div" style={{ display: 'flex', borderRight: '1px solid rgb(80, 93, 107, 0.2)' }} className={styles.btnBackground}>
                                 <DownloadForOfflineOutlinedIcon style={{ marginRight: '5px', color: '#505d6b' }} />
-                                <MuiLink component="button" sx={{ 
-                                    fontSize: 16, 
-                                    fontWeight: 400, 
-                                    color: '#505d6b', 
-                                    textDecoration: 'none', 
-                                    lineHeight: '50px',
-                                    '&:hover': {
+                                <MuiLink
+                                    component="button"
+                                    sx={{
+                                        fontSize: 16,
+                                        fontWeight: 400,
+                                        color: '#505d6b',
                                         textDecoration: 'none',
-                                    }, }}>
+                                        lineHeight: '50px',
+                                        '&:hover': {
+                                            textDecoration: 'none',
+                                        },
+                                    }}
+                                >
                                     Скачать
                                 </MuiLink>
                             </Typography>
                             <Typography component="div" style={{ display: 'flex' }} className={styles.btnBackground}>
                                 <EmailIcon style={{ marginRight: '5px', color: '#505d6b' }} />
-                                <MuiLink component="button" sx={{ 
-                                    fontSize: 16, 
-                                    fontWeight: 400, 
-                                    color: '#505d6b', 
-                                    textDecoration: 'none', 
-                                    lineHeight: '50px', 
-                                    '&:hover': {
+                                <MuiLink
+                                    component="button"
+                                    sx={{
+                                        fontSize: 16,
+                                        fontWeight: 400,
+                                        color: '#505d6b',
                                         textDecoration: 'none',
-                                    },  }}>
+                                        lineHeight: '50px',
+                                        '&:hover': {
+                                            textDecoration: 'none',
+                                        },
+                                    }}
+                                >
                                     Отправить
                                 </MuiLink>
                             </Typography>
@@ -114,7 +193,7 @@ const TestUserResult: React.FC = observer(() => {
                         <Typography component="div" className={styles['respondent-name']}>
                             <AccountBoxOutlinedIcon style={{ fontSize: '30px', marginRight: '15px' }} />
                             <Typography variant="h6" className={styles['title-card']}>
-                                {last_name} {first_name}
+                                {name}
                             </Typography>
                         </Typography>
                     </Typography>
@@ -140,7 +219,7 @@ const TestUserResult: React.FC = observer(() => {
                                 </Typography>
                             </Typography>
                             <Typography component="div" style={{ width: '40%' }}>
-                                <PieChartResult totalScore={total_score} />
+                                <PieChartResult totalScore={percentage} />
                             </Typography>
                         </Typography>
                     </Col>
@@ -154,9 +233,9 @@ const TestUserResult: React.FC = observer(() => {
                                     <Typography variant="h6">Общее время</Typography>
                                 </Typography>
                                 <Typography component="div" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', marginLeft: '45px' }}>
-                                    <TimeDisplay maxTime={720} />
+                                    {/* <TimeDisplay maxTime={720} /> */}
                                     <Typography component="div" style={{ marginBottom: '10px' }}>
-                                        <TimeLinear timeInSeconds={timeInSeconds} />
+                                        {/* <TimeLinear timeInSeconds={0} /> */}
                                     </Typography>
                                     <Typography variant="body2">
                                         Дата: <Typography component="span" sx={{ fontWeight: 600, fontSize: 16 }}>{end_date}</Typography>
@@ -167,7 +246,8 @@ const TestUserResult: React.FC = observer(() => {
                     </Col>
                 </Row>
 
-                <Col span={24} className={styles['gutter-row']}>
+
+                {/* <Col span={24} className={styles['gutter-row']}>
                     <Typography component="div" className={styles.respondent}>
                         <Typography variant="subtitle1">Баллы по категориям вопросов (3)</Typography>
                         <Typography component="div" style={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'row', flexWrap: 'wrap', marginTop: '15px', alignItems: 'start', gap: '10px', width: '100%'}}>
@@ -185,9 +265,9 @@ const TestUserResult: React.FC = observer(() => {
                             </Typography>
                         </Typography>
                     </Typography>
-                </Col>
+                </Col> */}
 
-                <Col span={24} className={styles['gutter-row']}>
+                {/* <Col span={24} className={styles['gutter-row']}>
                     <Typography component="div" className={styles.respondent}>
                         <Typography variant="subtitle1">Отзывы</Typography>
                         <Typography component="div" style={{ marginTop: '15px', display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
@@ -213,18 +293,20 @@ const TestUserResult: React.FC = observer(() => {
                         <Typography component="div" className={`${styles['textarea-container']} ${visible ? styles.show : styles.hide}`}>
                             <JoditEditor
                                 value={value}
-                                onBlur={(newContent) => setValue(newContent)}
-                                config={{ readonly: false, height: 300, placeholder: 'Напишите ваш отзыв здесь...' }}
+                                onChange={(newValue) => setValue(newValue)}
+                                tabIndex={1}
+                                config={{ readonly: false }}
                             />
                         </Typography>
                     </Typography>
-                </Col>
+                </Col> */}
 
                 <Col span={24} className={styles['gutter-row']}>
-                    <Typography component="div" className={styles.respondent}>
-                        <Typography variant="subtitle1">Вопросы (6)</Typography>
-                        <QuestionsTestTable />
+                    <Divider style={{ margin: '30px 0 15px 0' }} />
+                    <Typography variant="subtitle1" sx={{ fontWeight: 400, fontSize: 20, margin: '0 0 20px 0' }}>
+                        Ответы на вопросы
                     </Typography>
+                    <QuestionsTestTable />
                 </Col>
             </Row>
         </>
