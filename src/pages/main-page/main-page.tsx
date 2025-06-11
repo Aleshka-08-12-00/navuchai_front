@@ -363,30 +363,11 @@ const MainPage = observer(() => {
                       </div>
 
                       <div style={{ flex: "1", textAlign: "right" }}>
-                        {/* <Button
-                          variant="outlined"
-                          size="small"
-                          color="secondary"
-                          style={{
-                            textTransform: 'uppercase',
-                            marginRight: 10
-                          }}
-                          onClick={() => window.open(`/start_test/${item.id}`, '_blank')}>
-                          начать тест
-                        </Button> */}
                         <Typography variant="h6">
-                          {item.category_name}
+                          <Typography variant="h6" color="textSecondary" component="span">
+                            категория:
+                          </Typography> {item.category_name}
                         </Typography>
-                        {/* <Button
-                          variant="outlined"
-                          size="small"
-                          color="secondary"
-                          style={{
-                            textTransform: 'uppercase'
-                          }}>
-                          {item.category_name}
-                        </Button> */}
-
                       </div>
                     </div>
                   </>
