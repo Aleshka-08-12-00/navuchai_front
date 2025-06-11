@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useParams } from "react-router-dom";
 import { Context } from "../..";
@@ -156,7 +156,7 @@ const TestPage = observer(() => {
             setStart(false);
             setCurrentQuestionIndex(0);
             setQuestionStartTime(null);
-          }, 500); // 500 мс, чтобы дать карточке время показаться
+          }, 500);
         }
         if (result?.result?.percentage !== undefined) {
           showAlert(`Тест завершён! Вы набрали ${result.result.percentage}%`, "success");
