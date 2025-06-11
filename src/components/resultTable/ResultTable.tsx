@@ -1,4 +1,3 @@
-// ResultTable.tsx
 import React, { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { Button, Progress, Table, Tooltip, Typography } from "antd";
@@ -12,6 +11,7 @@ import DropDownDownload from "./dropDownDowload/dropDownDowload";
 import { ReloadOutlined } from "@ant-design/icons";
 import { Box } from "@mui/system";
 import { IconButton, TextField } from "@mui/material";
+import SearchIcon from '@mui/icons-material/Search';
 
 type TableRowSelection<T extends object = object> = TableProps<T>["rowSelection"];
 

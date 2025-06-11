@@ -43,6 +43,10 @@ const TestUserResult: React.FC = observer(() => {
     resultTableStore.getInfoByIdResultTest(parsedId);
   }, [resultId, resultTableStore]);
 
+  // Обработка состояний загрузки и ошибки
+  if (resultTableStore.loading) {
+    return <div style={{ padding: 30 }}>Загрузка...</div>;
+  }
         resultTableStore.getInfoByIdResultTest(parsedId).then((data) => {
             if (data?.error) {
                 console.error("Ошибка:", data.error);
@@ -116,6 +120,12 @@ const TestUserResult: React.FC = observer(() => {
 
   if (resultTableStore.error) {
     return (
+<<<<<<< HEAD
+      <div style={{ padding: 30, color: 'red', fontSize: 18 }}>
+        <p>{resultTableStore.error}</p>
+        <Button onClick={() => navigate(-1)}>Вернуться назад</Button>
+      </div>
+=======
         <>
             <Row gutter={[10, 10]}>
                 <Col span={24} className={styles['gutter-row']} style={{ paddingRight: 0 }}>
@@ -331,6 +341,7 @@ const TestUserResult: React.FC = observer(() => {
                 </Col>
             </Row>
         </>
+>>>>>>> origin/main
     );
   }
 
@@ -561,6 +572,5 @@ const TestUserResult: React.FC = observer(() => {
     </>
   );
 });
-
 
 export default TestUserResult;
