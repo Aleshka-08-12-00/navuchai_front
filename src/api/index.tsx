@@ -61,21 +61,29 @@ const handleError = (error: unknown) => {
   throw error;
 };
 
-// Универсальная функция для выполнения GET-запроса
-const fetchData = async (endpointKey: string, params: Params = {}, dynamicParams: string | number | null = null): Promise<any> => {
+// Универсальная функция для выполнения GET-запроса с возможностью передачи дополнительных опций
+const fetchData = async (
+  endpointKey: string,
+  params: Params = {},
+  dynamicParams: string | number | null = null,
+  axiosConfig: Record<string, any> = {}
+): Promise<any> => {
   const url = buildUrl(endpointKey, params, dynamicParams);
   try {
     const response: AxiosResponse = await axios.get(url, {
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('tokenNavuchai')}`
-      }
+        'Authorization': `Bearer ${localStorage.getItem('tokenNavuchai')}`,
+        ...axiosConfig.headers, // Позволяем переопределять заголовки при необходимости
+      },
+      ...axiosConfig, // Остальные опции axios
     });
     return validateResponse(response);
   } catch (error) {
     return handleError(error);
   }
 };
+
 
 // Универсальная функция для выполнения POST-запроса
 const postData = async (endpointKey: string, data: any, dynamicParams: string | number | null = null): Promise<any> => {

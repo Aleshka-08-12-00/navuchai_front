@@ -121,13 +121,13 @@ const TestUserResult: React.FC = observer(() => {
 
                             <MuiLink component="button" className={styles.link} sx={{ fontSize: 18, fontWeight: 400 }}>
                                 <Typography component="div" style={{display: 'flex', justifyContent: 'space-between', margin: 'auto'}}>
-                                    <Typography variant='h6'  color="textSecondary" >
-                                        тест по: &nbsp;
+                                    <Typography variant='h6' color="textSecondary" >
+                                        тест по:
                                     </Typography>
-                                      <Typography  variant='h6' >
+                                     <Typography variant='h6' >
                                          {test_name}
                                     </Typography>
-                                </Typography> 
+                                </Typography>
                             </MuiLink>
                         </Typography>
 
@@ -266,7 +266,7 @@ const TestUserResult: React.FC = observer(() => {
                             <Typography component="div" style={{marginRight: '30px'}}>
                                 <ProjectOutlined style={{ fontSize: '30px' }} />
                             </Typography>
-                            <Typography component="div" style={{display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginLeft: '5px', marginTop: '5px',  gap: '15px', width: '94%'}}>
+                            <Typography component="div" style={{display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginLeft: '5px', marginTop: '5px', gap: '15px', width: '94%'}}>
                                 <Typography component="div" style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column', gap: '15px', minWidth: '250px'}}>
                                     <Progress percent={68} format={() => 'Категория №1'} strokeWidth={20} strokeColor="rgb(22, 119, 255)" style={{ width: '100%' }}/>
                                     <Progress percent={34} format={() => 'Категория №2'} strokeWidth={20} strokeColor="rgb(247, 100, 100)" style={{ width: '100%' }}/>
