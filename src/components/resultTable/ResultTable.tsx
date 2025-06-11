@@ -5,7 +5,6 @@ import type { TableColumnsType, TableProps } from "antd";
 import styles from "./style.module.scss";
 import { useNavigate } from "react-router";
 import { IUserTestResultRow } from "../../interface/interfaceStore";
-import authStore from "../../store/authStore";
 import { Context } from "../..";
 import DropDownDownload from "./dropDownDowload/dropDownDowload";
 import { ReloadOutlined } from "@ant-design/icons";
@@ -90,13 +89,7 @@ const ResultTable: React.FC = observer(() => {
   };
 
   useEffect(() => {
-    // if (!authStore.userId) {
-    //   authStore.authMe().then(() => {
-    //     if (authStore.userId) loadData();
-    //   });
-
       loadData();
-
   }, []);
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
@@ -131,6 +124,23 @@ const ResultTable: React.FC = observer(() => {
   return (
     <Box display="flex" flexDirection="column" gap={2}>
       <Box display="flex" justifyContent="space-between" alignItems="center">
+         <Box>
+          <TextField
+            size="small"
+            variant="outlined"
+            placeholder="Поиск по словам..."
+            value={searchQuery}
+            onChange={(e) => onSearch(e.target.value)}
+            sx={{ minWidth: 200, background: '#fff', borderRadius: 1 }}
+            InputProps={{
+              endAdornment: (
+                <IconButton size="small">
+                  <SearchIcon />
+                </IconButton>
+              )
+            }}
+          />
+        </Box>
         <Box display="flex" alignItems="center" gap={1.5}>
           <Tooltip title="Обновить таблицу">
             <Button
@@ -157,23 +167,6 @@ const ResultTable: React.FC = observer(() => {
           <Tooltip title="Экспорт данных">
             <DropDownDownload columns={columns} onExport={resultTableStore.exportResultsExcel}/>
           </Tooltip>
-        </Box>
-        <Box>
-          <TextField
-            size="small"
-            variant="outlined"
-            placeholder="Поиск по словам..."
-            value={searchQuery}
-            onChange={(e) => onSearch(e.target.value)}
-            sx={{ minWidth: 200, background: '#fff', borderRadius: 1 }}
-            InputProps={{
-              endAdornment: (
-                <IconButton size="small">
-                  <SearchIcon />
-                </IconButton>
-              )
-            }}
-          />
         </Box>
       </Box>
       <Table<IUserTestResultRow>
