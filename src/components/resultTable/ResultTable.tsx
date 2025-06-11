@@ -42,7 +42,7 @@ const columns: TableColumnsType<IUserTestResultRow> = [
     render: (score: number) => {
       const color = score >= 60 ? "#9af49e" : "#f58d8f";
       return (
-        <Tooltip title={`Процент прохождения: ${score}%`}>
+        <Tooltip title={`Тест решён на: ${score}%`}>
           <Progress
             percent={score}
             className={styles.customProgressBar}
@@ -113,7 +113,7 @@ const ResultTable: React.FC = observer(() => {
 
   const allResults = resultTableStore.getFormattedUserResults();
 
-  const filteredData = allResults.filter((item) =>
+  const filteredData = allResults.filter((item: any) =>
     item.test_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.email.toLowerCase().includes(searchQuery.toLowerCase())

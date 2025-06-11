@@ -104,7 +104,7 @@ const TestStartPage: React.FC<TestStartPageProps> = observer(({ setStart, start,
 
             <Box component="form" noValidate autoComplete="off" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               <TextField
-                label="Имя"
+                label="Фамилия"
                 variant="outlined"
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
@@ -119,7 +119,7 @@ const TestStartPage: React.FC<TestStartPageProps> = observer(({ setStart, start,
                 }}
               />
               <TextField
-                label="Фамилия"
+                label="Имя"
                 variant="outlined"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}

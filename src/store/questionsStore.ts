@@ -6,6 +6,10 @@ class QuestionsStore {
   questions: IQuestionInTest[] = [];
   loading = false;
   error: string | null = null;
+  
+  get questionsObj() {
+    return new Map(this.questions.map((q) => [q.question.id, q]));
+  }
 
   constructor() {
     makeAutoObservable(this);
@@ -29,6 +33,8 @@ class QuestionsStore {
     }
   };  
 }
+
+
 
 const questionsStore = new QuestionsStore();
 export default questionsStore;
