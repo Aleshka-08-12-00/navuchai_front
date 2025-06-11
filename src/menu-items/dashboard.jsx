@@ -4,6 +4,8 @@ import AppsIcon from '@mui/icons-material/Apps';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import SettingsIcon from '@mui/icons-material/Settings';
+import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
+
 
 // icons
 const icons = {
@@ -11,7 +13,8 @@ const icons = {
   AppsIcon,
   PeopleAltIcon,
   BarChartIcon,
-  SettingsIcon
+  SettingsIcon,
+  LibraryBooksIcon,
 };
 
 // ==============================|| MENU ITEMS - DASHBOARD ||============================== //
@@ -57,6 +60,15 @@ const dashboard = {
       breadcrumbs: true,
       code: 'anyCode'
     },
+    {
+      id: '5',
+      title: 'Курсы',
+      type: 'item',
+      url: '/courses',
+      icon: icons.LibraryBooksIcon,
+      breadcrumbs: true,
+      code: 'anyCode'
+      },
  
   ]
 };
