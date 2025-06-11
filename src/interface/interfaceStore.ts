@@ -260,14 +260,15 @@ export interface IErrorResponse {
  */
 
 export interface IUserTestResultRow {
-  key: React.Key;       
-  test_name: string;    
-  name: string;    
-  email: string;   
-  total_score?: number;  
-  end_date?: string;     
-  test_time?: string;    
+  key: React.Key;
+  test_name: string;
+  name: string;
+  email: string;
+  percentage: number;
+  end_date: string;
+  test_time: string; 
 }
+
 
 /**
  * Интерфейс для страницы результата теста

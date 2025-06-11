@@ -33,6 +33,7 @@ const endpoints = {
     getResults: 'api/results',
     getResultsByUserId: (user_id: string | number | null): string => `api/results/user/${user_id}`,
     getResultByResultId: (result_id: string | number | null): string => `api/results/${result_id}`,
+    exportResultsExcel: 'api/results/excel',
 
     //Пользователи
     getUserById: (user_id: string | number | null): string => `api/users/${user_id}`,

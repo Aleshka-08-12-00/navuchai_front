@@ -1,18 +1,28 @@
-.box-score {
-    width: 136px;
-    border-radius: 5px;
-    display: flex;
-    text-align: center;
-    align-items: center;
-    justify-content: center;
+.customProgressBar {
+  .ant-progress-inner {
+    height: 36px !important;
+    border-radius: 8px;
+    background-color: #f0f2f5; // светлый фон под баром
+  }
+
+  .ant-progress-bg {
+    height: 36px !important;
+    border-radius: 8px;
+    transition: width 0.3s ease;
+  }
+
+  .ant-progress-text {
     font-size: 18px;
-    font-weight: bold;
+    font-weight: 600;
+    color: #000000d9; // чуть темнее стандартного
+  }
 }
 
 .clickable-row {
-    cursor: pointer; 
+  cursor: pointer;
+
+  &:hover td {
+    background-color: #f0faff !important;
+    transition: background-color 0.3s ease;
   }
-  
-  .clickable-row:hover td{
-    background-color: #e6f4ff !important; 
-  }
+}

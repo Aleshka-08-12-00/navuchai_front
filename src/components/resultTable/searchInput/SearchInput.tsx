@@ -1,36 +1,50 @@
 import React, { useState } from 'react';
-import { Input, Space } from 'antd';
+import { Input } from 'antd';
+import { CloseCircleFilled } from '@ant-design/icons';
+import styles from './SearchInput.module.scss';
 
 const { Search } = Input;
 
 type SearchInputProps = {
-  onSearch: (value: string) => void; 
+  onSearch: (value: string) => void;
 };
 
-const SearchInput: React.FC<SearchInputProps> = ({onSearch}) => {
-  const [loading, setLoading] = useState(false); 
+const SearchInput: React.FC<SearchInputProps> = ({ onSearch }) => {
+  const [value, setValue] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSearch = (value: string) => {
+  const handleSearch = (searchValue?: string) => {
+    const query = searchValue ?? value;
     setLoading(true);
-    console.log(value);
-    
-   
-    setTimeout(() => {
-      setLoading(false); 
-    }, 2000);
+    onSearch(query);
+    setTimeout(() => setLoading(false), 500);
+  };
 
-    onSearch(value);
+  const clearInput = () => {
+    setValue('');
+    onSearch('');
   };
 
   return (
-    <Space direction="vertical">
+    <div className={styles.searchWrapper}>
       <Search
         placeholder="Поиск по таблице..."
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
         onSearch={handleSearch}
-        enterButton
+        enterButton="Поиск"
         loading={loading}
+        allowClear={{
+          clearIcon: (
+            <CloseCircleFilled
+              className={styles.clearIcon}
+              onClick={clearInput}
+            />
+          ),
+        }}
+        className={styles.searchInput}
       />
-    </Space>
+    </div>
   );
 };
 

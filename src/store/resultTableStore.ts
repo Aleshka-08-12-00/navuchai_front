@@ -10,31 +10,58 @@ import userStore from "./userStore";
 import questionsStore from "./questionsStore";
 
 export default class ResultTableStore {
-  result: ITestResultCreateResponse | null = null;
-  loading = false;
-  error: string | null = null;
   resultsArray: ITestResultCreateResponse[] = [];
   testNamesMap = new Map<number, string>();
   selectedResult: ITestResultCreateResponse | null = null;
+  loading = false;
+  error: string | null = null;
 
   constructor() {
     makeAutoObservable(this);
   }
 
-  // Загрузка названия теста по ID и кэширование
+ exportResultsExcel = async () => {
+  this.loading = true;
+  this.error = null;
+
+  try {
+    const response = await fetchData("exportResultsExcel", {}, null, { responseType: "blob" });
+    const blob = response instanceof Blob ? response : new Blob([response]);
+
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "results.xlsx"; // Или любое другое имя по умолчанию
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+
+  } catch (error: any) {
+    runInAction(() => {
+      this.error = error.message || "Ошибка загрузки результатов";
+    });
+  } finally {
+    runInAction(() => {
+      this.loading = false;
+    });
+  }
+};
+
+
+
   fetchAndStoreTestName = async (testId: number) => {
     if (this.testNamesMap.has(testId)) return;
 
     await settingsNewTestStore.getTestById(testId);
     const test = settingsNewTestStore.testMainInfo;
-    if (test?.id === testId && test.title) {
-      this.testNamesMap.set(testId, test.title);
-    } else {
-      this.testNamesMap.set(testId, "Неизвестно");
-    }
+    const name = test?.title || "Неизвестно";
+
+    runInAction(() => {
+      this.testNamesMap.set(testId, name);
+    });
   };
 
-  // Загрузка всех результатов и имен/емейлов
   getResults = async () => {
     this.loading = true;
     this.error = null;
@@ -44,70 +71,66 @@ export default class ResultTableStore {
       if (result) {
         await this.setResultsArray(result);
       }
-      runInAction(() => {
-        this.loading = false;
-      });
     } catch (error: any) {
       runInAction(() => {
         this.error = error.message || "Ошибка загрузки результатов";
+      });
+    } finally {
+      runInAction(() => {
         this.loading = false;
       });
     }
   };
 
-  // Кэшируем тесты и пользователей
   setResultsArray = async (value: ITestResultCreateResponse[]) => {
-    this.resultsArray = value;
+    runInAction(() => {
+      this.resultsArray = value;
+    });
 
-    const uniqueTestIds = [...new Set(value.map((res) => res.test_id))];
-    const uniqueUserIds = [...new Set(value.map((res) => res.user_id))];
+    const uniqueTestIds = Array.from(new Set(value.map((res) => res.test_id)));
+    const uniqueUserIds = Array.from(new Set(value.map((res) => res.user_id)));
 
-    // Параллельная загрузка
     await Promise.all([
       ...uniqueTestIds.map((id) => this.fetchAndStoreTestName(id)),
       ...uniqueUserIds.map((id) => userStore.getUserById(id)),
     ]);
   };
 
-  // Формирование строки для таблицы
-  getFormattedUserResults = (): IUserTestResultRow[] => {
-    return this.resultsArray.map((result) => {
-      const testName = this.testNamesMap.get(result.test_id) || "Загрузка...";
-      const name = userStore.getUserField(result.user_id, "name");
-      const email = userStore.getUserField(result.user_id, "email");
+  getFormattedUserResults(): IUserTestResultRow[] {
+    return this.resultsArray.map((res) => ({
+      key: res.id,
+      test_name: this.testNamesMap.get(res.test_id) || "—",
+      name: userStore.getUserField(res.user_id, "name") || "",
+      email: userStore.getUserField(res.user_id, "email") || "",
+      percentage: res.result?.percentage || 0,
+      end_date: new Date(res.completed_at).toLocaleString(),
+      test_time: this.formatTime(res.result?.total_time_seconds || 0),
+    }));
+  }
 
-      return {
-        key: result.id.toString(),
-        test_name: testName,
-        name,
-        email,
-        total_score: result.result?.percentage ?? undefined,
-        end_date: result.completed_at
-          ? new Date(result.completed_at).toLocaleString()
-          : "—",
-        test_time: "—", // если нужно — можешь добавить расчет времени здесь
-      };
-    });
-  };
+  formatTime(totalSeconds: number): string {
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes} мин ${seconds.toString().padStart(2, "0")} сек`;
+  }
 
-  // Получение результата по ID (если нужно)
   getResultByResultId = async (resultId: number) => {
-
-    if (!resultId || isNaN(resultId)) {
-      console.error("Неверный resultId:", resultId);
-      return null;
-    }
+    if (!resultId || isNaN(resultId)) return;
 
     this.loading = true;
+    this.error = null;
+
     try {
-      const data = await fetchData('getResultByResultId', {}, resultId);
+      const data = await fetchData("getResultByResultId", {}, resultId);
       runInAction(() => {
         this.selectedResult = data;
-        this.loading = false;
       });
     } catch (error: any) {
       runInAction(() => {
         this.error = error.message || "Ошибка при загрузке результата";
+      });
+    } finally {
+      runInAction(() => {
         this.loading = false;
       });
     }
@@ -116,109 +139,71 @@ export default class ResultTableStore {
   getInfoByIdResultTest = async (resultId: number) => {
     this.loading = true;
     this.error = null;
+
     try {
-      const data = await fetchData('getResultByResultId', {}, resultId);
+      const data = await fetchData("getResultByResultId", {}, resultId);
+
       runInAction(() => {
         this.selectedResult = data;
-        console.log(data)
       });
 
-      const testId = data?.test_id;
-      const userId = data?.user_id;
-      const percentage = data?.result?.percentage;
-      const completedAt = data?.completed_at;
-      const timeSpent = data?.result?.checked_answers?.check_details?.user_answer?.time_limit;
-      console.log(timeSpent)
-
+      const { test_id: testId, user_id: userId, result } = data;
+      const percentage = result?.percentage || 0;
+      const completedAt = data?.completed_at || null;
 
       await Promise.all([
         testId ? this.fetchAndStoreTestName(testId) : Promise.resolve(),
         userId ? userStore.getUserById(userId) : Promise.resolve(),
-        console.log(`${percentage} и ${completedAt}`),
       ]);
 
-      const testName = testId ? this.testNamesMap.get(testId) : "Неизвестно";
-      const userName = userId ? userStore.getUserField(userId, "name") : "Неизвестно";
+      const testName = this.testNamesMap.get(testId) || "Неизвестно";
+      const userName = userStore.getUserField(userId, "name") || "Неизвестно";
 
+      const checkedAnswers: ICheckedAnswer[] = result?.checked_answers || [];
+      if (testId) await questionsStore.fetchQuestionsByTestId(testId);
 
+      // const questions = checkedAnswers.map((answer, index) => {
+      //   const questionText = answer.question_text;
+      //   const correctAnswers: string[] = answer.check_details.correct_answer || [];
 
-      const formatTime = (totalSeconds: number): string => {
-      const minutes = Math.floor(totalSeconds / 60);
-      const seconds = totalSeconds % 60;
-      return `${minutes} мин ${seconds.toString().padStart(2, '0')} сек`;
-    };
+      //   let userAnswers: string[] = [];
+      //   try {
+      //     const rawValue = answer.check_details?.user_answer?.value;
+      //     const parsed = typeof rawValue === "string" ? JSON.parse(rawValue) : rawValue;
 
-    // Обработка массива вопросов для таблицы
-    const checkedAnswers = data?.result?.checked_answers || [];
+      //     if (Array.isArray(parsed)) {
+      //       userAnswers = parsed.map(String);
+      //     } else if (parsed?.answer) {
+      //       userAnswers = Array.isArray(parsed.answer) ? parsed.answer.map(String) : [String(parsed.answer)];
+      //     } else if (typeof parsed === "string") {
+      //       userAnswers = [parsed];
+      //     }
+      //   } catch {
+      //     userAnswers = [];
+      //   }
 
-    if (testId) {
-      await questionsStore.fetchQuestionsByTestId(testId);
-    }
+        // const matched = questionsStore.questions.find((q) => q.question.id === answer.question_id);
+        // const allAnswers = matched
+        //   ? matched.question.answers.allAnswer
+        //   : Array.from(new Set([...correctAnswers, ...userAnswers]));
 
-    let totalTimeSpent = 0;
+        // const options = allAnswers.map((text, i) => ({
+        //   id: i,
+        //   text,
+        //   isCorrect: correctAnswers.includes(text),
+        //   isUserAnswer: userAnswers.includes(text),
+        // }));
 
-    const questions = checkedAnswers.map((answer: ICheckedAnswer, index: number) => {
-      const questionText = answer.question_text;
-      const correctAnswers = answer.check_details.correct_answer || [];
-
-      
-
-      let userAnswers: string[] = [];
-
-      try {
-        const rawValue: any = answer.check_details?.user_answer?.value;
-        const parsedValue =
-          typeof rawValue === 'string'
-            ? rawValue.trim().startsWith('{') || rawValue.trim().startsWith('[')
-              ? JSON.parse(rawValue.trim())
-              : { answer: rawValue.trim() }
-            : rawValue;
-
-        if (Array.isArray(parsedValue)) {
-          userAnswers = parsedValue.map(String);
-        } else if (parsedValue && typeof parsedValue === 'object') {
-          const extracted = parsedValue.answer;
-          userAnswers = Array.isArray(extracted)
-            ? extracted.map(String)
-            : extracted
-            ? [String(extracted)]
-            : [];
-        } else if (typeof parsedValue === 'string') {
-          userAnswers = [parsedValue];
-        }
-      } catch (e) {
-        console.error('❌ Ошибка при разборе user_answer:', e);
-        userAnswers = [];
-      }
-
-      const questionsByTestId = questionsStore.questions;
-      const matchedQuestion = questionsByTestId.find(
-        (q) => q.question.id === answer.question_id
-      );
-
-      const allAnswers = matchedQuestion
-        ? matchedQuestion.question.answers.allAnswer
-        : Array.from(new Set([...correctAnswers, ...userAnswers]));
-
-      const options = allAnswers.map((text, i) => ({
-        id: i,
-        text,
-        isCorrect: correctAnswers.includes(text),
-        isUserAnswer: userAnswers.includes(text),
-      }));
-
-      return {
-        question: `Вопрос №${index + 1}`,
-        title: questionText,
-        timeSpent: 0,
-        description: questionText,
-        options,
-        correctCount: answer.check_details.details.correct_count || 1,
-        totalCorrect: answer.check_details.details.total_correct || 1,
-      };
-    });
-
-
+      //   return {
+      //     question: `Вопрос №${index + 1}`,
+      //     title: questionText,
+      //     timeSpent: 0,
+      //     description: questionText,
+      //     options,
+      //     // correctCount: answer.check_details.details.correct_count || 1,
+      //     // totalCorrect: answer.check_details.details.total_correct || 1,
+      //   };
+      // });
 
       runInAction(() => {
         this.loading = false;
@@ -230,7 +215,7 @@ export default class ResultTableStore {
         userName,
         percentage,
         completedAt,
-        questions,
+        // questions,
         error: null,
       };
     } catch (error: any) {
@@ -244,8 +229,8 @@ export default class ResultTableStore {
       return {
         error: message,
         result: null,
-        testName: '',
-        userName: '',
+        testName: "",
+        userName: "",
         percentage: 0,
         completedAt: null,
         questions: [],
