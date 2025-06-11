@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { TreeView, TreeItem } from '@mui/lab';
-import { Typography } from '@mui/material';
+import {
+  List,
+  ListItemButton,
+  ListItemText,
+  Collapse,
+  Typography,
+} from '@mui/material';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
 import { useNavigate } from 'react-router-dom';
 import { getCourses, getModules, getLessons } from 'api';
 
@@ -8,15 +15,19 @@ interface Lesson {
   id: number;
   title: string;
 }
+
 interface Module {
   id: number;
   title: string;
-  lessons: Lesson[];
+  lessons?: Lesson[];
+  open?: boolean;
 }
+
 interface Course {
   id: number;
   title: string;
-  modules: Module[];
+  modules?: Module[];
+  open?: boolean;
 }
 
 const CoursesPage = () => {
@@ -24,28 +35,80 @@ const CoursesPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchData = async () => {
+    (async () => {
       try {
-        const coursesData = await getCourses();
-        const coursesWithModules: Course[] = await Promise.all(
-          coursesData.map(async (course: any) => {
-            const modulesData = await getModules(course.id);
-            const modulesWithLessons: Module[] = await Promise.all(
-              modulesData.map(async (mod: any) => ({
-                ...mod,
-                lessons: await getLessons(mod.id)
-              }))
-            );
-            return { ...course, modules: modulesWithLessons };
-          })
-        );
-        setCourses(coursesWithModules);
+        const data = await getCourses();
+        setCourses(data);
       } catch (e) {
         console.error(e);
       }
-    };
-    fetchData();
+    })();
   }, []);
+
+  const toggleCourse = async (courseId: number) => {
+    const course = courses.find((c) => c.id === courseId);
+    if (!course) return;
+
+    if (!course.modules) {
+      try {
+        const modulesData = await getModules(courseId);
+        setCourses((prev) =>
+          prev.map((c) =>
+            c.id === courseId ? { ...c, modules: modulesData, open: !c.open } : c
+          )
+        );
+      } catch (e) {
+        console.error(e);
+      }
+    } else {
+      setCourses((prev) =>
+        prev.map((c) =>
+          c.id === courseId ? { ...c, open: !c.open } : c
+        )
+      );
+    }
+  };
+
+  const toggleModule = async (courseId: number, moduleId: number) => {
+    const course = courses.find((c) => c.id === courseId);
+    if (!course || !course.modules) return;
+
+    const module = course.modules.find((m) => m.id === moduleId);
+    if (!module) return;
+
+    if (!module.lessons) {
+      try {
+        const lessonsData = await getLessons(moduleId);
+        setCourses((prev) =>
+          prev.map((c) =>
+            c.id === courseId
+              ? {
+                  ...c,
+                  modules: c.modules?.map((m) =>
+                    m.id === moduleId ? { ...m, lessons: lessonsData, open: !m.open } : m
+                  ),
+                }
+              : c
+          )
+        );
+      } catch (e) {
+        console.error(e);
+      }
+    } else {
+      setCourses((prev) =>
+        prev.map((c) =>
+          c.id === courseId
+            ? {
+                ...c,
+                modules: c.modules?.map((m) =>
+                  m.id === moduleId ? { ...m, open: !m.open } : m
+                ),
+              }
+            : c
+        )
+      );
+    }
+  };
 
   const handleLessonClick = (
     courseId: number,
@@ -60,34 +123,41 @@ const CoursesPage = () => {
       <Typography variant="h4" sx={{ mb: 2 }}>
         Курсы
       </Typography>
-      <TreeView>
+      <List>
         {courses.map((course) => (
-          <TreeItem
-            key={course.id}
-            nodeId={`c-${course.id}`}
-            label={course.title}
-          >
-            {course.modules.map((mod) => (
-              <TreeItem
-                key={mod.id}
-                nodeId={`m-${mod.id}`}
-                label={mod.title}
-              >
-                {mod.lessons.map((lesson) => (
-                  <TreeItem
-                    key={lesson.id}
-                    nodeId={`l-${lesson.id}`}
-                    label={lesson.title}
-                    onClick={() =>
-                      handleLessonClick(course.id, mod.id, lesson.id)
-                    }
-                  />
+          <React.Fragment key={course.id}>
+            <ListItemButton onClick={() => toggleCourse(course.id)}>
+              <ListItemText primary={course.title} />
+              {course.open ? <ExpandLess /> : <ExpandMore />}
+            </ListItemButton>
+            <Collapse in={course.open} timeout="auto" unmountOnExit>
+              <List component="div" disablePadding sx={{ pl: 4 }}>
+                {course.modules?.map((mod) => (
+                  <React.Fragment key={mod.id}>
+                    <ListItemButton onClick={() => toggleModule(course.id, mod.id)} sx={{ pl: 2 }}>
+                      <ListItemText primary={mod.title} />
+                      {mod.open ? <ExpandLess /> : <ExpandMore />}
+                    </ListItemButton>
+                    <Collapse in={mod.open} timeout="auto" unmountOnExit>
+                      <List component="div" disablePadding sx={{ pl: 4 }}>
+                        {mod.lessons?.map((lesson) => (
+                          <ListItemButton
+                            key={lesson.id}
+                            sx={{ pl: 4 }}
+                            onClick={() => handleLessonClick(course.id, mod.id, lesson.id)}
+                          >
+                            <ListItemText primary={lesson.title} />
+                          </ListItemButton>
+                        ))}
+                      </List>
+                    </Collapse>
+                  </React.Fragment>
                 ))}
-              </TreeItem>
-            ))}
-          </TreeItem>
+              </List>
+            </Collapse>
+          </React.Fragment>
         ))}
-      </TreeView>
+      </List>
     </div>
   );
 };
