@@ -1,7 +1,7 @@
 import { ResponsivePie } from "@nivo/pie";
 
 const PieChartResult = ({ totalScore }: { totalScore: number }) => {
-  const fillColor = totalScore >= 50 ? "#1677ff" : "#f58d8f";
+  const fillColor = totalScore >= 50 ? "#69cc5a" : "#f58d8f";
 
   const data = [
     { id: "Набрано", value: totalScore, color: fillColor },
@@ -9,7 +9,7 @@ const PieChartResult = ({ totalScore }: { totalScore: number }) => {
   ];
 
   return (
-    <div style={{ height: "200px", width: "220px", position: "relative" }}>
+    <div style={{ height: "150px", width: "160px", position: "relative" }}>
       <ResponsivePie
         data={data}
         margin={{ top: 30, right: 30, bottom: 30, left: 30 }}
@@ -36,8 +36,7 @@ const PieChartResult = ({ totalScore }: { totalScore: number }) => {
                 textAnchor="middle"
                 dominantBaseline="central"
                 style={{
-                  fontSize: 18,
-                  fontWeight: "bold",
+                  fontSize: 14,
                   fill: "#333",
                 }}
               >

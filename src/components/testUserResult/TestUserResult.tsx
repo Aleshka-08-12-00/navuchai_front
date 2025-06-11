@@ -23,7 +23,7 @@ const TestUserResult: React.FC = observer(() => {
     const { resultId } = useParams();
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     console.log(resultId);
-    
+
     const [info, setInfo] = useState<{
         result: any;
         testName: string;
@@ -32,7 +32,7 @@ const TestUserResult: React.FC = observer(() => {
         completedAt: string | null;
     } | null>(null);
 
-        useEffect(() => {
+    useEffect(() => {
         if (!resultId) return;
 
         const parsedId = parseInt(resultId, 10);
@@ -40,28 +40,28 @@ const TestUserResult: React.FC = observer(() => {
 
         resultTableStore.getInfoByIdResultTest(parsedId).then((data) => {
             if (data?.error) {
-            console.error("Ошибка:", data.error);
-            setInfo(null);
-            setErrorMessage(data.error); // новое состояние
+                console.error("Ошибка:", data.error);
+                setInfo(null);
+                setErrorMessage(data.error); // новое состояние
             } else {
-            setInfo({
-                result: data.result,
-                testName: data.testName ?? "Неизвестно",
-                userName: data.userName ?? "Неизвестно",
-                percentage: data.percentage ?? 0,
-                completedAt: data.completedAt ?? null,
-            });
-            setErrorMessage(null);
+                setInfo({
+                    result: data.result,
+                    testName: data.testName ?? "Неизвестно",
+                    userName: data.userName ?? "Неизвестно",
+                    percentage: data.percentage ?? 0,
+                    completedAt: data.completedAt ?? null,
+                });
+                setErrorMessage(null);
             }
         });
-        }, [resultId]);
+    }, [resultId]);
 
 
     if (errorMessage) {
         return (
             <div style={{ padding: '30px', color: 'red', fontSize: '18px' }}>
-            <p>{errorMessage}</p>
-            <Button onClick={() => navigate(-1)}>Вернуться назад</Button>
+                <p>{errorMessage}</p>
+                <Button onClick={() => navigate(-1)}>Вернуться назад</Button>
             </div>
         );
     }
@@ -70,10 +70,10 @@ const TestUserResult: React.FC = observer(() => {
         return <div>Загрузка...</div>;
     }
 
-  // Теперь берем нужные данные из info
+    // Теперь берем нужные данные из info
     const { testName, userName, percentage, completedAt } = info;
 
-    const name = userName|| 'Имя и Фамилия';
+    const name = userName || 'Имя и Фамилия';
     const test_name = testName || 'Название теста';
     const test_time = "0";
 
@@ -82,7 +82,7 @@ const TestUserResult: React.FC = observer(() => {
     const passed = percentage >= 50;
     const resultTest = passed ? 'Тест пройден!' : 'Тест не пройден!';
     const resultGood = passed ? 'Оценка удовлетворительная' : 'Оценка неудовлетворительная';
-    const resultColor = passed ? '#1677ff' : '#f58d8f';
+    const resultColor = passed ? '#10a000' : '#f58d8f';
 
     const formatDate = (dateStr: string | null): string => {
         if (!dateStr) return 'Неизвестно';
@@ -116,11 +116,18 @@ const TestUserResult: React.FC = observer(() => {
                     <Typography component="div" className={styles['actions-bar']} style={{ marginLeft: '15px' }}>
                         <Typography component="div" className={styles['actions-bar-left']}>
                             <MuiLink component="button" className={styles.link} sx={{ textAlign: 'left', marginRight: 10 }} onClick={() => navigate(-1)}>
-                                <LeftOutlined /> Вернуться к списку
+                                <LeftOutlined /> назад к списку
                             </MuiLink>
 
                             <MuiLink component="button" className={styles.link} sx={{ fontSize: 18, fontWeight: 400 }}>
-                                {test_name}
+                                <Typography component="div" style={{display: 'flex', justifyContent: 'space-between', margin: 'auto'}}>
+                                    <Typography variant='h6'  color="textSecondary" >
+                                        тест по: &nbsp;
+                                    </Typography>
+                                      <Typography  variant='h6' >
+                                         {test_name}
+                                    </Typography>
+                                </Typography> 
                             </MuiLink>
                         </Typography>
 
@@ -130,15 +137,16 @@ const TestUserResult: React.FC = observer(() => {
                             style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}
                         >
                             <Typography component="div" style={{ display: 'flex', borderRight: '1px solid rgb(80, 93, 107, 0.2)' }} className={styles.btnBackground}>
-                                <UserOutlined style={{ marginRight: '5px', color: '#505d6b' }} />
+                                <UserOutlined style={{ marginRight: 10, color: '#505d6b', marginLeft: 10 }} />
                                 <MuiLink
                                     component="button"
                                     sx={{
-                                        fontSize: 16,
+                                        fontSize: 14,
                                         fontWeight: 400,
                                         color: '#505d6b',
                                         textDecoration: 'none',
                                         lineHeight: '50px',
+                                        pr: 1,
                                         '&:hover': {
                                             textDecoration: 'none',
                                         },
@@ -148,15 +156,17 @@ const TestUserResult: React.FC = observer(() => {
                                 </MuiLink>
                             </Typography>
                             <Typography component="div" style={{ display: 'flex', borderRight: '1px solid rgb(80, 93, 107, 0.2)' }} className={styles.btnBackground}>
-                                <DownloadForOfflineOutlinedIcon style={{ marginRight: '5px', color: '#505d6b' }} />
+                                <DownloadForOfflineOutlinedIcon style={{ marginRight: 10, color: '#505d6b', marginLeft: 10 }} />
                                 <MuiLink
                                     component="button"
                                     sx={{
-                                        fontSize: 16,
+                                        fontSize: 14,
                                         fontWeight: 400,
                                         color: '#505d6b',
                                         textDecoration: 'none',
                                         lineHeight: '50px',
+                                        pr: 1,
+                                        pl: 1,
                                         '&:hover': {
                                             textDecoration: 'none',
                                         },
@@ -166,15 +176,17 @@ const TestUserResult: React.FC = observer(() => {
                                 </MuiLink>
                             </Typography>
                             <Typography component="div" style={{ display: 'flex' }} className={styles.btnBackground}>
-                                <EmailIcon style={{ marginRight: '5px', color: '#505d6b' }} />
+                                <EmailIcon style={{ marginRight: '5px', color: '#505d6b', marginLeft: 10 }} />
                                 <MuiLink
                                     component="button"
                                     sx={{
-                                        fontSize: 16,
+                                        fontSize: 14,
                                         fontWeight: 400,
                                         color: '#505d6b',
                                         textDecoration: 'none',
                                         lineHeight: '50px',
+                                        pr: 1,
+                                        pl: 1,
                                         '&:hover': {
                                             textDecoration: 'none',
                                         },
@@ -189,10 +201,10 @@ const TestUserResult: React.FC = observer(() => {
 
                 <Col span={24} className={styles['gutter-row']}>
                     <Typography component="div" className={styles.respondent}>
-                        <Typography variant="subtitle1">Тестируемый</Typography>
+                        <Typography variant="h6">Тестируемый</Typography>
                         <Typography component="div" className={styles['respondent-name']}>
-                            <AccountBoxOutlinedIcon style={{ fontSize: '30px', marginRight: '15px' }} />
-                            <Typography variant="h6" className={styles['title-card']}>
+                            <UserOutlined style={{ fontSize: '20px', marginRight: '15px' }} />
+                            <Typography variant="h5" >
                                 {name}
                             </Typography>
                         </Typography>
@@ -203,18 +215,18 @@ const TestUserResult: React.FC = observer(() => {
                     <Col xs={24} sm={24} md={14} lg={14} className={styles['gutter-row']}>
                         <Typography component="div" style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
                             <Typography component="div" className={styles.respondent} style={{ width: '60%' }}>
-                                <Typography variant="subtitle1">Результат</Typography>
+                                <Typography variant="h6">Результат</Typography>
                                 <Typography component="div" className={styles['respondent-name']}>
                                     {passed ? (
                                         <CheckCircleOutlined style={{ fontSize: '30px', marginRight: '15px', color: resultColor }} />
                                     ) : (
                                         <CloseCircleOutlined style={{ fontSize: '30px', marginRight: '15px', color: resultColor }} />
                                     )}
-                                    <Typography variant="h3" sx={{ color: resultColor }}>
+                                    <Typography variant="h6" sx={{ color: resultColor }}>
                                         {resultTest}
                                     </Typography>
                                 </Typography>
-                                <Typography variant="h4" sx={{ margin: '10px 0 0 46px', color: resultColor }}>
+                                <Typography variant="h6" sx={{ margin: '10px 0 0 46px', color: resultColor }}>
                                     {resultGood}
                                 </Typography>
                             </Typography>
@@ -226,7 +238,7 @@ const TestUserResult: React.FC = observer(() => {
 
                     <Col xs={24} sm={24} md={9} lg={9} style={{ marginLeft: 'auto' }} className={styles['gutter-row']}>
                         <Typography component="div" className={styles.respondent}>
-                            <Typography variant="subtitle1">Время</Typography>
+                            <Typography variant="h6">Время</Typography>
                             <Typography component="div" style={{ display: 'flex', flexDirection: 'column', flexWrap: 'wrap' }}>
                                 <Typography component="div" className={styles['respondent-name']} style={{ display: 'flex', flexDirection: 'row', marginBottom: '10px' }}>
                                     <FieldTimeOutlined style={{ fontSize: '30px', marginRight: '15px' }} />
@@ -303,10 +315,13 @@ const TestUserResult: React.FC = observer(() => {
 
                 <Col span={24} className={styles['gutter-row']}>
                     <Divider style={{ margin: '30px 0 15px 0' }} />
-                    <Typography variant="subtitle1" sx={{ fontWeight: 400, fontSize: 20, margin: '0 0 20px 0' }}>
+                    <Typography variant="h5" sx={{ fontWeight: 400, fontSize: 18, marginBottom: 2, marginLeft: 1 }}>
                         Ответы на вопросы
                     </Typography>
-                    <QuestionsTestTable />
+                    <div style={{ paddingLeft: 10, paddingRight: 10 }}>
+                        <QuestionsTestTable />
+                    </div>
+
                 </Col>
             </Row>
         </>
