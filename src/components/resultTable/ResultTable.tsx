@@ -15,9 +15,9 @@ import { Context } from "../..";
 type TableRowSelection<T extends object = object> = TableProps<T>["rowSelection"];
 
 const columns: TableColumnsType<IUserTestResultRow> = [
-  { title: "#", dataIndex: "key", sorter: (a, b) => Number(a.key) - Number(b.key) },
+  { title: "id", dataIndex: "key", sorter: (a, b) => Number(a.key) - Number(b.key) },
   { title: "Название теста", dataIndex: "test_name", sorter: (a, b) => a.test_name.localeCompare(b.test_name) },
-  { title: "Имя и фамилия", dataIndex: "name" },
+  { title: "ФИО", dataIndex: "name" },
   { title: "Email", dataIndex: "email" },
   {
     title: "Результат",
