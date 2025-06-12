@@ -63,15 +63,9 @@ const columns: TableColumnsType<IUserTestResultRow> = [
   {
     title: "Время",
     dataIndex: "test_time",
-    sorter: (a, b) => {
-      // Предположим, что test_time в формате "HH:MM:SS"
-      const toSeconds = (t: string) => {
-        const [h, m, s] = t.split(":").map(Number);
-        return h * 3600 + m * 60 + s;
-      };
-      return toSeconds(a.test_time) - toSeconds(b.test_time);
-    },
-  },
+    key: 'test_time_seconds',
+    sorter: (a: IUserTestResultRow, b: IUserTestResultRow) => a.test_time_seconds - b.test_time_seconds,
+  }
 ];
 
 const ResultTable: React.FC = observer(() => {
