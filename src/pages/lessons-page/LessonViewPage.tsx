@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Stack, Typography } from '@mui/material';
+import { Button, Stack, Typography, Box } from '@mui/material';
 import { getLessons } from 'api';
 
 interface Lesson {
   id: number;
   title: string;
   content: string;
+  video?: string;
 }
 
 interface LessonViewPageProps {
@@ -66,11 +67,27 @@ const LessonViewPage: React.FC<LessonViewPageProps> = ({
     }
   };
 
+  const getEmbedUrl = (url: string) => {
+    const match = url.match(/(?:youtube\.com\/(?:.*v=|embed\/)|youtu\.be\/)([^&?/]+)/);
+    return match ? `https://www.youtube.com/embed/${match[1]}` : url;
+  };
+
   return (
     <div>
       <Typography variant="h4" sx={{ mb: 2 }}>
         {lesson.title}
       </Typography>
+      {lesson.video && (
+        <Box sx={{ mb: 2 }}>
+          <iframe
+            width="100%"
+            height="400"
+            src={getEmbedUrl(lesson.video)}
+            title="Видео урока"
+            allowFullScreen
+          />
+        </Box>
+      )}
       <div dangerouslySetInnerHTML={{ __html: lesson.content }} />
       <Stack direction="row" justifyContent="space-between" sx={{ mt: 3 }}>
         <Button
