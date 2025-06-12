@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Stack, Typography } from '@mui/material';
-import { useNavigate, useParams } from 'react-router-dom';
 import { getLessons } from 'api';
 
 interface Lesson {
@@ -9,9 +8,19 @@ interface Lesson {
   content: string;
 }
 
-const LessonViewPage = () => {
-  const { lessonId, moduleId, courseId } = useParams();
-  const navigate = useNavigate();
+interface LessonViewPageProps {
+  courseId?: number;
+  moduleId?: number;
+  lessonId?: number;
+  onLessonChange?: (courseId: number, moduleId: number, lessonId: number) => void;
+}
+
+const LessonViewPage: React.FC<LessonViewPageProps> = ({ 
+  courseId, 
+  moduleId, 
+  lessonId, 
+  onLessonChange 
+}) => {
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [lessons, setLessons] = useState<Lesson[]>([]);
 
@@ -31,11 +40,31 @@ const LessonViewPage = () => {
     }
   }, [lessonId, lessons]);
 
-  if (!lesson) return null;
+  if (!lesson) {
+    return (
+      <div>
+        <Typography variant="h6" color="text.secondary">
+          Выберите урок для просмотра
+        </Typography>
+      </div>
+    );
+  }
 
   const index = lessons.findIndex((l) => l.id === lesson.id);
   const prevLesson = lessons[index - 1];
   const nextLesson = lessons[index + 1];
+
+  const handlePrevLesson = () => {
+    if (prevLesson && courseId && moduleId && onLessonChange) {
+      onLessonChange(courseId, moduleId, prevLesson.id);
+    }
+  };
+
+  const handleNextLesson = () => {
+    if (nextLesson && courseId && moduleId && onLessonChange) {
+      onLessonChange(courseId, moduleId, nextLesson.id);
+    }
+  };
 
   return (
     <div>
@@ -46,23 +75,13 @@ const LessonViewPage = () => {
       <Stack direction="row" justifyContent="space-between" sx={{ mt: 3 }}>
         <Button
           disabled={!prevLesson}
-          onClick={() =>
-            prevLesson &&
-            navigate(
-              `/courses/${courseId}/modules/${moduleId}/lessons/${prevLesson.id}`
-            )
-          }
+          onClick={handlePrevLesson}
         >
           Предыдущий
         </Button>
         <Button
           disabled={!nextLesson}
-          onClick={() =>
-            nextLesson &&
-            navigate(
-              `/courses/${courseId}/modules/${moduleId}/lessons/${nextLesson.id}`
-            )
-          }
+          onClick={handleNextLesson}
         >
           Следующий
         </Button>

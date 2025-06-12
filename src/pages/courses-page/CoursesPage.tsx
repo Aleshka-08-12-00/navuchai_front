@@ -14,7 +14,8 @@ import {
   DialogContent,
   DialogTitle,
   Stack,
-  TextField
+  TextField,
+  Grid
 } from '@mui/material'
 import ExpandLess from '@mui/icons-material/ExpandLess'
 import ExpandMore from '@mui/icons-material/ExpandMore'
@@ -37,6 +38,9 @@ import {
   deleteLesson
 } from 'api'
 import JoditEditor from 'jodit-react'
+import MainCard from '../../components/MainCard'
+import LessonsPage from '../lessons-page/LessonsPage'
+import LessonViewPage from '../lessons-page/LessonViewPage'
 
 interface Lesson {
   id: number
@@ -77,6 +81,11 @@ const CoursesPage = () => {
   const [lessonTitle, setLessonTitle] = useState('')
   const [lessonContent, setLessonContent] = useState('')
   const editor = useRef(null)
+
+  // Состояние для выбранного урока
+  const [selectedCourseId, setSelectedCourseId] = useState<number | undefined>(undefined)
+  const [selectedModuleId, setSelectedModuleId] = useState<number | undefined>(undefined)
+  const [selectedLessonId, setSelectedLessonId] = useState<number | undefined>(undefined)
 
   const loadCourses = async () => {
     try {
@@ -126,11 +135,11 @@ const CoursesPage = () => {
           prev.map(c =>
             c.id === courseId
               ? {
-                  ...c,
-                  modules: c.modules?.map(m =>
-                    m.id === moduleId ? { ...m, lessons: lessonsData, open: !m.open } : m
-                  )
-                }
+                ...c,
+                modules: c.modules?.map(m =>
+                  m.id === moduleId ? { ...m, lessons: lessonsData, open: !m.open } : m
+                )
+              }
               : c
           )
         )
@@ -142,11 +151,11 @@ const CoursesPage = () => {
         prev.map(c =>
           c.id === courseId
             ? {
-                ...c,
-                modules: c.modules?.map(m =>
-                  m.id === moduleId ? { ...m, open: !m.open } : m
-                )
-              }
+              ...c,
+              modules: c.modules?.map(m =>
+                m.id === moduleId ? { ...m, open: !m.open } : m
+              )
+            }
             : c
         )
       )
@@ -268,11 +277,11 @@ const CoursesPage = () => {
         prev.map(c =>
           c.id === lessonCourseId
             ? {
-                ...c,
-                modules: c.modules?.map(m =>
-                  m.id === lessonModuleId ? { ...m, lessons: lessonsData } : m
-                )
-              }
+              ...c,
+              modules: c.modules?.map(m =>
+                m.id === lessonModuleId ? { ...m, lessons: lessonsData } : m
+              )
+            }
             : c
         )
       )
@@ -290,11 +299,11 @@ const CoursesPage = () => {
         prev.map(c =>
           c.id === courseId
             ? {
-                ...c,
-                modules: c.modules?.map(m =>
-                  m.id === moduleId ? { ...m, lessons: lessonsData } : m
-                )
-              }
+              ...c,
+              modules: c.modules?.map(m =>
+                m.id === moduleId ? { ...m, lessons: lessonsData } : m
+              )
+            }
             : c
         )
       )
@@ -304,83 +313,107 @@ const CoursesPage = () => {
   }
 
   const handleLessonClick = (courseId: number, moduleId: number, lessonId: number) => {
-    navigate(`/courses/${courseId}/modules/${moduleId}/lessons/${lessonId}`)
+    setSelectedCourseId(courseId)
+    setSelectedModuleId(moduleId)
+    setSelectedLessonId(lessonId)
+  }
+
+  const handleLessonChange = (courseId: number, moduleId: number, lessonId: number) => {
+    setSelectedCourseId(courseId)
+    setSelectedModuleId(moduleId)
+    setSelectedLessonId(lessonId)
   }
 
   return (
     <div>
       <Typography variant="h4" sx={{ mb: 2 }}>Курсы</Typography>
       <Stack direction="row" justifyContent="flex-end" sx={{ mb: 2 }}>
-        <Button variant="contained" color="success" startIcon={<AddIcon />} onClick={handleAddCourse}>Добавить курс</Button>
+        <Button variant='outlined' color="success" startIcon={<AddIcon />} onClick={handleAddCourse}>Добавить курс</Button>
       </Stack>
-      <List>
-        {courses.map(course => (
-          <React.Fragment key={course.id}>
-            <ListItem
-              secondaryAction={
-                <>
-                  <IconButton edge="end" onClick={() => handleEditCourse(course)}><EditIcon /></IconButton>
-                  <IconButton edge="end" color="error" onClick={() => handleDeleteCourse(course.id)}><DeleteIcon /></IconButton>
-                </>
-              }
-              disablePadding
-            >
-              <ListItemButton onClick={() => toggleCourse(course.id)}>
-                <ListItemIcon sx={{ minWidth: 28 }}>{course.open ? <ExpandLess /> : <ExpandMore />}</ListItemIcon>
-                <ListItemText primary={course.title} />
-              </ListItemButton>
-            </ListItem>
-            <Collapse in={course.open} timeout="auto" unmountOnExit>
-              <Stack direction="row" justifyContent="flex-end" sx={{ mb: 1, pl: 4 }}>
-                <Button size="small" variant="contained" color="success" startIcon={<AddIcon />} sx={{ textTransform: 'none' }} onClick={() => handleAddModule(course.id)}>Добавить модуль</Button>
-              </Stack>
-              <List component="div" disablePadding sx={{ pl: 4 }}>
-                {course.modules?.map(mod => (
-                  <React.Fragment key={mod.id}>
-                    <ListItem
-                      secondaryAction={
-                        <>
-                          <IconButton edge="end" onClick={() => handleEditModule(course.id, mod)}><EditIcon fontSize="small" /></IconButton>
-                          <IconButton edge="end" color="error" onClick={() => handleDeleteModule(course.id, mod.id)}><DeleteIcon fontSize="small" /></IconButton>
-                        </>
-                      }
-                      disablePadding
-                    >
-                      <ListItemButton onClick={() => toggleModule(course.id, mod.id)} sx={{ pl: 2 }}>
-                        <ListItemIcon sx={{ minWidth: 28 }}>{mod.open ? <ExpandLess /> : <ExpandMore />}</ListItemIcon>
-                        <ListItemText primary={mod.title} />
-                      </ListItemButton>
-                    </ListItem>
-                    <Collapse in={mod.open} timeout="auto" unmountOnExit>
-                      <Stack direction="row" justifyContent="flex-end" sx={{ mb: 1, pl: 6 }}>
-                        <Button size="small" variant="contained" color="success" startIcon={<AddIcon />} sx={{ textTransform: 'none' }} onClick={() => handleAddLesson(course.id, mod.id)}>Добавить урок</Button>
-                      </Stack>
-                      <List component="div" disablePadding sx={{ pl: 4 }}>
-                        {mod.lessons?.map(lesson => (
+
+      <Grid container spacing={2}>
+        <Grid item xs={4}>
+          <MainCard>
+            <List>
+              {courses.map(course => (
+                <React.Fragment key={course.id}>
+                  <ListItem
+                    secondaryAction={
+                      <>
+                        <IconButton edge="end" color="success" onClick={() => handleAddModule(course.id)}><AddIcon /></IconButton>
+                        <IconButton edge="end" onClick={() => handleEditCourse(course)}><EditIcon /></IconButton>
+                        <IconButton edge="end" color="error" onClick={() => handleDeleteCourse(course.id)}><DeleteIcon /></IconButton>
+                      </>
+                    }
+                    disablePadding
+                  >
+                    <ListItemButton onClick={() => toggleCourse(course.id)}>
+                      <ListItemIcon sx={{ minWidth: 28 }}>{course.open ? <ExpandLess /> : <ExpandMore />}</ListItemIcon>
+                      <ListItemText primary={course.title} />
+                    </ListItemButton>
+                  </ListItem>
+                  <Collapse in={course.open} timeout="auto" unmountOnExit>
+
+                    <List component="div" disablePadding sx={{ pl: 4 }}>
+                      {course.modules?.map(mod => (
+                        <React.Fragment key={mod.id}>
                           <ListItem
-                            key={lesson.id}
                             secondaryAction={
                               <>
-                                <IconButton edge="end" onClick={() => handleEditLesson(course.id, mod.id, lesson)}><EditIcon fontSize="small" /></IconButton>
-                                <IconButton edge="end" color="error" onClick={() => handleDeleteLesson(course.id, mod.id, lesson.id)}><DeleteIcon fontSize="small" /></IconButton>
+                              <IconButton edge="end" color="success" onClick={() => handleAddLesson(course.id, mod.id)}><AddIcon /></IconButton>
+                              <IconButton edge="end" onClick={() => handleEditModule(course.id, mod)}><EditIcon fontSize="small" /></IconButton>
+                              <IconButton edge="end" color="error" onClick={() => handleDeleteModule(course.id, mod.id)}><DeleteIcon fontSize="small" /></IconButton>
+                                
                               </>
                             }
                             disablePadding
                           >
-                            <ListItemButton sx={{ pl: 4 }} onClick={() => handleLessonClick(course.id, mod.id, lesson.id)}>
-                              <ListItemText primary={lesson.title} />
+                            <ListItemButton onClick={() => toggleModule(course.id, mod.id)} sx={{ pl: 2 }}>
+                              <ListItemIcon sx={{ minWidth: 28 }}>{mod.open ? <ExpandLess /> : <ExpandMore />}</ListItemIcon>
+                              <ListItemText primary={mod.title} />
                             </ListItemButton>
                           </ListItem>
-                        ))}
-                      </List>
-                    </Collapse>
-                  </React.Fragment>
-                ))}
-              </List>
-            </Collapse>
-          </React.Fragment>
-        ))}
-      </List>
+                          <Collapse in={mod.open} timeout="auto" unmountOnExit>
+                            <List component="div" disablePadding sx={{ pl: 4 }}>
+                              {mod.lessons?.map(lesson => (
+                                <ListItem
+                                  key={lesson.id}
+                                  secondaryAction={
+                                    <>
+                                      <IconButton edge="end" onClick={() => handleEditLesson(course.id, mod.id, lesson)}><EditIcon fontSize="small" /></IconButton>
+                                      <IconButton edge="end" color="error" onClick={() => handleDeleteLesson(course.id, mod.id, lesson.id)}><DeleteIcon fontSize="small" /></IconButton>
+                                    </>
+                                  }
+                                  disablePadding
+                                >
+                                  <ListItemButton sx={{ pl: 4 }} onClick={() => handleLessonClick(course.id, mod.id, lesson.id)}>
+                                    <ListItemText primary={lesson.title} />
+                                  </ListItemButton>
+                                </ListItem>
+                              ))}
+                            </List>
+                          </Collapse>
+                        </React.Fragment>
+                      ))}
+                    </List>
+                  </Collapse>
+                </React.Fragment>
+              ))}
+            </List>
+          </MainCard>
+        </Grid>
+        <Grid item xs={8}>
+          <MainCard>
+            <LessonViewPage 
+              courseId={selectedCourseId}
+              moduleId={selectedModuleId}
+              lessonId={selectedLessonId}
+              onLessonChange={handleLessonChange}
+            />
+          </MainCard>
+        </Grid>
+      </Grid>
+
       <Dialog open={openCourseDialog} onClose={() => setOpenCourseDialog(false)}>
         <DialogTitle>{editingCourseId ? 'Редактировать курс' : 'Новый курс'}</DialogTitle>
         <DialogContent>
