@@ -1,7 +1,8 @@
 body{
     margin: 0;
     min-height: 100vh;
-    background-image: Url('https://i.pinimg.com/originals/76/74/af/7674afaab0239fcc95db982e75bdc684.jpg') !important;
+    background-color: #edf7ff !important;
+     /* background-image: url('../assets/images/logo.png') !important; */
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
