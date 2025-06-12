@@ -53,6 +53,8 @@ export default class TestResultStore {
       total_score: result.result?.total_score ?? result.score,
       end_date: "—",
       test_time: "—",
+      percentage: result.result.percentage,
+      test_time_seconds: result.result.total_time_seconds,
     }));
   };
 

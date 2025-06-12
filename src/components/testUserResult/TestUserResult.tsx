@@ -126,9 +126,6 @@ const TestUserResult: React.FC = observer(() => {
 
                             <MuiLink component="button" className={styles.link} sx={{ fontSize: 18, fontWeight: 400 }}>
                                 <Typography component="div" style={{display: 'flex', justifyContent: 'space-between', margin: 'auto'}}>
-                                    <Typography variant='h6' color="textSecondary" style={{marginRight: 5}}>
-                                        тест по: 
-                                    </Typography>
                                      <Typography variant='h6' >
                                          {test_name}
                                     </Typography>

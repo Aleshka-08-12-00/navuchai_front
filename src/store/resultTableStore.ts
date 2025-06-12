@@ -7,7 +7,6 @@ import {
 } from "../interface/interfaceStore";
 import settingsNewTestStore from "./settingsNewTestStore";
 import userStore from "./userStore";
-import questionsStore from "./questionsStore";
 
 export default class ResultTableStore {
   resultsArray: ITestResultCreateResponse[] = [];
@@ -31,7 +30,7 @@ export default class ResultTableStore {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "results.xlsx"; // Можно заменить имя файла при необходимости
+      a.download = "results.xlsx";
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -50,13 +49,19 @@ export default class ResultTableStore {
   fetchAndStoreTestName = async (testId: number) => {
     if (this.testNamesMap.has(testId)) return;
 
-    await settingsNewTestStore.getTestById(testId);
-    const test = settingsNewTestStore.testMainInfo;
-    const name = test?.title ?? "Неизвестно";
+    try {
+      await settingsNewTestStore.getTestById(testId);
+      const test = settingsNewTestStore.testMainInfo;
+      const name = test?.title ?? "Неизвестно";
 
-    runInAction(() => {
-      this.testNamesMap.set(testId, name);
-    });
+      runInAction(() => {
+        this.testNamesMap.set(testId, name);
+      });
+    } catch {
+      runInAction(() => {
+        this.testNamesMap.set(testId, "Неизвестно");
+      });
+    }
   };
 
   getResults = async () => {
@@ -79,17 +84,15 @@ export default class ResultTableStore {
     }
   };
 
-  setResultsArray = async (value: ITestResultCreateResponse[]) => {
+  setResultsArray = (value: ITestResultCreateResponse[]) => {
     runInAction(() => {
       this.resultsArray = value;
     });
 
-    // Получаем уникальные test_id и user_id
     const uniqueTestIds = Array.from(new Set(value.map((res) => res.test_id)));
     const uniqueUserIds = Array.from(new Set(value.map((res) => res.user_id)));
 
-    // Параллельно загружаем названия тестов и данные пользователей
-    await Promise.all([
+    Promise.all([
       ...uniqueTestIds.map((id) => this.fetchAndStoreTestName(id)),
       ...uniqueUserIds.map((id) => userStore.getUserById(id)),
     ]);
@@ -104,6 +107,7 @@ export default class ResultTableStore {
       percentage: res.result?.percentage ?? 0,
       end_date: res.completed_at ? new Date(res.completed_at).toLocaleString() : "",
       test_time: this.formatTime(res.result?.total_time_seconds ?? 0),
+      test_time_seconds: res.result?.total_time_seconds ?? 0,
     }));
   }
 
@@ -139,12 +143,6 @@ export default class ResultTableStore {
     this.loading = true;
     this.error = null;
 
-    const stripHtml = (html: string): string => {
-      const div = document.createElement("div");
-      div.innerHTML = html;
-      return div.textContent || div.innerText || "";
-    };
-
     try {
       const data = await fetchData("getResultByResultId", {}, resultId);
 
@@ -164,62 +162,27 @@ export default class ResultTableStore {
       const testName = this.testNamesMap.get(testId) ?? "Неизвестно";
       const userName = userStore.getUserField(userId, "name") ?? "Неизвестно";
 
-      const checkedAnswers: ICheckedAnswer[] = result?.checked_answers ?? [];
-      if (testId) await questionsStore.fetchQuestionsByTestId(testId);
+      const questions = (result?.checked_answers ?? []).map((item: any) => {
+  // Получаем userAnswers в виде массива строк, даже если там одна строка
+      let userAnswers: string[] = [];
+      if (item.check_details.user_answers) {
+        userAnswers = item.check_details.user_answers;
+      } else if (item.check_details.user_answer) {
+        userAnswers = [item.check_details.user_answer];
+      }
 
-      const questionsMap = questionsStore.questionsObj;
+      // Правильные ответы из options.correctAnswer
+      const correctAnswers: string[] = item.options?.correctAnswer ?? [];
 
-      const questions = checkedAnswers.map((answer, index) => {
-        const questionText = answer.question_text;
-
-        let correctAnswers: string[] = [];
-        let userAnswers: string[] = [];
-
-        const check = answer.check_details;
-
-        if ("correct_answer" in check && "user_answer" in check) {
-          correctAnswers = [check.correct_answer];
-          userAnswers = [check.user_answer];
-        } else if ("correct_answers" in check && "user_answers" in check) {
-          correctAnswers = check.correct_answers;
-          userAnswers = check.user_answers;
-        }
-
-       const normalizeAnswer = (str: string) =>
-          stripHtml(str).trim().toLowerCase();
-
-        const normalizedCorrectAnswers = correctAnswers.map(normalizeAnswer);
-        const normalizedUserAnswers = userAnswers.map(normalizeAnswer);
-
-        const questionFromStore = questionsMap.get(answer.question_id);
-        const allOptions: string[] = questionFromStore?.question?.answers?.allAnswer ?? [];
-
-        const options = allOptions.map((text: string, i: number) => {
-          const cleanText = stripHtml(text).trim();
-          const normalizedText = cleanText.toLowerCase();
-
-          return {
-            id: i,
-            text: cleanText,
-            isCorrect: normalizedCorrectAnswers.includes(normalizedText),
-            isUserAnswer: normalizedUserAnswers.includes(normalizedText),
-          };
-        });
-
-
-        const correctCount = options.filter((opt) => opt.isCorrect).length;
-
-        return {
-          question: `Вопрос №${index + 1}`,
-          title: questionText,
-          timeSpent: answer.time_seconds,
-          timeLimit: answer.time_limit,
-          isTimeExceeded: answer.is_time_exceeded,
-          options,
-          isCorrect: answer.is_correct,
-          correctCount,
-        };
-      });
+      return {
+        id: item.question_id,
+        text: item.question_text, // HTML с тегами
+        timeSeconds: item.time_seconds,
+        options: item.options?.allAnswer ?? [],
+        userAnswers,
+        correctAnswers,
+      };
+    });
 
       runInAction(() => {
         this.loading = false;
@@ -236,9 +199,7 @@ export default class ResultTableStore {
       };
     } catch (error: any) {
       const message =
-        error?.response?.data?.detail ??
-        error?.message ??
-        "Ошибка при загрузке результата";
+        error?.response?.data?.detail ?? error?.message ?? "Ошибка при загрузке результата";
 
       runInAction(() => {
         this.error = message;

@@ -197,11 +197,13 @@ export interface ITestResultCreateRequest {
 export interface ITextCheckDetails {
   correct_answer: string;
   user_answer: string;
+  all_answer: string[];
 }
 
 export interface IChoiceCheckDetails {
   correct_answers: string[];
   user_answers: string[];
+  all_answer: string[];
 }
 
 export type ICheckDetails = ITextCheckDetails | IChoiceCheckDetails;
@@ -266,7 +268,8 @@ export interface IUserTestResultRow {
   email: string;
   percentage: number;
   end_date: string;
-  test_time: string; 
+  test_time: string;
+  test_time_seconds: number;
 }
 
 
