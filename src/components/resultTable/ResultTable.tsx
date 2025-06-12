@@ -38,7 +38,6 @@ const columns: TableColumnsType<IUserTestResultRow> = [
   {
     title: "Результат",
     dataIndex: "percentage",
-    sorter: (a, b) => a.percentage - b.percentage,
     render: (score: number) => {
       const color = score >= 60 ? "#9af49e" : "#f58d8f";
       return (
@@ -48,9 +47,23 @@ const columns: TableColumnsType<IUserTestResultRow> = [
             className={styles.customProgressBar}
             status="active"
             strokeColor={color}
-            showInfo
             size={[200, 20]}
+            showInfo={false}
           />
+        </Tooltip>
+      );
+    },
+  },
+  {
+    title: "%",
+    dataIndex: "percentage",
+    sorter: (a, b) => a.percentage - b.percentage,
+    render: (score: number) => {
+      return (
+        <Tooltip>
+          <Typography>
+            {score}%
+          </Typography>
         </Tooltip>
       );
     },
