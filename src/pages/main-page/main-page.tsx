@@ -286,7 +286,7 @@ const MainPage = observer(() => {
                         {item.status_name_ru}
                       </Button>
                       <Typography variant="h6" color="textSecondary" >
-                        создан: {moment(item.access_timestamp).format('DD-MM-YYYY')}
+                        доступен с : {moment(item.access_timestamp).format('HH:MM DD-MM-YYYY')}
                       </Typography>
                       <Button
                         variant="outlined"
