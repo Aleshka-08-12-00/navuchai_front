@@ -41,6 +41,7 @@ import JoditEditor from 'jodit-react'
 import MainCard from '../../components/MainCard'
 import LessonsPage from '../lessons-page/LessonsPage'
 import LessonViewPage from '../lessons-page/LessonViewPage'
+import { width } from '@mui/system'
 
 interface Lesson {
   id: number
@@ -340,9 +341,9 @@ const CoursesPage = () => {
                   <ListItem
                     secondaryAction={
                       <>
-                        <IconButton edge="end" color="success" onClick={() => handleAddModule(course.id)}><AddIcon /></IconButton>
-                        <IconButton edge="end" onClick={() => handleEditCourse(course)}><EditIcon /></IconButton>
-                        <IconButton edge="end" color="error" onClick={() => handleDeleteCourse(course.id)}><DeleteIcon /></IconButton>
+                        <IconButton edge="end" color="success" onClick={() => handleAddModule(course.id)}><AddIcon style={{ width: 15, height: 15}} /></IconButton>
+                        <IconButton edge="end" onClick={() => handleEditCourse(course)}><EditIcon style={{ width: 15, height: 15}} /></IconButton>
+                        <IconButton edge="end" color="error" onClick={() => handleDeleteCourse(course.id)}><DeleteIcon style={{ width: 15, height: 15}} /></IconButton>
                       </>
                     }
                     disablePadding
@@ -360,9 +361,9 @@ const CoursesPage = () => {
                           <ListItem
                             secondaryAction={
                               <>
-                              <IconButton edge="end" color="success" onClick={() => handleAddLesson(course.id, mod.id)}><AddIcon /></IconButton>
-                              <IconButton edge="end" onClick={() => handleEditModule(course.id, mod)}><EditIcon fontSize="small" /></IconButton>
-                              <IconButton edge="end" color="error" onClick={() => handleDeleteModule(course.id, mod.id)}><DeleteIcon fontSize="small" /></IconButton>
+                              <IconButton edge="end" color="success" onClick={() => handleAddLesson(course.id, mod.id)}><AddIcon style={{ width: 15, height: 15}} /></IconButton>
+                              <IconButton edge="end" onClick={() => handleEditModule(course.id, mod)}><EditIcon style={{ width: 15, height: 15}} /></IconButton>
+                              <IconButton edge="end" color="error" onClick={() => handleDeleteModule(course.id, mod.id)}><DeleteIcon style={{ width: 15, height: 15}} /></IconButton>
                                 
                               </>
                             }
@@ -380,8 +381,8 @@ const CoursesPage = () => {
                                   key={lesson.id}
                                   secondaryAction={
                                     <>
-                                      <IconButton edge="end" onClick={() => handleEditLesson(course.id, mod.id, lesson)}><EditIcon fontSize="small" /></IconButton>
-                                      <IconButton edge="end" color="error" onClick={() => handleDeleteLesson(course.id, mod.id, lesson.id)}><DeleteIcon fontSize="small" /></IconButton>
+                                      <IconButton edge="end" onClick={() => handleEditLesson(course.id, mod.id, lesson)}><EditIcon style={{ width: 15, height: 15}} /></IconButton>
+                                      <IconButton edge="end" color="error" onClick={() => handleDeleteLesson(course.id, mod.id, lesson.id)}><DeleteIcon style={{ width: 15, height: 15}} /></IconButton>
                                     </>
                                   }
                                   disablePadding
