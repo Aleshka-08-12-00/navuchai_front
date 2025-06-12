@@ -133,7 +133,6 @@ const GeneralSettingsTestPage = observer(() => {
     };
 
     const handleSave = async () => {
-        createNewTest({...formData, locale_id: Number(formData.locale_id)})
         console.log(formData);
         createNewTest({ ...formData, locale_id: Number(formData.locale_id) })
     };
