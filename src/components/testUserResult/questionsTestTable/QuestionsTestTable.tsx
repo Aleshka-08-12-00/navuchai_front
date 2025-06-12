@@ -1,4 +1,3 @@
-// QuestionsTestTable.tsx
 import * as React from 'react';
 import {
   Box,
@@ -26,15 +25,12 @@ interface Option {
   isUserAnswer: boolean;
 }
 
-
 interface QuestionData {
   question: string;
   title: string;
-  timeSpent: string;
-  description: string;
   options: Option[];
   correctCount: number;
-  totalCorrect?: number;
+  timeSpent: number;
 }
 
 const stripHtml = (html: string): string => {
@@ -46,6 +42,14 @@ const stripHtml = (html: string): string => {
 const Row = ({ row }: { row: QuestionData }) => {
   const [open, setOpen] = React.useState(false);
 
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const s = (seconds % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  };
+
+  const isMultiple = row.correctCount > 1;
+
   return (
     <>
       <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
@@ -56,7 +60,7 @@ const Row = ({ row }: { row: QuestionData }) => {
         </TableCell>
         <TableCell>{row.question}</TableCell>
         <TableCell align="right">{stripHtml(row.title)}</TableCell>
-        <TableCell align="right">{stripHtml(row.timeSpent)}</TableCell>
+        <TableCell align="right">{formatTime(row.timeSpent)}</TableCell>
       </TableRow>
 
       <TableRow>
@@ -64,58 +68,65 @@ const Row = ({ row }: { row: QuestionData }) => {
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 2 }}>
               <Typography variant="subtitle1" gutterBottom>
-                Описание вопроса
+                Варианты ответа
               </Typography>
-              <Typography variant="body2" gutterBottom>{stripHtml(row.description)}</Typography>
-
-              <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>
-                Ответ пользователя
-              </Typography>
+              {isMultiple && (
+                <Typography variant="caption" color="text.secondary" gutterBottom>
+                  Несколько правильных ответов
+                </Typography>
+              )}
               <Box component="ol" sx={{ pl: 3, m: 0 }}>
                 {row.options.map((option) => {
                   const { isCorrect, isUserAnswer } = option;
-                  const isMultiple = row.correctCount > 1;
-  
-              let bgColor = 'transparent';
-              let textColor = 'inherit';
-              let borderColor = '#ccc';
 
-                      if (isMultiple) {
+                  let bgColor = 'transparent';
+                  let textColor = 'inherit';
+                  let borderColor = '#ccc';
+
                   if (isCorrect && isUserAnswer) {
-                    bgColor = '#9af49e';
+                    bgColor = '#9af49e'; // зелёный фон — правильно выбран
                     textColor = '#000';
                   } else if (!isCorrect && isUserAnswer) {
-                    bgColor = '#f58d8f';
+                    bgColor = '#f58d8f'; // красный фон — пользователь выбрал неверный
                     textColor = '#000';
                   } else if (isCorrect && !isUserAnswer) {
-                    borderColor = '#9af49e';
-                    textColor = '#000';
+                    borderColor = '#1677ff'; // синяя рамка — правильный, но не выбран
                   }
-                } else {
-                  if (isUserAnswer) {
-                    if (isCorrect) {
-                      bgColor = '#9af49e';
-                      textColor = '#000';
-                    } else {
-                      bgColor = '#f58d8f';
-                      textColor = '#000';
-                    }
-                  }
-                }
 
-                return (
-                  <li key={option.id} style={{ marginBottom: 4, listStyle: 'decimal', paddingLeft: 8 }}>
-                    <Chip
-                      label={stripHtml(option.text)}
-                      variant="outlined"
-                      sx={{
-                        my: 0.5,
-                        backgroundColor: bgColor,
-                        color: textColor,
-                        borderColor: bgColor !== 'transparent' ? 'transparent' : borderColor,
+                  return (
+                    <li
+                      key={`${option.id}-${stripHtml(option.text)}`}
+                      style={{
+                        marginBottom: 4,
+                        listStyle: 'decimal',
+                        paddingLeft: 8,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
                       }}
-                    />
-                  </li>
+                    >
+                      <Chip
+                        label={stripHtml(option.text)}
+                        variant="outlined"
+                        sx={{
+                          my: 0.5,
+                          backgroundColor: bgColor,
+                          color: textColor,
+                          borderColor:
+                            bgColor !== 'transparent' ? 'transparent' : borderColor,
+                        }}
+                      />
+                      {/* Показываем текст, если правильный, но не выбран */}
+                      {isCorrect && !isUserAnswer && (
+                        <Typography
+                          variant="caption"
+                          color="error"
+                          sx={{ fontStyle: 'italic' }}
+                        >
+                          Правильный вариант ответа
+                        </Typography>
+                      )}
+                    </li>
                   );
                 })}
               </Box>
@@ -131,39 +142,48 @@ const QuestionsTestTable: React.FC = observer(() => {
   const { resultTableStore } = React.useContext(Context);
   const { resultId } = useParams();
   const [questions, setQuestions] = React.useState<QuestionData[]>([]);
-  const [timeSpent, setTimeSpent] = React.useState<QuestionData[]>([]);
 
-  React.useEffect(() => {
-    const load = async () => {
-      if (!resultId) return;
-      const parsedId = parseInt(resultId, 10);
-      if (isNaN(parsedId)) return;
+React.useEffect(() => {
+  const load = async () => {
+    if (!resultId) return;
+    const parsedId = parseInt(resultId, 10);
+    if (isNaN(parsedId)) return;
 
-      const data = await resultTableStore.getInfoByIdResultTest(parsedId);
+    const data = await resultTableStore.getInfoByIdResultTest(parsedId);
+    if (!data || !Array.isArray(data.questions)) return;
+    console.log("Вопросы из результата:", data.questions);
+    const mappedQuestions: QuestionData[] = data.questions.map((q: any, index: any) => ({
+      question: q.question,
+      title: q.title,
+      timeSpent: q.timeSpent,
+      correctCount: q.options.filter((o: any) => o.isCorrect).length,
+      options: q.options.map((opt: any, i: any) => ({
+        id: opt.id ?? i,
+        text: opt.text,
+        isCorrect: opt.isCorrect,
+        isUserAnswer: opt.isUserAnswer,
+      })),
+    }));
 
-      if (data && Array.isArray(data.questions)) {
-        setQuestions(data.questions);
-        // setTimeSpent(data.)
-      }
-    };
-    load();
-  }, [resultId]);
+    setQuestions(mappedQuestions);
+  };
 
+  load();
+}, [resultId]);
   return (
     <TableContainer component={Paper}>
       <Table aria-label="collapsible table">
-        <TableHead>
-          <TableRow>
-            <TableCell />
-            <TableCell>Вопрос</TableCell>
-            <TableCell align="right">Название</TableCell>
-            <TableCell align="right">Время</TableCell>
-          </TableRow>
-        </TableHead>
+       <TableHead>
+        <TableRow>
+          <TableCell />
+          <TableCell>Вопрос</TableCell>
+          <TableCell align="right">Название</TableCell>
+          <TableCell align="right">Время</TableCell>
+        </TableRow>
+      </TableHead>
         <TableBody>
-          {questions.map((q) => (
-            <Row key={q.title} row={q} />
-            // <Row key={q.timeSpent} row={q} />
+          {questions.map((q, index) => (
+            <Row key={q.question} row={q} />
           ))}
         </TableBody>
       </Table>

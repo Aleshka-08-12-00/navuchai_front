@@ -20,42 +20,39 @@ export default class ResultTableStore {
     makeAutoObservable(this);
   }
 
- exportResultsExcel = async () => {
-  this.loading = true;
-  this.error = null;
+  exportResultsExcel = async () => {
+    this.loading = true;
+    this.error = null;
 
-  try {
-    const response = await fetchData("exportResultsExcel", {}, null, { responseType: "blob" });
-    const blob = response instanceof Blob ? response : new Blob([response]);
+    try {
+      const response = await fetchData("exportResultsExcel", {}, null, { responseType: "blob" });
+      const blob = response instanceof Blob ? response : new Blob([response]);
 
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "results.xlsx"; // Или любое другое имя по умолчанию
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    window.URL.revokeObjectURL(url);
-
-  } catch (error: any) {
-    runInAction(() => {
-      this.error = error.message || "Ошибка загрузки результатов";
-    });
-  } finally {
-    runInAction(() => {
-      this.loading = false;
-    });
-  }
-};
-
-
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "results.xlsx"; // Можно заменить имя файла при необходимости
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error: any) {
+      runInAction(() => {
+        this.error = error?.message || "Ошибка загрузки результатов";
+      });
+    } finally {
+      runInAction(() => {
+        this.loading = false;
+      });
+    }
+  };
 
   fetchAndStoreTestName = async (testId: number) => {
     if (this.testNamesMap.has(testId)) return;
 
     await settingsNewTestStore.getTestById(testId);
     const test = settingsNewTestStore.testMainInfo;
-    const name = test?.title || "Неизвестно";
+    const name = test?.title ?? "Неизвестно";
 
     runInAction(() => {
       this.testNamesMap.set(testId, name);
@@ -73,7 +70,7 @@ export default class ResultTableStore {
       }
     } catch (error: any) {
       runInAction(() => {
-        this.error = error.message || "Ошибка загрузки результатов";
+        this.error = error?.message || "Ошибка загрузки результатов";
       });
     } finally {
       runInAction(() => {
@@ -87,9 +84,11 @@ export default class ResultTableStore {
       this.resultsArray = value;
     });
 
+    // Получаем уникальные test_id и user_id
     const uniqueTestIds = Array.from(new Set(value.map((res) => res.test_id)));
     const uniqueUserIds = Array.from(new Set(value.map((res) => res.user_id)));
 
+    // Параллельно загружаем названия тестов и данные пользователей
     await Promise.all([
       ...uniqueTestIds.map((id) => this.fetchAndStoreTestName(id)),
       ...uniqueUserIds.map((id) => userStore.getUserById(id)),
@@ -99,12 +98,12 @@ export default class ResultTableStore {
   getFormattedUserResults(): IUserTestResultRow[] {
     return this.resultsArray.map((res) => ({
       key: res.id,
-      test_name: this.testNamesMap.get(res.test_id) || "—",
-      name: userStore.getUserField(res.user_id, "name") || "",
-      email: userStore.getUserField(res.user_id, "email") || "",
-      percentage: res.result?.percentage || 0,
-      end_date: new Date(res.completed_at).toLocaleString(),
-      test_time: this.formatTime(res.result?.total_time_seconds || 0),
+      test_name: this.testNamesMap.get(res.test_id) ?? "—",
+      name: userStore.getUserField(res.user_id, "name") ?? "",
+      email: userStore.getUserField(res.user_id, "email") ?? "",
+      percentage: res.result?.percentage ?? 0,
+      end_date: res.completed_at ? new Date(res.completed_at).toLocaleString() : "",
+      test_time: this.formatTime(res.result?.total_time_seconds ?? 0),
     }));
   }
 
@@ -127,7 +126,7 @@ export default class ResultTableStore {
       });
     } catch (error: any) {
       runInAction(() => {
-        this.error = error.message || "Ошибка при загрузке результата";
+        this.error = error?.message || "Ошибка при загрузке результата";
       });
     } finally {
       runInAction(() => {
@@ -140,6 +139,12 @@ export default class ResultTableStore {
     this.loading = true;
     this.error = null;
 
+    const stripHtml = (html: string): string => {
+      const div = document.createElement("div");
+      div.innerHTML = html;
+      return div.textContent || div.innerText || "";
+    };
+
     try {
       const data = await fetchData("getResultByResultId", {}, resultId);
 
@@ -148,62 +153,73 @@ export default class ResultTableStore {
       });
 
       const { test_id: testId, user_id: userId, result } = data;
-      const percentage = result?.percentage || 0;
-      const completedAt = data?.completed_at || null;
+      const percentage = result?.percentage ?? 0;
+      const completedAt = data?.completed_at ?? null;
 
       await Promise.all([
         testId ? this.fetchAndStoreTestName(testId) : Promise.resolve(),
         userId ? userStore.getUserById(userId) : Promise.resolve(),
       ]);
 
-      const testName = this.testNamesMap.get(testId) || "Неизвестно";
-      const userName = userStore.getUserField(userId, "name") || "Неизвестно";
+      const testName = this.testNamesMap.get(testId) ?? "Неизвестно";
+      const userName = userStore.getUserField(userId, "name") ?? "Неизвестно";
 
-      const checkedAnswers: ICheckedAnswer[] = result?.checked_answers || [];
+      const checkedAnswers: ICheckedAnswer[] = result?.checked_answers ?? [];
       if (testId) await questionsStore.fetchQuestionsByTestId(testId);
 
-      // const questions = checkedAnswers.map((answer, index) => {
-      //   const questionText = answer.question_text;
-      //   const correctAnswers: string[] = answer.check_details.correct_answer || [];
+      const questionsMap = questionsStore.questionsObj;
 
-      //   let userAnswers: string[] = [];
-      //   try {
-      //     const rawValue = answer.check_details?.user_answer?.value;
-      //     const parsed = typeof rawValue === "string" ? JSON.parse(rawValue) : rawValue;
+      const questions = checkedAnswers.map((answer, index) => {
+        const questionText = answer.question_text;
 
-      //     if (Array.isArray(parsed)) {
-      //       userAnswers = parsed.map(String);
-      //     } else if (parsed?.answer) {
-      //       userAnswers = Array.isArray(parsed.answer) ? parsed.answer.map(String) : [String(parsed.answer)];
-      //     } else if (typeof parsed === "string") {
-      //       userAnswers = [parsed];
-      //     }
-      //   } catch {
-      //     userAnswers = [];
-      //   }
+        let correctAnswers: string[] = [];
+        let userAnswers: string[] = [];
 
-        // const matched = questionsStore.questions.find((q) => q.question.id === answer.question_id);
-        // const allAnswers = matched
-        //   ? matched.question.answers.allAnswer
-        //   : Array.from(new Set([...correctAnswers, ...userAnswers]));
+        const check = answer.check_details;
 
-        // const options = allAnswers.map((text, i) => ({
-        //   id: i,
-        //   text,
-        //   isCorrect: correctAnswers.includes(text),
-        //   isUserAnswer: userAnswers.includes(text),
-        // }));
+        if ("correct_answer" in check && "user_answer" in check) {
+          correctAnswers = [check.correct_answer];
+          userAnswers = [check.user_answer];
+        } else if ("correct_answers" in check && "user_answers" in check) {
+          correctAnswers = check.correct_answers;
+          userAnswers = check.user_answers;
+        }
 
-      //   return {
-      //     question: `Вопрос №${index + 1}`,
-      //     title: questionText,
-      //     timeSpent: 0,
-      //     description: questionText,
-      //     options,
-      //     // correctCount: answer.check_details.details.correct_count || 1,
-      //     // totalCorrect: answer.check_details.details.total_correct || 1,
-      //   };
-      // });
+       const normalizeAnswer = (str: string) =>
+          stripHtml(str).trim().toLowerCase();
+
+        const normalizedCorrectAnswers = correctAnswers.map(normalizeAnswer);
+        const normalizedUserAnswers = userAnswers.map(normalizeAnswer);
+
+        const questionFromStore = questionsMap.get(answer.question_id);
+        const allOptions: string[] = questionFromStore?.question?.answers?.allAnswer ?? [];
+
+        const options = allOptions.map((text: string, i: number) => {
+          const cleanText = stripHtml(text).trim();
+          const normalizedText = cleanText.toLowerCase();
+
+          return {
+            id: i,
+            text: cleanText,
+            isCorrect: normalizedCorrectAnswers.includes(normalizedText),
+            isUserAnswer: normalizedUserAnswers.includes(normalizedText),
+          };
+        });
+
+
+        const correctCount = options.filter((opt) => opt.isCorrect).length;
+
+        return {
+          question: `Вопрос №${index + 1}`,
+          title: questionText,
+          timeSpent: answer.time_seconds,
+          timeLimit: answer.time_limit,
+          isTimeExceeded: answer.is_time_exceeded,
+          options,
+          isCorrect: answer.is_correct,
+          correctCount,
+        };
+      });
 
       runInAction(() => {
         this.loading = false;
@@ -215,11 +231,14 @@ export default class ResultTableStore {
         userName,
         percentage,
         completedAt,
-        // questions,
+        questions,
         error: null,
       };
     } catch (error: any) {
-      const message = error?.response?.data?.detail || error.message || "Ошибка при загрузке результата";
+      const message =
+        error?.response?.data?.detail ??
+        error?.message ??
+        "Ошибка при загрузке результата";
 
       runInAction(() => {
         this.error = message;

@@ -9,10 +9,10 @@ import EmailIcon from '@mui/icons-material/Email';
 import AccountBoxOutlinedIcon from '@mui/icons-material/AccountBoxOutlined';
 import { observer } from 'mobx-react-lite';
 import PieChartResult from './pieChartResult/PieChartResult';
-// import TimeDisplay from './timeDisplay/TimeDisplay';
-// import TimeLinear from './timeLiner/TimeLinear';
+import TimeLinear from './timeLiner/TimeLinear';
 import QuestionsTestTable from './questionsTestTable/QuestionsTestTable';
 import { Context } from '../..';
+import TimeDisplay from './timeDisplay/TimeDisplay';
 
 const TestUserResult: React.FC = observer(() => {
     const { resultTableStore } = React.useContext(Context);
@@ -30,6 +30,8 @@ const TestUserResult: React.FC = observer(() => {
         userName: string;
         percentage: number;
         completedAt: string | null;
+        time_limit: number;
+        total_time_seconds: number;
     } | null>(null);
 
     useEffect(() => {
@@ -50,7 +52,10 @@ const TestUserResult: React.FC = observer(() => {
                     userName: data.userName ?? "Неизвестно",
                     percentage: data.percentage ?? 0,
                     completedAt: data.completedAt ?? null,
+                    time_limit: data.result.result.test_time_limit ?? 0,
+                    total_time_seconds: data.result.result.total_time_seconds ?? 0,
                 });
+                console.log(data);
                 setErrorMessage(null);
             }
         });
@@ -71,14 +76,14 @@ const TestUserResult: React.FC = observer(() => {
     }
 
     // Теперь берем нужные данные из info
-    const { testName, userName, percentage, completedAt } = info;
+    const { testName, userName, percentage, completedAt, time_limit, total_time_seconds } = info;
 
     const name = userName || 'Имя и Фамилия';
     const test_name = testName || 'Название теста';
-    const test_time = "0";
+    const test_time_limit = time_limit || 0;
+    const test_spent_time = total_time_seconds || 0
+    console.log(test_time_limit);
 
-    // const timeInSeconds = store.getTimeInSeconds ? store.getTimeInSeconds(test_time) : test_time;
-    // && timeInSeconds <= 720;
     const passed = percentage >= 50;
     const resultTest = passed ? 'Тест пройден!' : 'Тест не пройден!';
     const resultGood = passed ? 'Оценка удовлетворительная' : 'Оценка неудовлетворительная';
@@ -121,8 +126,8 @@ const TestUserResult: React.FC = observer(() => {
 
                             <MuiLink component="button" className={styles.link} sx={{ fontSize: 18, fontWeight: 400 }}>
                                 <Typography component="div" style={{display: 'flex', justifyContent: 'space-between', margin: 'auto'}}>
-                                    <Typography variant='h6' color="textSecondary" >
-                                        тест по:
+                                    <Typography variant='h6' color="textSecondary" style={{marginRight: 5}}>
+                                        тест по: 
                                     </Typography>
                                      <Typography variant='h6' >
                                          {test_name}
@@ -237,24 +242,38 @@ const TestUserResult: React.FC = observer(() => {
                     </Col>
 
                     <Col xs={24} sm={24} md={9} lg={9} style={{ marginLeft: 'auto' }} className={styles['gutter-row']}>
-                        <Typography component="div" className={styles.respondent}>
-                            <Typography variant="h6">Время</Typography>
-                            <Typography component="div" style={{ display: 'flex', flexDirection: 'column', flexWrap: 'wrap' }}>
-                                <Typography component="div" className={styles['respondent-name']} style={{ display: 'flex', flexDirection: 'row', marginBottom: '10px' }}>
-                                    <FieldTimeOutlined style={{ fontSize: '30px', marginRight: '15px' }} />
-                                    <Typography variant="h6">Общее время</Typography>
-                                </Typography>
-                                <Typography component="div" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', marginLeft: '45px' }}>
-                                    {/* <TimeDisplay maxTime={720} /> */}
-                                    <Typography component="div" style={{ marginBottom: '10px' }}>
-                                        {/* <TimeLinear timeInSeconds={0} /> */}
-                                    </Typography>
-                                    <Typography variant="body2">
-                                        Дата: <Typography component="span" sx={{ fontWeight: 600, fontSize: 16 }}>{end_date}</Typography>
-                                    </Typography>
-                                </Typography>
+                      <Typography component="div" className={styles.respondent}>
+                        <Typography variant="h6">Время</Typography>
+
+                        <Typography component="div" style={{ display: 'flex', flexDirection: 'column', flexWrap: 'wrap' }}>
+                          <Typography
+                            component="div"
+                            className={styles['respondent-name']}
+                            style={{ display: 'flex', flexDirection: 'row'}}
+                          >
+                            <FieldTimeOutlined style={{ fontSize: '30px', marginRight: '15px' }} />
+                            <Typography variant="h6">Общее время</Typography>
+                          </Typography>
+
+                          <Typography
+                            component="div"
+                            style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', marginLeft: '45px' }}
+                          >
+                            {/* <TimeDisplay maxTime={test_time_limit} />  */}
+
+                            <Typography component="div" style={{ marginBottom: '10px' }}>
+                              <TimeLinear timeInSeconds={test_spent_time} maxTimeInSeconds={test_time_limit} />
                             </Typography>
+
+                            <Typography variant="body2">
+                              Дата:{' '}
+                              <Typography component="span" sx={{ fontWeight: 600, fontSize: 16 }}>
+                                {end_date}
+                              </Typography>
+                            </Typography>
+                          </Typography>
                         </Typography>
+                      </Typography>
                     </Col>
                 </Row>
 
