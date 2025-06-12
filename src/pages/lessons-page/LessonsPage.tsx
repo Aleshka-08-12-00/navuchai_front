@@ -20,6 +20,7 @@ interface Lesson {
   id: number;
   title: string;
   content: string;
+  video?: string;
 }
 
 const LessonsPage = () => {
@@ -30,6 +31,7 @@ const LessonsPage = () => {
   const [title, setTitle] = useState('');
   const editor = useRef(null);
   const [content, setContent] = useState('');
+  const [video, setVideo] = useState('');
 
   const load = async () => {
     if (!moduleId) return;
@@ -44,14 +46,16 @@ const LessonsPage = () => {
   const handleSave = async () => {
     if (!moduleId) return;
     try {
+      const payload = { title, content, video, module_id: Number(moduleId) };
       if (editId) {
-        await putLesson(editId, { title, content, module_id: Number(moduleId) });
+        await putLesson(editId, payload);
       } else {
-        await postLesson(Number(moduleId), { title, content });
+        await postLesson(Number(moduleId), payload);
       }
       setOpen(false);
       setTitle('');
       setContent('');
+      setVideo('');
       setEditId(null);
       load();
     } catch (e) {
@@ -63,7 +67,24 @@ const LessonsPage = () => {
     setEditId(lesson.id);
     setTitle(lesson.title);
     setContent(lesson.content);
+    setVideo(lesson.video || '');
     setOpen(true);
+  };
+
+  const handleAdd = () => {
+    setEditId(null);
+    setTitle('');
+    setContent('');
+    setVideo('');
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    setEditId(null);
+    setTitle('');
+    setContent('');
+    setVideo('');
   };
 
   const handleDelete = async (id: number) => {
@@ -77,7 +98,7 @@ const LessonsPage = () => {
         Уроки
       </Typography>
       <Stack direction="row" justifyContent="flex-end" sx={{ mb: 2 }}>
-        <Button variant="contained" color="success" onClick={() => setOpen(true)}>
+        <Button variant="contained" color="success" onClick={handleAdd}>
           Добавить урок
         </Button>
       </Stack>
@@ -101,7 +122,7 @@ const LessonsPage = () => {
           </ListItem>
         ))}
       </List>
-      <Dialog open={open} onClose={() => setOpen(false)} maxWidth="md" fullWidth>
+      <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
         <DialogTitle>{editId ? 'Редактировать урок' : 'Новый урок'}</DialogTitle>
         <DialogContent dividers>
           <Stack spacing={2}>
@@ -110,11 +131,16 @@ const LessonsPage = () => {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
+            <TextField
+              label="Ссылка на видео"
+              value={video}
+              onChange={(e) => setVideo(e.target.value)}
+            />
             <JoditEditor ref={editor} value={content} onBlur={setContent} />
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpen(false)}>Отмена</Button>
+          <Button onClick={handleClose}>Отмена</Button>
           <Button onClick={handleSave} variant="contained" color="success">
             Сохранить
           </Button>
