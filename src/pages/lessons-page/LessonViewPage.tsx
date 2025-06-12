@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Stack, Typography, Box } from '@mui/material';
-import { getLessons } from 'api';
+import { getLessons } from '../../api';
+import VideoPlayer from '../../components/VideoPlayer';
 
 interface Lesson {
   id: number;
@@ -38,6 +39,19 @@ const LessonViewPage: React.FC<LessonViewPageProps> = ({
     const current = lessons.find((l) => l.id === Number(lessonId));
     if (current) {
       setLesson(current);
+      console.log('Текущий урок:', current);
+      console.log('URL видео:', current.video);
+      
+      // Тестируем доступность YouTube
+      const testIframe = document.createElement('iframe');
+      testIframe.src = 'https://www.youtube.com/embed/dQw4w9WgXcQ';
+      testIframe.style.display = 'none';
+      document.body.appendChild(testIframe);
+      
+      setTimeout(() => {
+        document.body.removeChild(testIframe);
+        console.log('Тест iframe завершен');
+      }, 1000);
     }
   }, [lessonId, lessons]);
 
@@ -67,26 +81,13 @@ const LessonViewPage: React.FC<LessonViewPageProps> = ({
     }
   };
 
-  const getEmbedUrl = (url: string) => {
-    const match = url.match(/(?:youtube\.com\/(?:.*v=|embed\/)|youtu\.be\/)([^&?/]+)/);
-    return match ? `https://www.youtube.com/embed/${match[1]}` : url;
-  };
-
   return (
     <div>
       <Typography variant="h4" sx={{ mb: 2 }}>
         {lesson.title}
       </Typography>
       {lesson.video && (
-        <Box sx={{ mb: 2 }}>
-          <iframe
-            width="100%"
-            height="400"
-            src={getEmbedUrl(lesson.video)}
-            title="Видео урока"
-            allowFullScreen
-          />
-        </Box>
+        <VideoPlayer videoUrl={lesson.video} title={lesson.title} />
       )}
       <div dangerouslySetInnerHTML={{ __html: lesson.content }} />
       <Stack direction="row" justifyContent="space-between" sx={{ mt: 3 }}>
