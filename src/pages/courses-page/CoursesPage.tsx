@@ -41,12 +41,12 @@ import JoditEditor from 'jodit-react'
 import MainCard from '../../components/MainCard'
 import LessonsPage from '../lessons-page/LessonsPage'
 import LessonViewPage from '../lessons-page/LessonViewPage'
-import { width } from '@mui/system'
 
 interface Lesson {
   id: number
   title: string
   content?: string
+  video?: string
 }
 
 interface Module {
@@ -81,6 +81,7 @@ const CoursesPage = () => {
   const [editingLessonId, setEditingLessonId] = useState<number | null>(null)
   const [lessonTitle, setLessonTitle] = useState('')
   const [lessonContent, setLessonContent] = useState('')
+  const [lessonVideo, setLessonVideo] = useState('')
   const editor = useRef(null)
 
   // Состояние для выбранного урока
@@ -252,6 +253,7 @@ const CoursesPage = () => {
     setEditingLessonId(null)
     setLessonTitle('')
     setLessonContent('')
+    setLessonVideo('')
     setOpenLessonDialog(true)
   }
 
@@ -261,18 +263,29 @@ const CoursesPage = () => {
     setEditingLessonId(lesson.id)
     setLessonTitle(lesson.title)
     setLessonContent(lesson.content || '')
+    setLessonVideo(lesson.video || '')
     setOpenLessonDialog(true)
+  }
+
+  const handleLessonDialogClose = () => {
+    setOpenLessonDialog(false)
+    setEditingLessonId(null)
+    setLessonTitle('')
+    setLessonContent('')
+    setLessonVideo('')
   }
 
   const saveLesson = async () => {
     if (!lessonModuleId) return
     try {
+      const payload = { title: lessonTitle, content: lessonContent, video: lessonVideo, module_id: lessonModuleId }
       if (editingLessonId) {
-        await putLesson(editingLessonId, { title: lessonTitle, content: lessonContent, module_id: lessonModuleId })
+        await putLesson(editingLessonId, payload)
       } else {
-        await postLesson(lessonModuleId, { title: lessonTitle, content: lessonContent })
+        await postLesson(lessonModuleId, payload)
       }
       setOpenLessonDialog(false)
+      setLessonVideo('')
       const lessonsData = await getLessons(lessonModuleId)
       setCourses(prev =>
         prev.map(c =>
@@ -435,16 +448,17 @@ const CoursesPage = () => {
           <Button onClick={saveModule} variant="contained" color="success">Сохранить</Button>
         </DialogActions>
       </Dialog>
-      <Dialog open={openLessonDialog} onClose={() => setOpenLessonDialog(false)} maxWidth="md" fullWidth>
+      <Dialog open={openLessonDialog} onClose={handleLessonDialogClose} maxWidth="md" fullWidth>
         <DialogTitle>{editingLessonId ? 'Редактировать урок' : 'Новый урок'}</DialogTitle>
         <DialogContent dividers>
           <Stack spacing={2}>
             <TextField label="Название" value={lessonTitle} onChange={e => setLessonTitle(e.target.value)} />
+            <TextField label="Ссылка на видео" value={lessonVideo} onChange={e => setLessonVideo(e.target.value)} />
             <JoditEditor ref={editor} value={lessonContent} onBlur={setLessonContent} />
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenLessonDialog(false)}>Отмена</Button>
+          <Button onClick={handleLessonDialogClose}>Отмена</Button>
           <Button onClick={saveLesson} variant="contained" color="success">Сохранить</Button>
         </DialogActions>
       </Dialog>
