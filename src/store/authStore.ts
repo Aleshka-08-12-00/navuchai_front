@@ -10,6 +10,7 @@ class AuthStore {
   objForShow: string[] = [];
   name: string = '';
   email: string = '';
+  roleName: string = ''
 
   constructor() {
     makeAutoObservable(this);
@@ -21,6 +22,7 @@ class AuthStore {
     this.isAuth = true;
     this.email = userData.email;
     this.name = userData.name;
+    this.roleName = userData.role_name;
   };
 
   async loginUser(loginData: ILoginUser) {
