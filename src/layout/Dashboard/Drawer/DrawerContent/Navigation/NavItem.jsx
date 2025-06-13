@@ -14,15 +14,50 @@ import Typography from '@mui/material/Typography';
 // project import
 import { handlerActiveItem, useGetMenuMaster } from 'api/menu';
 import { observer } from 'mobx-react-lite';
+import { Context } from 'index';
 
 // export default function NavItem({ item, level }) {
 const NavItem = observer(({ item, level }) => {
+  const { authStore } = React.useContext(Context);
+  const {
+    authMe,
+  } = authStore
+
+  // Все хуки должны быть в начале компонента
+  React.useEffect(() => {
+    authMe();
+  }, [])
 
   const theme = useTheme();
-
   const { menuMaster } = useGetMenuMaster();
+  const { pathname } = useLocation();
+
   const drawerOpen = menuMaster.isDashboardDrawerOpened;
   const openItem = menuMaster.openedItem;
+
+  useEffect(() => {
+    if (pathname === item.url) handlerActiveItem(item.id);
+    // eslint-disable-next-line
+  }, [pathname]);
+
+  // Функция для проверки прав доступа
+  const hasAccess = (item) => {
+    // Если у элемента нет ограничений по ролям, показываем всем
+    if (!item.allowedRoles) {
+      return true;
+    }
+    
+    // Получаем роль пользователя из authStore
+    const userRole = authStore.roleCode;
+    
+    // Проверяем, есть ли роль пользователя в списке разрешенных
+    return item.allowedRoles.includes(userRole);
+  };
+
+  // Если у пользователя нет доступа к этому элементу, не рендерим его
+  if (!hasAccess(item)) {
+    return null;
+  }
 
   let itemTarget = '_self';
   if (item.target) {
@@ -36,14 +71,7 @@ const NavItem = observer(({ item, level }) => {
   const Icon = item.icon;
   const itemIcon = item.icon ? <Icon style={{ fontSize: drawerOpen ? '1rem' : '1.25rem' }} /> : false;
 
-  const { pathname } = useLocation();
   const isSelected = openItem === item.id;
-
-  useEffect(() => {
-    if (pathname === item.url) handlerActiveItem(item.id);
-    // eslint-disable-next-line
-  }, [pathname]);
-
 
   const textColor = 'text.primary';
   const iconSelectedColor = 'primary.main';

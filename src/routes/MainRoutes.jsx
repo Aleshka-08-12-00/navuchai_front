@@ -13,6 +13,7 @@ import LessonsPage from 'pages/lessons-page/LessonsPage';
 import LessonViewPage from 'pages/lessons-page/LessonViewPage';
 import TestUserResult from 'components/testUserResult/TestUserResult';
 import CreateRespondentsPage from 'pages/respondents-page/create-respondents-list';
+import AdminPage from 'pages/admin-page/AdminPage';
 
 
 // ==============================|| MAIN ROUTING ||============================== //
@@ -76,6 +77,10 @@ const MainRoutes = {
         {
           path: '/start_test/:testId',  // динамический параметр testId
           element: <TestPage />
+        },
+        {
+          path: '/admin',
+          element: <AdminPage />
         },
         {
           path: '/courses',

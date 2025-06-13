@@ -1,10 +1,10 @@
-
 import HomeIcon from '@mui/icons-material/Home';
 import AppsIcon from '@mui/icons-material/Apps';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 
 
 // icons
@@ -15,6 +15,7 @@ const icons = {
   BarChartIcon,
   SettingsIcon,
   LibraryBooksIcon,
+  AdminPanelSettingsIcon
 };
 
 // ==============================|| MENU ITEMS - DASHBOARD ||============================== //
@@ -31,7 +32,8 @@ const dashboard = {
       url: '/',
       icon: icons.AppsIcon,
       breadcrumbs: true,
-      code: 'anyCode'
+      code: 'anyCode',
+      allowedRoles: ['admin', 'user', 'guest', 'moderator']
     },
     {
       id: '2',
@@ -40,7 +42,8 @@ const dashboard = {
       url: '/respondents',
       icon: icons.PeopleAltIcon,
       breadcrumbs: true,
-      code: 'anyCode'
+      code: 'anyCode',
+      allowedRoles: ['admin']
     },
     {
       id: '3',
@@ -49,7 +52,8 @@ const dashboard = {
       url: '/results',
       icon: icons.BarChartIcon,
       breadcrumbs: true,
-      code: 'anyCode'
+      code: 'anyCode',
+      allowedRoles: ['admin', 'user', 'moderator']
     },
     {
       id: '4',
@@ -58,7 +62,8 @@ const dashboard = {
       url: '/settings',
       icon: icons.SettingsIcon,
       breadcrumbs: true,
-      code: 'anyCode'
+      code: 'anyCode',
+      allowedRoles: ['admin', 'user', 'guest', 'moderator']
     },
     {
       id: '5',
@@ -67,9 +72,20 @@ const dashboard = {
       url: '/courses',
       icon: icons.LibraryBooksIcon,
       breadcrumbs: true,
-      code: 'anyCode'
-      },
- 
+      code: 'anyCode',
+      allowedRoles: ['admin', 'user', 'guest', 'moderator']
+    },
+    {
+      id: '6',
+      title: 'Администрирование',
+      type: 'item',
+      url: '/admin',
+      icon: icons.AdminPanelSettingsIcon,
+      breadcrumbs: true,
+      code: 'anyCode',
+      allowedRoles: ['admin']
+    },
+
   ]
 };
 

@@ -26,7 +26,6 @@ import '@fontsource/public-sans/700.css';
 
 // project import
 import App from './App';
-import Store from './store/store';
 import authStore from './store/authStore';
 import { createContext } from 'react';
 import ReactDOM from 'react-dom/client';
@@ -42,13 +41,13 @@ import ProfileStore from './store/profileStore';
 import ResultTableStore from './store/resultTableStore';
 import RespondentsStore from './store/respondentsStore';
 import questionsStore from './store/questionsStore';
+import AdminStore from './store/adminStore';
 
 const showAlert = (message: string, severity: 'success' | 'error') => {
   // This will be implemented by each component that needs alerts
   console.log(`${severity}: ${message}`);
 };
 
-const store = new Store();
 const settingsStore = new SettingsStore();
 const mainPageStore = new MainPageStore();
 const createQuestionsStore = new CreateQuestionsStore(showAlert);
@@ -58,9 +57,10 @@ const userAnswerStore = new UserAnswerStore();
 const profileStore = new ProfileStore(showAlert);
 const resultTableStore = new ResultTableStore();
 const respondentsStore = new RespondentsStore(showAlert);
+const adminStore = new AdminStore();
+
 
 const obStore = {
-  store,
   authStore,
   settingsStore,
   mainPageStore,
@@ -73,7 +73,8 @@ const obStore = {
   resultTableStore,
   userStore,
   profileStore,
-  respondentsStore
+  respondentsStore,
+  adminStore
 }
 
 export const Context = createContext(obStore);

@@ -15,7 +15,7 @@ class AuthStore {
     makeAutoObservable(this);
   }
 
-  setUserData = (userData: { id: number; role_code: string, email: string, name: string }) => {
+  setUserData = (userData: any) => {
     this.userId = userData.id;
     this.roleCode = userData.role_code;
     this.isAuth = true;
@@ -51,15 +51,14 @@ class AuthStore {
     }
   }
 
-  async authMe() {
+  authMe = async () => {
     const result = await fetchData('getAuthMe');
     if (result) {
+      console.log(result)
       this.setUserData(result);
-      console.log(this.userId);
-      return result; 
     }
     return null;
-  }
+  };
 
   setObjForShow = () => {
     let obj = [];

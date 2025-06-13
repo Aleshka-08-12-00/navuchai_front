@@ -48,14 +48,14 @@ const FontAwesomeSvgIcon = React.forwardRef<SVGSVGElement, FontAwesomeSvgIconPro
 
 
 const TestQuestionListPage = observer(() => {
-    console.log('TestQuestionListPage rendered');
-    const { settingsStore, testQuestionListPageStore } = React.useContext(Context);
+    const { settingsStore, testQuestionListPageStore, authStore } = React.useContext(Context);
     const { getQuestionListByTestId, questionArray } = testQuestionListPageStore
     // const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
     React.useEffect(() => {
         console.log('useEffect triggered with id:', id);
         getQuestionListByTestId(Number(id))
+        authStore.authMe()
     }, [id]);
     
 

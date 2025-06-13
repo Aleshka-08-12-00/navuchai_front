@@ -30,80 +30,54 @@ const settingsMenu = {
       url: '/settings',
       icon: icons.ManageAccountsIcon,
       breadcrumbs: false,
-      code: 'anyCode'
+      code: 'anyCode',
+      allowedRoles: ['admin', 'user', 'guest', 'moderator']
     },
     {
       id: '42',
       title: 'Ваш пакет',
       type: 'item',
-      // url: '/settings',
       icon: icons.SyncAltIcon,
       breadcrumbs: false,
-      code: 'anyCode'
+      code: 'anyCode',
+      allowedRoles: ['admin', 'moderator']
     },
     {
       id: '43',
       title: 'Выставление счетов',
       type: 'item',
-      // url: '/settings',
       icon: icons.CreditCardIcon,
       breadcrumbs: false,
-      code: 'anyCode'
+      code: 'anyCode',
+      allowedRoles: ['admin', 'moderator']
     },
     {
       id: '44',
       title: 'Поддомен',
       type: 'item',
-      // url: '/settings',
       icon: icons.DomainIcon,
       breadcrumbs: false,
-      code: 'anyCode'
+      code: 'anyCode',
+      allowedRoles: ['admin', 'moderator']
     },
     {
       id: '45',
       title: 'Логотип',
       type: 'item',
-      // url: '/settings',
       icon: icons.ImageIcon,
       breadcrumbs: false,
-      code: 'anyCode'
+      code: 'anyCode',
+      allowedRoles: ['admin', 'moderator']
     },
     {
       id: '46',
       title: 'Язык и регион',
       type: 'item',
-      // url: '/settings',
       icon: icons.LanguageIcon,
       breadcrumbs: false,
-      code: 'anyCode'
+      code: 'anyCode',
+      allowedRoles: ['admin', 'moderator']
     },
-    // {
-    //   id: '44',
-    //   title: 'Личный кабинет',
-    //   type: 'item',
-    //   url: '/settings',
-    //   icon: icons.SettingsIcon,
-    //   breadcrumbs: false,
-    //   code: 'anyCode'
-    // },
-    // {
-    //   id: '45',
-    //   title: 'Личный кабинет',
-    //   type: 'item',
-    //   url: '/settings',
-    //   icon: icons.SettingsIcon,
-    //   breadcrumbs: false,
-    //   code: 'anyCode'
-    // },
-    // {
-    //   id: '46',
-    //   title: 'Личный кабинет',
-    //   type: 'item',
-    //   url: '/settings',
-    //   icon: icons.SettingsIcon,
-    //   breadcrumbs: false,
-    //   code: 'anyCode'
-    // },
  
   ]
 };

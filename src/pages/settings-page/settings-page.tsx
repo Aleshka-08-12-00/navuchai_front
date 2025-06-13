@@ -9,13 +9,13 @@ import { Box } from "@mui/material";
 import { Grid } from "@mui/material";
 
 const SettingsPage = observer(() => {
-  const { settingsStore } = React.useContext(Context);
+  const { settingsStore, authStore } = React.useContext(Context);
   
 
 
 
   React.useEffect(() => {
-
+  authStore.authMe()
   }, []);
 
   return (
@@ -26,9 +26,9 @@ const SettingsPage = observer(() => {
           <ContentSettingsMenu />
         </Grid>
         <Grid item xs={11} sm={11} md={11} lg={9}>
-          {settingsStore.idSettingsNumber === '41' && <GeneralInformationPage />}
-          {settingsStore.idSettingsNumber === '42' && <YourTrialPage />}
-          {settingsStore.idSettingsNumber === '44' && <SubdomainPage />}
+          {settingsStore.idSettingsNumberNext === '41' && <GeneralInformationPage />}
+          {settingsStore.idSettingsNumberNext === '42' && <YourTrialPage />}
+          {settingsStore.idSettingsNumberNext === '44' && <SubdomainPage />}
         </Grid>
       </Grid>
     </Box>

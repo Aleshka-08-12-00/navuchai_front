@@ -340,3 +340,10 @@ export interface IUsers {
   updated_at: string;
 }
 
+export interface IRoles {
+  name: string;
+  code: string;
+  id: number;
+  created_at: string;
+  updated_at: string;
+}

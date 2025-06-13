@@ -20,6 +20,16 @@ import { Context } from '../../../..';
 // export default function NavItem({ item, level }) {
 const NavItem = observer(({ item, level }: any) => {
    const { settingsStore } = React.useContext(Context);
+   const { authStore } = React.useContext(Context);
+   const {
+     authMe,
+   } = authStore
+ 
+   // Все хуки должны быть в начале компонента
+   React.useEffect(() => {
+     authMe();
+   }, [])
+ 
 
   const theme = useTheme();
 
@@ -50,15 +60,24 @@ const NavItem = observer(({ item, level }: any) => {
     // eslint-disable-next-line
   }, [pathname]);
 
-
-  // color	'inherit'
-  // | 'primary'
-  // | 'secondary'
-  // | 'success'
-  // | 'error'
-  // | 'info'
-  // | 'warning'
-  // | string
+    // Функция для проверки прав доступа
+    const hasAccess = (item) => {
+      // Если у элемента нет ограничений по ролям, показываем всем
+      if (!item.allowedRoles) {
+        return true;
+      }
+      
+      // Получаем роль пользователя из authStore
+      const userRole = authStore.roleCode;
+      
+      // Проверяем, есть ли роль пользователя в списке разрешенных
+      return item.allowedRoles.includes(userRole);
+    };
+  
+    // Если у пользователя нет доступа к этому элементу, не рендерим его
+    if (!hasAccess(item)) {
+      return null;
+    }
 
   const textColor = 'text.secondary';
   const iconSelectedColor = 'primary.secondary';
@@ -69,7 +88,7 @@ const NavItem = observer(({ item, level }: any) => {
       <ListItemButton
         {...listItemProps}
         disabled={item.disabled}
-        onClick={() => (handlerActiveItem(item.id), settingsStore.setIdSettingsNumber(item.id))}
+        onClick={() => (handlerActiveItem(item.id), settingsStore.setIdSettingsNumberNext(item.id))}
         selected={isSelected}
         sx={{
           mb: 1,
