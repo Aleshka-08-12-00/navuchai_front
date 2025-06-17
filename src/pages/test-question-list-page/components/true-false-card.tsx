@@ -45,7 +45,7 @@ const Example = ({ htmlContent }: { htmlContent: string }) => {
 
 
 
-const SingleChoiceCard = observer(({ 
+const TrueFalseCard = observer(({ 
     index, 
     isSelected, 
     onSelectChange, 
@@ -115,7 +115,7 @@ const SingleChoiceCard = observer(({
         console.log('Изменить вопрос:', index);
         handleMenuClose();
     };
-
+    
     return (
         <>
             <div style={{ marginBottom: 20 }}>
@@ -130,7 +130,7 @@ const SingleChoiceCard = observer(({
                                     onChange={(e) => onSelectChange(e.target.checked)}
                                 />
                                 <Typography variant="h5">
-                                    № {index +1}
+                                № {index +1}
                                 </Typography>
                             </span>
                             <span style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -260,4 +260,4 @@ const SingleChoiceCard = observer(({
         </>
     )
 });
-export default SingleChoiceCard;
+export default TrueFalseCard;

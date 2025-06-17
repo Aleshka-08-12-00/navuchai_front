@@ -25,9 +25,15 @@ const endpoints = {
   getQuestions: 'api/questions',
   postQuestions: 'api/questions',
   getQuestionsById: (id: string | number | null): string => `api/questions/by-test/${id}`,
+  putQuestionsById: (id: string | number | null): string => `api/questions/${id}`,
+  getQuestionsByIdById: (id: string | number | null): string => `api/questions/${id}`,
+  deleteQuestionsById: (id: string | number | null): string => `api/questions/${id}`,
   postQuestionsToTest: (question_id: string | number | null, test_id: string | number | null): string => `api/questions/${question_id}/add-to-test/${test_id}`,
   getQuestionsByTestId: (testId: string | number | null): string => `api/questions/by-test/${testId}`,
-
+ 
+  //Типы вопросов
+  getQuestionsTypes: 'api/question-types',
+  
   //Результат
   postResults: 'api/results',
   getResults: 'api/results',

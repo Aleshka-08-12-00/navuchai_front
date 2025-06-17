@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import { Button, IconButton, Radio, TextField, Typography } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
@@ -21,9 +21,20 @@ interface SingleChoiceProps {
         requireAnswer: boolean;
         stopIfIncorrect: boolean;
     }) => void;
+    initialData?: {
+        answers: Array<{
+            body: string;
+            correct: boolean;
+        }>;
+        correctScore: number;
+        incorrectScore: number;
+        showMaxScore: boolean;
+        requireAnswer: boolean;
+        stopIfIncorrect: boolean;
+    };
 }
 
-const SingleChoice = observer(({ onDataChange }: SingleChoiceProps) => {
+const SingleChoice = observer(({ onDataChange, initialData }: SingleChoiceProps) => {
     const editorRefs = useRef<Map<number, any>>(new Map());
     const [contentList, setContentList] = useState<string[]>([""]); 
     const [selectedValue, setSelectedValue] = useState<string>("");
@@ -32,6 +43,19 @@ const SingleChoice = observer(({ onDataChange }: SingleChoiceProps) => {
     const [showMaxScore, setShowMaxScore] = useState<boolean>(true);
     const [requireAnswer, setRequireAnswer] = useState<boolean>(false);
     const [stopIfIncorrect, setStopIfIncorrect] = useState<boolean>(false);
+
+    useEffect(() => {
+        if (initialData) {
+            setContentList(initialData.answers.map(answer => answer.body));
+            const correctAnswerIndex = initialData.answers.findIndex(answer => answer.correct);
+            setSelectedValue(correctAnswerIndex >= 0 ? `option-${correctAnswerIndex}` : "");
+            setCorrectScore(initialData.correctScore);
+            setIncorrectScore(initialData.incorrectScore);
+            setShowMaxScore(initialData.showMaxScore);
+            setRequireAnswer(initialData.requireAnswer);
+            setStopIfIncorrect(initialData.stopIfIncorrect);
+        }
+    }, [initialData]);
 
     // Добавление нового элемента
     const addAnswer = () => {

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import { Button, IconButton, Checkbox, TextField, Typography } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
@@ -21,9 +21,20 @@ interface MultipleChoiceProps {
         requireAnswer: boolean;
         stopIfIncorrect: boolean;
     }) => void;
+    initialData?: {
+        answers: Array<{
+            body: string;
+            correct: boolean;
+        }>;
+        correctScore: number;
+        incorrectScore: number;
+        showMaxScore: boolean;
+        requireAnswer: boolean;
+        stopIfIncorrect: boolean;
+    };
 }
 
-const MultipleChoice = observer(({ onDataChange }: MultipleChoiceProps) => {
+const MultipleChoice = observer(({ onDataChange, initialData }: MultipleChoiceProps) => {
     const editorRefs = useRef<Map<number, any>>(new Map());
     const [options, setOptions] = useState<Array<{ id: number; content: string; correct: boolean }>>([
         { id: 1, content: "", correct: false },
@@ -34,6 +45,22 @@ const MultipleChoice = observer(({ onDataChange }: MultipleChoiceProps) => {
     const [showMaxScore, setShowMaxScore] = useState<boolean>(true);
     const [requireAnswer, setRequireAnswer] = useState<boolean>(false);
     const [stopIfIncorrect, setStopIfIncorrect] = useState<boolean>(false);
+
+    useEffect(() => {
+        if (initialData) {
+            const multipleOptions = initialData.answers.map((answer, index) => ({
+                id: index + 1,
+                content: answer.body,
+                correct: answer.correct
+            }));
+            setOptions(multipleOptions);
+            setCorrectScore(initialData.correctScore);
+            setIncorrectScore(initialData.incorrectScore);
+            setShowMaxScore(initialData.showMaxScore);
+            setRequireAnswer(initialData.requireAnswer);
+            setStopIfIncorrect(initialData.stopIfIncorrect);
+        }
+    }, [initialData]);
 
     const updateParentData = () => {
         if (onDataChange) {

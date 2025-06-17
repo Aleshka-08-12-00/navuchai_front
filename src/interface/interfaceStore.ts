@@ -117,7 +117,7 @@ export interface IQuestions {
 export interface IPostQuestion {
   text: string;
   text_abstract: string;
-  type: string;
+  type_id: number;
   reviewable: boolean;
   answers: {
     correctAnswer: string[];
@@ -137,7 +137,13 @@ export interface IQuestionInTest {
     id: number;
     text: string;
     text_abstract: string;
-    type: string;
+    type: {
+      name: string;
+      code: string;
+      id: number;
+      created_at: string;
+      updated_at: string;
+    };
     reviewable: boolean;
     answers: {
       settings: {
@@ -179,16 +185,16 @@ export interface IAnswerValue {
 
 export interface ITestResultAnswerRequest {
   question_id: number;
-  time_start: string; 
-  time_end: string;   
+  time_start: string;
+  time_end: string;
   answer: IAnswerValue;
 }
 
 export interface ITestResultCreateRequest {
   test_id: number;
   user_id: number;
-  time_start: string; 
-  time_end: string;  
+  time_start: string;
+  time_end: string;
   answers: ITestResultAnswerRequest[];
 }
 
@@ -347,3 +353,12 @@ export interface IRoles {
   created_at: string;
   updated_at: string;
 }
+
+export interface IQuestionTypes {
+  name: string;
+  code: string;
+  id: number;
+  created_at: string;
+  updated_at: string;
+}
+

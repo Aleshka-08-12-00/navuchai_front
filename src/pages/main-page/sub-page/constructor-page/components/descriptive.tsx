@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import { Button, IconButton, Radio, TextField, Typography } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
@@ -17,9 +17,16 @@ interface DescriptiveProps {
         requireAnswer: boolean;
         stopIfIncorrect: boolean;
     }) => void;
+    initialData?: {
+        maxScore: number;
+        maxCharCount: number;
+        showMaxScore: boolean;
+        requireAnswer: boolean;
+        stopIfIncorrect: boolean;
+    };
 }
 
-const Descriptive = observer(({ onDataChange }: DescriptiveProps) => {
+const Descriptive = observer(({ onDataChange, initialData }: DescriptiveProps) => {
     const editorRefs = useRef<Map<number, any>>(new Map()); // Хранилище ссылок на редакторы
     const [contentList, setContentList] = useState<string[]>([""]); // Список контента
     const [selectedValue, setSelectedValue] = useState<string>(""); // Текущее выбранное значение
@@ -28,6 +35,16 @@ const Descriptive = observer(({ onDataChange }: DescriptiveProps) => {
     const [showMaxScore, setShowMaxScore] = useState<boolean>(true);
     const [requireAnswer, setRequireAnswer] = useState<boolean>(false);
     const [stopIfIncorrect, setStopIfIncorrect] = useState<boolean>(false);
+
+    useEffect(() => {
+        if (initialData) {
+            setMaxScore(initialData.maxScore);
+            setMaxCharCount(initialData.maxCharCount);
+            setShowMaxScore(initialData.showMaxScore);
+            setRequireAnswer(initialData.requireAnswer);
+            setStopIfIncorrect(initialData.stopIfIncorrect);
+        }
+    }, [initialData]);
 
     // Добавление нового элемента
     const addAnswer = () => {

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import { Radio, Typography, TextField, FormGroup, FormControlLabel, Switch } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
@@ -16,15 +16,38 @@ interface TrueFalseProps {
         requireAnswer: boolean;
         stopIfIncorrect: boolean;
     }) => void;
+    initialData?: {
+        answers: Array<{
+            body: string;
+            correct: boolean;
+        }>;
+        correctScore: number;
+        incorrectScore: number;
+        showMaxScore: boolean;
+        requireAnswer: boolean;
+        stopIfIncorrect: boolean;
+    };
 }
 
-const TrueFalse = observer(({ onDataChange }: TrueFalseProps) => {
+const TrueFalse = observer(({ onDataChange, initialData }: TrueFalseProps) => {
     const [selectedValue, setSelectedValue] = useState<string>(""); // Current selected value
     const [correctScore, setCorrectScore] = useState<number>(0);
     const [incorrectScore, setIncorrectScore] = useState<number>(0);
     const [showMaxScore, setShowMaxScore] = useState<boolean>(true);
     const [requireAnswer, setRequireAnswer] = useState<boolean>(false);
     const [stopIfIncorrect, setStopIfIncorrect] = useState<boolean>(false);
+
+    useEffect(() => {
+        if (initialData) {
+            const correctAnswer = initialData.answers.find(answer => answer.correct);
+            setSelectedValue(correctAnswer?.body === "ДА" ? "yes" : correctAnswer?.body === "НЕТ" ? "no" : "");
+            setCorrectScore(initialData.correctScore);
+            setIncorrectScore(initialData.incorrectScore);
+            setShowMaxScore(initialData.showMaxScore);
+            setRequireAnswer(initialData.requireAnswer);
+            setStopIfIncorrect(initialData.stopIfIncorrect);
+        }
+    }, [initialData]);
 
     // Handle radio button changes
     const handleRadioChange = (value: string) => {

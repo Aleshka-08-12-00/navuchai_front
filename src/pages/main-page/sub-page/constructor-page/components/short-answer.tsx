@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import { Button, IconButton, TextField, Typography } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
@@ -21,9 +21,20 @@ interface ShortAnswerProps {
         requireAnswer: boolean;
         stopIfIncorrect: boolean;
     }) => void;
+    initialData?: {
+        answers: Array<{
+            body: string;
+            maxCharCount: number;
+        }>;
+        correctScore: number;
+        incorrectScore: number;
+        showMaxScore: boolean;
+        requireAnswer: boolean;
+        stopIfIncorrect: boolean;
+    };
 }
 
-const ShortAnswer = observer(({ onDataChange }: ShortAnswerProps) => {
+const ShortAnswer = observer(({ onDataChange, initialData }: ShortAnswerProps) => {
     const [answers, setAnswers] = useState<Array<{ id: number; text: string; maxCharCount: number }>>([
         { id: 1, text: "", maxCharCount: 100 }
     ]);
@@ -104,6 +115,22 @@ const ShortAnswer = observer(({ onDataChange }: ShortAnswerProps) => {
         }
         updateParentData();
     };
+
+    useEffect(() => {
+        if (initialData) {
+            const shortAnswers = initialData.answers.map((answer, index) => ({
+                id: index + 1,
+                text: answer.body,
+                maxCharCount: answer.maxCharCount
+            }));
+            setAnswers(shortAnswers);
+            setCorrectScore(initialData.correctScore);
+            setIncorrectScore(initialData.incorrectScore);
+            setShowMaxScore(initialData.showMaxScore);
+            setRequireAnswer(initialData.requireAnswer);
+            setStopIfIncorrect(initialData.stopIfIncorrect);
+        }
+    }, [initialData]);
 
     return (
         <>

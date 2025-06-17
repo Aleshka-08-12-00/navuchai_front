@@ -14,16 +14,14 @@ axios.defaults.withCredentials = false;
 // Конструктор URL
 const buildUrl = (endpointKey: string, params: Params = {}, dynamicParams: string | number | null = null): string => {
   let endpoint = endpoints[endpointKey as keyof typeof endpoints];
-  console.log(params)
   // Обработка динамических endpoint
   if (typeof endpoint === 'function') {
     endpoint = endpoint(dynamicParams);
   }
   const url = new URL(`${BASE_URL}/${endpoint}`);
-  console.log(url)
+ 
   Object.keys(params).forEach(key => url.searchParams.append(key, params[key].toString()));
 
-console.log(url)
   return url.toString();
 };
 

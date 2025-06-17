@@ -1,13 +1,14 @@
-import { Checkbox, IconButton, Stack, Typography } from "@mui/material";
+import { Checkbox, IconButton, Stack, Typography, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogActions, Button, Alert, Snackbar } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { faEllipsisV } from '@fortawesome/free-solid-svg-icons/faEllipsisV';
 
 import SvgIcon from '@mui/material/SvgIcon';
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import { useParams } from "react-router-dom";
 import MainCard from "../../../components/MainCard";
 import { IQuestionInTest } from "../../../interface/interfaceStore";
+import { Context } from "../../..";
 
 type FontAwesomeSvgIconProps = {
     icon: any;
@@ -41,21 +42,93 @@ const Example = ({ htmlContent }: { htmlContent: string }) => {
     );
 };
 
-const MultipleChoiceCard = observer(({ index, ...obj }: IQuestionInTest & { index: number }) => {
-    const navigate = useNavigate();
+const MultipleChoiceCard = observer(({ 
+    index, 
+    isSelected, 
+    onSelectChange, 
+    ...obj 
+}: IQuestionInTest & { 
+    index: number; 
+    isSelected: boolean; 
+    onSelectChange: (checked: boolean) => void; 
+}) => {
+    const { testQuestionListPageStore } = React.useContext(Context);
+    const { deleteQuestionById } = testQuestionListPageStore;
     const { id } = useParams<{ id: string }>();
+
+    const navigate = useNavigate();
+
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [selectedQuestionId, setSelectedQuestionId] = useState<number | null>(null);
+    const [alertOpen, setAlertOpen] = useState(false);
+    const [alertMessage, setAlertMessage] = useState('');
+    const [alertSeverity, setAlertSeverity] = useState<'success' | 'error'>('success');
+
+    const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleMenuClose = () => {
+        setAnchorEl(null);
+    };
+
+    const showAlert = (message: string, severity: 'success' | 'error') => {
+        setAlertMessage(message);
+        setAlertSeverity(severity);
+        setAlertOpen(true);
+    };
+
+    const handleCloseAlert = () => {
+        setAlertOpen(false);
+    };
+
+    const handleDelete = (idQuestion: number) => {
+        setSelectedQuestionId(idQuestion);
+        setDeleteDialogOpen(true);
+        handleMenuClose();
+    };
+
+    const handleConfirmDelete = async () => {
+        if (selectedQuestionId) {
+            try {
+                await deleteQuestionById(selectedQuestionId, Number(id));
+                setDeleteDialogOpen(false);
+                setSelectedQuestionId(null);
+                showAlert('Вопрос успешно удален', 'success');
+            } catch (error) {
+                showAlert('Ошибка при удалении вопроса', 'error');
+            }
+        }
+    };
+
+    const handleCancelDelete = () => {
+        setDeleteDialogOpen(false);
+        setSelectedQuestionId(null);
+    };
+
+    const handleEdit = () => {
+        // Здесь будет логика редактирования
+        
+        console.log('Изменить вопрос:', index);
+        handleMenuClose();
+    };
 
     return (
         <>
             <div style={{ marginBottom: 20 }}>
-                <MainCard contentSX={{ p: 2.25, pt: 3.3 }} onClick={() => navigate(`/main-page/test/${id}/question/${obj.question.id}`)} >
+                <MainCard contentSX={{ p: 2.25, pt: 3.3 }} 
+                
+                >
                     <>
                         <div style={{ display: 'flex', margin: 'auto', justifyContent: 'space-between' }}>
                             <span style={{ display: 'flex', alignItems: 'center' }}>
-                                <Checkbox />
+                                <Checkbox 
+                                    checked={isSelected}
+                                    onChange={(e) => onSelectChange(e.target.checked)}
+                                />
                                 <Typography variant="h5">
-                                    {/* № {obj.position} */}
-                                    № {index}
+                                № {index +1}
                                 </Typography>
                             </span>
                             <span style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -63,7 +136,7 @@ const MultipleChoiceCard = observer(({ index, ...obj }: IQuestionInTest & { inde
                                     Тип:
                                 </Typography>
                                 <Typography variant="h6">
-                                    {obj.question.type}
+                                    {obj.question.type.name}
                                 </Typography>
                                 <Typography variant="h6" color="textSecondary">
                                     |
@@ -75,9 +148,17 @@ const MultipleChoiceCard = observer(({ index, ...obj }: IQuestionInTest & { inde
                                     {obj.max_score}
                                 </Typography>
 
-                                <IconButton aria-label="Example">
+                                <IconButton aria-label="Example" onClick={handleMenuClick}>
                                     <FontAwesomeSvgIcon icon={faEllipsisV} />
                                 </IconButton>
+                                <Menu
+                                    anchorEl={anchorEl}
+                                    open={Boolean(anchorEl)}
+                                    onClose={handleMenuClose}
+                                >
+                                    <MenuItem  onClick={() => navigate(`/main-page/test/${id}/question/${obj.question.id}`)} >Изменить</MenuItem>
+                                    <MenuItem onClick={()=>handleDelete(obj.question.id)}>Удалить</MenuItem>
+                                </Menu>
                             </span>
                         </div>
                         <Stack sx={{ mt: 2, mb: 2, ml: 5 }}>
@@ -118,6 +199,63 @@ const MultipleChoiceCard = observer(({ index, ...obj }: IQuestionInTest & { inde
                     </>
                 </MainCard>
             </div>
+
+            <Dialog
+                open={deleteDialogOpen}
+                onClose={handleCancelDelete}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+                PaperProps={{
+                    sx: {
+                        borderRadius: 3,
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.1)'
+                    }
+                }}
+            >
+                <DialogTitle id="alert-dialog-title" sx={{ fontWeight: 700 }}>
+                    Подтверждение удаления
+                </DialogTitle>
+                <DialogContent>
+                    <Typography>
+                        Вы уверены, что хотите удалить этот вопрос?
+                    </Typography>
+                </DialogContent>
+                <DialogActions sx={{ p: 3, pt: 1 }}>
+                    <Button 
+                        onClick={handleCancelDelete} 
+                        variant='outlined' 
+                        color='inherit'
+                    >
+                        Отмена
+                    </Button>
+                    <Button 
+                        onClick={handleConfirmDelete} 
+                        color="error" 
+                        variant='outlined'
+                    >
+                        Удалить
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            <Snackbar 
+                open={alertOpen} 
+                autoHideDuration={6000} 
+                onClose={handleCloseAlert}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert 
+                    onClose={handleCloseAlert} 
+                    severity={alertSeverity} 
+                    sx={{ 
+                        width: '100%',
+                        borderRadius: 2,
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+                    }}
+                >
+                    {alertMessage}
+                </Alert>
+            </Snackbar>
         </>
     );
 });

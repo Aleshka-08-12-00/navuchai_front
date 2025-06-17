@@ -1,5 +1,5 @@
 import { makeAutoObservable } from 'mobx';
-import { fetchData, postData } from '../api';
+import { fetchData, postData, putData } from '../api';
 import { IPostQuestion } from '../interface/interfaceStore';
 import endpoints from '../endpoints';
 
@@ -40,6 +40,22 @@ export default class CreateQuestionsStore {
             }
         }
     }
+
+    putQuestion = async (data: IPostQuestion, id: number) => {
+        try {
+            const result = await putData('putQuestionsById', data , id);
+            if (result?.id) {
+             console.log(result.id)
+            }
+        } catch (error) {
+            console.error('Error creating question:', error);
+            if (this.onAlert) {
+                this.onAlert('Ошибка при создании вопроса', 'error');
+            }
+        }
+    }
+
+ 
 
 
     // setTestCategories = (value: ITestCategories[]) => {

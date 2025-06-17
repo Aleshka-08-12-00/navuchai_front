@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import { Button, FormControlLabel, FormGroup, IconButton, Switch, TextField, Typography } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
@@ -18,9 +18,20 @@ interface SurveyAnswersProps {
         requireAnswer: boolean;
         stopIfIncorrect: boolean;
     }) => void;
+    initialData?: {
+        answers: Array<{
+            body: string;
+            points: number;
+        }>;
+        correctScore: number;
+        incorrectScore: number;
+        showMaxScore: boolean;
+        requireAnswer: boolean;
+        stopIfIncorrect: boolean;
+    };
 }
 
-const SurveyAnswers = observer(({ onDataChange }: SurveyAnswersProps) => {
+const SurveyAnswers = observer(({ onDataChange, initialData }: SurveyAnswersProps) => {
     const editorRefs = useRef<Map<number, any>>(new Map());
     const [options, setOptions] = useState<{ id: number; content: string; points: number }[]>([
         { id: 1, content: "Option 1", points: 0 },
@@ -49,6 +60,22 @@ const SurveyAnswers = observer(({ onDataChange }: SurveyAnswersProps) => {
             });
         }
     };
+
+    useEffect(() => {
+        if (initialData) {
+            const surveyOptions = initialData.answers.map((answer, index) => ({
+                id: index + 1,
+                content: answer.body,
+                points: answer.points
+            }));
+            setOptions(surveyOptions);
+            setCorrectScore(initialData.correctScore);
+            setIncorrectScore(initialData.incorrectScore);
+            setShowMaxScore(initialData.showMaxScore);
+            setRequireAnswer(initialData.requireAnswer);
+            setStopIfIncorrect(initialData.stopIfIncorrect);
+        }
+    }, [initialData]);
 
     // Add a new answer option
     const addOption = () => {

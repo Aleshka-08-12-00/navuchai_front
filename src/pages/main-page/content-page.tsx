@@ -14,30 +14,40 @@ import GradingSummaryPage from "./sub-page/grading-summary-page/grading-summary-
 import TimeSettingsPage from "./sub-page/time-settings-page/time-settings-page";
 import TestSetsPage from "./sub-page/test-sets-page/test-sets-page";
 import TestAccessPage from "./sub-page/test-access-page/test-access-page";
+import { useParams } from "react-router-dom";
 
 
 
-const ContentPage = observer(({testId}: any) => {
-     const { settingsStore } = React.useContext(Context);
+const ContentPage = observer(({ testId }: any) => {
+  const { settingsStore } = React.useContext(Context);
+  const { setIdSettingsNumber, idSettingsNumber  } = settingsStore;
+   const { id } = useParams<{ id: string }>();
+   const { questionId } = useParams<{ questionId: string }>();
+
+  React.useEffect(() => {
+    if(id && questionId){
+      setIdSettingsNumber('52');
+    }
+  }, [id, questionId ]);
 
   return (
     <>
-        <Grid container spacing={2}>
-            <Grid item xs={2} sm={2} md={2} lg={3}>
-            <ContentSettingsMainMenu />
-            </Grid>
-            <Grid item xs={10} sm={10} md={10} lg={9}>
-            {settingsStore.idSettingsNumber === '51' && <GeneralSettingsTestPage/>}
-            {settingsStore.idSettingsNumber === '58' && <RecordingComponent/>}
-            {settingsStore.idSettingsNumber === '52' && <ConstructorPage/>} 
-            {settingsStore.idSettingsNumber === '55' && <TestStartPage/>}
-            {settingsStore.idSettingsNumber === '56' && <GradingSummaryPage/>}
-            {settingsStore.idSettingsNumber === '57' && <TimeSettingsPage/>}
-            {settingsStore.idSettingsNumber === '53' && <TestSetsPage/>}
-            {settingsStore.idSettingsNumber === '54' && <TestAccessPage/>}
-      
-            </Grid>
-        </Grid> 
+      <Grid container spacing={2}>
+        <Grid item xs={2} sm={2} md={2} lg={3}>
+          <ContentSettingsMainMenu />
+        </Grid>
+        <Grid item xs={10} sm={10} md={10} lg={9}>
+          {idSettingsNumber === '51' && <GeneralSettingsTestPage />}
+          {idSettingsNumber === '52' && <ConstructorPage />}
+          {idSettingsNumber === '53' && <TestSetsPage />}
+          {idSettingsNumber === '54' && <TestAccessPage />}
+          {idSettingsNumber === '55' && <TestStartPage />}
+          {idSettingsNumber === '56' && <GradingSummaryPage />}
+          {idSettingsNumber === '57' && <TimeSettingsPage />}
+          {idSettingsNumber === '58' && <RecordingComponent />}
+
+        </Grid>
+      </Grid>
     </>
   )
 });
