@@ -1,6 +1,6 @@
 import { makeAutoObservable } from 'mobx';
 import { fetchData, postData } from '../api';
-import { ILoginUser, IRegisterUser } from '../interface/interfaceStore';
+import { ILoginUser, IRegisterUser, IAuthUser } from '../interface/interfaceStore';
 
 class AuthStore {
   isAuth: boolean = false;
@@ -53,11 +53,12 @@ class AuthStore {
     }
   }
 
-  authMe = async () => {
+  authMe = async (): Promise<IAuthUser | null> => {
     const result = await fetchData('getAuthMe');
     if (result) {
       console.log(result)
       this.setUserData(result);
+      return result;
     }
     return null;
   };

@@ -68,7 +68,7 @@ const TestPage = observer(() => {
 
       if (!authStore.userId) {
         const user = await authStore.authMe();
-        if (user?.id && isMounted) {
+        if (user && isMounted) {
           userAnswerStore.setUserId(user.id);
         }
       } else {
@@ -268,7 +268,7 @@ const TestPage = observer(() => {
   console.log(`Лимит времени на данный вопрос: ${question.time_limit}`);
 
   const QuestionComponent = (() => {
-    switch (question.type) {
+    switch (question.type.code) {
       case "SINGLE_CHOICE":
         return TestSingleChoiceCard;
       case "MULTIPLE_CHOICE":
