@@ -556,16 +556,20 @@ const MainPage = observer(() => {
                       {/* Progress Section */}
                       <Box sx={{ mb: 3 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-                          <Typography variant="body2" color="textSecondary" sx={{ fontWeight: 600 }}>
+                          {roleCode === 'user' ?   <Typography variant="body2" color="textSecondary" sx={{ fontWeight: 600 }}>
+                            Средний результат по итогам {item.user_completed} попыток
+                          </Typography> :   <Typography variant="body2" color="textSecondary" sx={{ fontWeight: 600 }}>
                             Средний результат
-                          </Typography>
-                          <Typography variant="h6" sx={{ fontWeight: 700, color: getProgressColor(Number(item.percent) || 0) }}>
+                          </Typography>}
+                        {roleCode === 'user' ?  <Typography variant="h6" sx={{ fontWeight: 700, color: getProgressColor(Number(item.user_percent) || 0) }}>
+                            {item.user_percent}%
+                          </Typography> :  <Typography variant="h6" sx={{ fontWeight: 700, color: getProgressColor(Number(item.percent) || 0) }}>
                             {item.percent}%
-                          </Typography>
+                          </Typography>}
                         </Box>
                         <LinearProgress
                           variant="determinate"
-                          value={Number(item.percent) || 0}
+                          value={roleCode === 'user' ?  Number(item.user_percent)  : Number(item.percent) || 0}
                           sx={{
                             height: 8,
                             borderRadius: 4,

@@ -21,12 +21,16 @@ const NavItem = observer(({ item, level }) => {
   const { authStore } = React.useContext(Context);
   const {
     authMe,
+    roleCode,
   } = authStore
 
   // Все хуки должны быть в начале компонента
   React.useEffect(() => {
-    authMe();
-  }, [])
+    if (!roleCode) {
+      authMe();
+    }
+
+  }, [roleCode])
 
   const theme = useTheme();
   const { menuMaster } = useGetMenuMaster();
@@ -46,10 +50,10 @@ const NavItem = observer(({ item, level }) => {
     if (!item.allowedRoles) {
       return true;
     }
-    
+
     // Получаем роль пользователя из authStore
     const userRole = authStore.roleCode;
-    
+
     // Проверяем, есть ли роль пользователя в списке разрешенных
     return item.allowedRoles.includes(userRole);
   };

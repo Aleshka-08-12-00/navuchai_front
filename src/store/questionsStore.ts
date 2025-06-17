@@ -32,7 +32,29 @@ class QuestionsStore {
       });
     }
   };  
+
+   fetchQuestionsByTestIdPublick = async (testId: number) => {
+    this.loading = true;
+    this.error = null;
+
+    try {
+      const data: IQuestionInTest[] = await fetchData("getQuestionsByTestIdPublic", {}, testId);
+      runInAction(() => {
+        this.questions = data;
+        this.loading = false;
+      });
+    } catch (error: any) {
+      runInAction(() => {
+        this.error = error.message || "Ошибка загрузки";
+        this.loading = false;
+      });
+    }
+  };  
+
+
 }
+
+
 
 
 

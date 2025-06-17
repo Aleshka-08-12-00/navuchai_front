@@ -17,6 +17,8 @@ export interface InterfaceTests {
   creator_name: string;
   locale_code: string;
   status_name: string;
+  user_completed: number;
+  user_percent: number;
   image: null | {
     type: string;
     name: string;

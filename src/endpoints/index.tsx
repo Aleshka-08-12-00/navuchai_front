@@ -30,6 +30,7 @@ const endpoints = {
   deleteQuestionsById: (id: string | number | null): string => `api/questions/${id}`,
   postQuestionsToTest: (question_id: string | number | null, test_id: string | number | null): string => `api/questions/${question_id}/add-to-test/${test_id}`,
   getQuestionsByTestId: (testId: string | number | null): string => `api/questions/by-test/${testId}`,
+  getQuestionsByTestIdPublic: (testId: string | number | null): string => `api/questions/by-test/${testId}/public`,
  
   //Типы вопросов
   getQuestionsTypes: 'api/question-types',
