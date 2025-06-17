@@ -46,6 +46,19 @@ const Descriptive = observer(({ onDataChange, initialData }: DescriptiveProps) =
         }
     }, [initialData]);
 
+    // Отдельный useEffect для обновления родительского компонента
+    useEffect(() => {
+        if (initialData && onDataChange) {
+            onDataChange({
+                maxScore: initialData.maxScore,
+                maxCharCount: initialData.maxCharCount,
+                showMaxScore: initialData.showMaxScore,
+                requireAnswer: initialData.requireAnswer,
+                stopIfIncorrect: initialData.stopIfIncorrect
+            });
+        }
+    }, [initialData, onDataChange]);
+
     // Добавление нового элемента
     const addAnswer = () => {
         setContentList([...contentList, ""]);

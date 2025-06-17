@@ -132,6 +132,31 @@ const ShortAnswer = observer(({ onDataChange, initialData }: ShortAnswerProps) =
         }
     }, [initialData]);
 
+    // Отдельный useEffect для обновления родительского компонента
+    useEffect(() => {
+        if (initialData && onDataChange) {
+            const shortAnswers = initialData.answers.map((answer, index) => ({
+                id: index + 1,
+                text: answer.body,
+                maxCharCount: answer.maxCharCount
+            }));
+            
+            const formattedAnswers = shortAnswers.map(answer => ({
+                body: answer.text,
+                maxCharCount: answer.maxCharCount
+            }));
+
+            onDataChange({
+                answers: formattedAnswers,
+                correctScore: initialData.correctScore,
+                incorrectScore: initialData.incorrectScore,
+                showMaxScore: initialData.showMaxScore,
+                requireAnswer: initialData.requireAnswer,
+                stopIfIncorrect: initialData.stopIfIncorrect
+            });
+        }
+    }, [initialData, onDataChange]);
+
     return (
         <>
             <div style={{ padding: 10 }}>

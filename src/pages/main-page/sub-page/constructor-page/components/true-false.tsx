@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import { observer } from "mobx-react-lite";
 import { Radio, Typography, TextField, FormGroup, FormControlLabel, Switch } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
@@ -30,17 +30,27 @@ interface TrueFalseProps {
 }
 
 const TrueFalse = observer(({ onDataChange, initialData }: TrueFalseProps) => {
-    const [selectedValue, setSelectedValue] = useState<string>(""); // Current selected value
+    const editorRefs = useRef<Map<number, any>>(new Map());
+    const prevDataRef = useRef<any>(null);
+    const [options, setOptions] = useState<Array<{ id: number; content: string; correct: boolean }>>([
+        { id: 1, content: "ДА", correct: false },
+        { id: 2, content: "НЕТ", correct: false }
+    ]);
     const [correctScore, setCorrectScore] = useState<number>(0);
     const [incorrectScore, setIncorrectScore] = useState<number>(0);
     const [showMaxScore, setShowMaxScore] = useState<boolean>(true);
     const [requireAnswer, setRequireAnswer] = useState<boolean>(false);
     const [stopIfIncorrect, setStopIfIncorrect] = useState<boolean>(false);
 
+    // Инициализация состояния из initialData
     useEffect(() => {
         if (initialData) {
-            const correctAnswer = initialData.answers.find(answer => answer.correct);
-            setSelectedValue(correctAnswer?.body === "ДА" ? "yes" : correctAnswer?.body === "НЕТ" ? "no" : "");
+            const trueFalseOptions = initialData.answers.map((answer, index) => ({
+                id: index + 1,
+                content: answer.body,
+                correct: answer.correct
+            }));
+            setOptions(trueFalseOptions);
             setCorrectScore(initialData.correctScore);
             setIncorrectScore(initialData.incorrectScore);
             setShowMaxScore(initialData.showMaxScore);
@@ -49,40 +59,55 @@ const TrueFalse = observer(({ onDataChange, initialData }: TrueFalseProps) => {
         }
     }, [initialData]);
 
-    // Handle radio button changes
-    const handleRadioChange = (value: string) => {
-        setSelectedValue(value);
-        updateParentData(value);
-    };
-
-    const updateParentData = (selected: string) => {
+    // Обновление родительского компонента при изменении состояния
+    useEffect(() => {
         if (onDataChange) {
-            const answers = [
-                { body: "ДА", correct: selected === "yes" },
-                { body: "НЕТ", correct: selected === "no" }
-            ];
-
-            onDataChange({
-                answers,
+            const currentData = {
+                answers: options.map(option => ({
+                    body: option.content,
+                    correct: option.correct
+                })),
                 correctScore,
                 incorrectScore,
                 showMaxScore,
                 requireAnswer,
                 stopIfIncorrect
-            });
-        }
-    };
+            };
 
-    const handleScoreChange = (type: 'correct' | 'incorrect', value: number) => {
-        if (type === 'correct') {
-            setCorrectScore(value);
-        } else {
-            setIncorrectScore(value);
+            // Проверяем, изменились ли данные
+            const prevData = prevDataRef.current;
+            if (!prevData || JSON.stringify(prevData) !== JSON.stringify(currentData)) {
+                prevDataRef.current = currentData;
+                onDataChange(currentData);
+            }
         }
-        updateParentData(selectedValue);
-    };
+    }, [options, correctScore, incorrectScore, showMaxScore, requireAnswer, stopIfIncorrect, onDataChange]);
 
-    const handleSwitchChange = (type: 'showMax' | 'require' | 'stop', checked: boolean) => {
+    const handleRadioChange = useCallback((id: number) => {
+        setOptions(prev => prev.map(option => ({
+            ...option,
+            correct: option.id === id
+        })));
+    }, []);
+
+    const handleEditorChange = useCallback((id: number, newContent: string) => {
+        setOptions(prev => prev.map(option =>
+            option.id === id ? { ...option, content: newContent } : option
+        ));
+    }, []);
+
+    const handleScoreChange = useCallback((type: 'correct' | 'incorrect', value: string) => {
+        const numValue = value === '' ? 0 : Number(value);
+        if (!isNaN(numValue)) {
+            if (type === 'correct') {
+                setCorrectScore(numValue);
+            } else {
+                setIncorrectScore(numValue);
+            }
+        }
+    }, []);
+
+    const handleSwitchChange = useCallback((type: 'showMax' | 'require' | 'stop', checked: boolean) => {
         switch (type) {
             case 'showMax':
                 setShowMaxScore(checked);
@@ -94,8 +119,7 @@ const TrueFalse = observer(({ onDataChange, initialData }: TrueFalseProps) => {
                 setStopIfIncorrect(checked);
                 break;
         }
-        updateParentData(selectedValue);
-    };
+    }, []);
 
     return (
         <>
@@ -105,47 +129,34 @@ const TrueFalse = observer(({ onDataChange, initialData }: TrueFalseProps) => {
             <Typography variant="h6" style={{ padding: 10 }}>
                 Выберите правильный ответ, за который будут начислены баллы
             </Typography>
-            <div style={{ width: "95%", margin: "auto", display: "flex", alignItems: "center", flexDirection: "column" }}>
-                {/* "ДА" option */}
-                <div style={{ display: "flex", alignItems: "center", marginBottom: "20px" }}>
-                    <Radio
-                        checked={selectedValue === "yes"}
-                        onChange={() => handleRadioChange("yes")}
-                        value="yes"
-                        name="true-false-group"
-                        inputProps={{ "aria-label": "Да" }}
-                        style={{ marginTop: "-10%", outline: "none", boxShadow: "none" }}
-                        sx={{
-                            "&:hover": {
-                                backgroundColor: "transparent",
-                            },
-                        }}
-                    />
-                    <JoditEditor
-                        value="ДА"
-                        onBlur={() => { }}
-                    />
-                </div>
-                {/* "НЕТ" option */}
-                <div style={{ display: "flex", alignItems: "center", marginBottom: "20px" }}>
-                    <Radio
-                        checked={selectedValue === "no"}
-                        onChange={() => handleRadioChange("no")}
-                        value="no"
-                        name="true-false-group"
-                        inputProps={{ "aria-label": "Нет" }}
-                        style={{ marginTop: "-10%", outline: "none", boxShadow: "none" }}
-                        sx={{
-                            "&:hover": {
-                                backgroundColor: "transparent",
-                            },
-                        }}
-                    />
-                    <JoditEditor
-                        value="НЕТ"
-                        onBlur={() => { }}
-                    />
-                </div>
+            <div style={{ width: "95%", margin: "auto", float: 'left', marginLeft: 10 }}>
+                {options.map((option) => (
+                    <div 
+                        key={`option-${option.id}`} 
+                        style={{ display: "flex", alignItems: "center", marginBottom: "20px" }}
+                    >
+                        <Radio
+                            checked={option.correct}
+                            onChange={() => handleRadioChange(option.id)}
+                            value={`option-${option.id}`}
+                            name="true-false-group"
+                            inputProps={{ "aria-label": `Option ${option.id}` }}
+                            style={{ marginTop: "-10%" }}
+                            sx={{
+                                "&:hover": {
+                                    backgroundColor: "transparent",
+                                },
+                            }}
+                        />
+                        <div style={{ flexGrow: 1 }}>
+                            <JoditEditor
+                                ref={(ref) => editorRefs.current.set(option.id, ref)}
+                                value={option.content}
+                                onBlur={(newContent) => handleEditorChange(option.id, newContent)}
+                            />
+                        </div>
+                    </div>
+                ))}
             </div>
             <div style={{ padding: 10 }}>
                 <Typography variant="h5">Настройки баллов</Typography>
@@ -176,22 +187,24 @@ const TrueFalse = observer(({ onDataChange, initialData }: TrueFalseProps) => {
             </div>
             <div style={{ marginBottom: 20 }}>
                 <TextField
+                    id="correct-score-field"
+                    name="correctScore"
                     style={{ width: "39%", marginRight: 30, marginLeft: 5 }}
-                    id="outlined-number"
                     label="Балл за правильный ответ"
                     type="number"
                     variant="standard"
                     value={correctScore}
-                    onChange={(e) => handleScoreChange('correct', Number(e.target.value))}
+                    onChange={(e) => handleScoreChange('correct', e.target.value)}
                 />
                 <TextField
+                    id="incorrect-score-field"
+                    name="incorrectScore"
                     style={{ width: "39%" }}
-                    id="outlined-number"
                     label="Баллов за неправильный ответ"
                     type="number"
                     variant="standard"
                     value={incorrectScore}
-                    onChange={(e) => handleScoreChange('incorrect', Number(e.target.value))}
+                    onChange={(e) => handleScoreChange('incorrect', e.target.value)}
                     helperText="Внимание! Количество баллов должно быть отрицательным или нулевым. Отрицательные значения должны включать знак минус, например, -1."
                 />
             </div>

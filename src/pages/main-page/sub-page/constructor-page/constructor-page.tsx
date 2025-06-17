@@ -7,7 +7,9 @@ import {
     MenuItem,
     Select,
     SelectChangeEvent,
-    Typography
+    Typography,
+    Snackbar,
+    Alert
 } from '@mui/material';
 import { Context } from '../../../..';
 import MainCard from '../../../../components/MainCard';
@@ -41,6 +43,12 @@ const ConstructorPage = observer(() => {
     const [selectedImageFile, setSelectedImageFile] = React.useState<File | null>(null);
     const [isUploadingImage, setIsUploadingImage] = React.useState(false);
     const fileInputRef = React.useRef<HTMLInputElement>(null);
+    
+    // Состояния для алертов
+    const [alertOpen, setAlertOpen] = React.useState(false);
+    const [alertMessage, setAlertMessage] = React.useState('');
+    const [alertSeverity, setAlertSeverity] = React.useState<'success' | 'error'>('success');
+    
     const [questionData, setQuestionData] = React.useState<IPostQuestion>({
         text: "",
         text_abstract: "",
@@ -59,7 +67,16 @@ const ConstructorPage = observer(() => {
         }
     });
 
+    // Функция для показа алертов
+    const showAlert = (message: string, severity: 'success' | 'error') => {
+        setAlertMessage(message);
+        setAlertSeverity(severity);
+        setAlertOpen(true);
+    };
 
+    const handleCloseAlert = () => {
+        setAlertOpen(false);
+    };
 
     const handleChange = (event: SelectChangeEvent) => {
         setCategory(event.target.value);
@@ -302,7 +319,6 @@ const ConstructorPage = observer(() => {
     };
 
     const clickSave = async () => {
-        setOpenDialogSave(!openDialogSave);
         const finalData: IPostQuestion = {
             ...questionData,
             text: content,
@@ -312,12 +328,15 @@ const ConstructorPage = observer(() => {
         try {
             await postQuestion(finalData, Number(id));
             console.log('Question saved successfully');
+            // Показываем уведомление об успешном сохранении
+            showAlert('Вопрос успешно сохранен!', 'success');
         } catch (error) {
             console.error('Error saving question:', error);
+            showAlert('Ошибка при сохранении вопроса', 'error');
         }
     };
+    
     const clickPutSave = async () => {
-        setOpenDialogSave(!openDialogSave);
         const finalData: IPostQuestion = {
             ...questionData,
             text: content,
@@ -327,8 +346,24 @@ const ConstructorPage = observer(() => {
         try {
             await putQuestion(finalData, Number(questionId));
             console.log('Question saved successfully');
+            // Показываем уведомление об успешном сохранении
+            showAlert('Вопрос успешно обновлен!', 'success');
         } catch (error) {
             console.error('Error saving question:', error);
+            showAlert('Ошибка при обновлении вопроса', 'error');
+        }
+    };
+
+    const handleSaveClick = () => {
+        setOpenDialogSave(true);
+    };
+
+    const handleSaveConfirm = () => {
+        setOpenDialogSave(false);
+        if (questionId) {
+            clickPutSave();
+        } else {
+            clickSave();
         }
     };
 
@@ -348,7 +383,7 @@ const ConstructorPage = observer(() => {
             if (file.type.startsWith('image/')) {
                 setSelectedImageFile(file);
             } else {
-                alert('Пожалуйста, выберите файл изображения');
+                showAlert('Пожалуйста, выберите файл изображения', 'error');
                 if (fileInputRef.current) {
                     fileInputRef.current.value = '';
                 }
@@ -392,10 +427,11 @@ const ConstructorPage = observer(() => {
                 }
                 
                 console.log('Изображение успешно загружено и вставлено в текст');
+                showAlert('Изображение успешно загружено и вставлено в текст', 'success');
             }
         } catch (error) {
             console.error('Ошибка при загрузке изображения:', error);
-            alert('Ошибка при загрузке изображения');
+            showAlert('Ошибка при загрузке изображения', 'error');
         } finally {
             setIsUploadingImage(false);
         }
@@ -449,34 +485,13 @@ const ConstructorPage = observer(() => {
                         />
                     </div>
 
-                    {/* <FormControl variant="standard" sx={{ m: 1, minWidth: '62%', mt: 1 }}>
-                        <InputLabel id="category-select-label">Категория</InputLabel>
-                        <Select
-                            labelId="category-select-label"
-                            value={category}
-                            onChange={handleChange}
-                            label="Category"
-                        >
-                            <MenuItem value="">
-                                <em>Нет категории</em>
-                            </MenuItem>
-                            <MenuItem value={10}>Тест по ОТ</MenuItem>
-                            <MenuItem value={20}>Тест по ОЗ</MenuItem>
-                            <MenuItem value={30}>Тест по ГП</MenuItem>
-                        </Select>
-                    </FormControl>
-
-                    <Button
-                        variant="outlined"
-                        color='success'
-                        startIcon={<AddIcon />}
-                        style={{ textTransform: 'none', marginTop: 15 }}
-                    >
-                        Создать категорию
-                    </Button> */}
-
-                    <FormControl variant="standard" sx={{ m: 1, minWidth: '80%', mt: 1 }}>
-                        <InputLabel id="answer-type-select-label">Тип ответа</InputLabel>
+                    <FormControl variant="standard" sx={{ m: 1,width: '98%', mt: 1 }}>
+                        {!questionId ?  <InputLabel id="answer-type-select-label">Тип ответа</InputLabel> : null}
+                        {questionId ? <>
+                        <Typography variant="h6" >
+                            Тип ответа: {(questionData as any).type?.name || 'Не определен'}
+                        </Typography>
+                        </> : <>
                         <Select
                             labelId="answer-type-select-label"
                             value={answerType}
@@ -488,7 +503,8 @@ const ConstructorPage = observer(() => {
                                     {type.name}
                                 </MenuItem>
                             ))}
-                        </Select>
+                        </Select></>}
+                      
                     </FormControl>
 
                     {answerType === 'single_choice' && <SingleChoice onDataChange={handleSingleChoiceDataChange} initialData={questionData.answers.allAnswer.length > 0 ? {
@@ -559,7 +575,7 @@ const ConstructorPage = observer(() => {
                 variant='contained'
                 color='success'
                 style={{ textTransform: 'none', marginTop: 10 }}
-                onClick={questionId ? clickPutSave : clickSave}
+                onClick={handleSaveClick}
             >
                 {questionId ? 'сохранить изменения' : 'сохранить'}
             </Button>
@@ -571,18 +587,37 @@ const ConstructorPage = observer(() => {
             >
                 выйти
             </Button>
-            {/* <DialogPopup
+            <DialogPopup
                 title='Подтверждение'
-                mainText='Сохранить Ваши изменение?'
+                mainText='Сохранить Ваши изменения?'
                 open={openDialogSave}
                 setOpen={setOpenDialogSave}
-            /> */}
+                onConfirm={handleSaveConfirm}
+            />
             <DialogPopup
                 title='Подтверждение'
                 mainText='Вы не сохранили изменения. Вы уверены, что хотите покинуть страницу?'
                 open={openDialogClose}
                 setOpen={setOpenDialogClose}
             />
+            <Snackbar
+                open={alertOpen}
+                autoHideDuration={6000}
+                onClose={handleCloseAlert}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert 
+                    onClose={handleCloseAlert} 
+                    severity={alertSeverity} 
+                    sx={{ 
+                        width: '100%',
+                        borderRadius: 2,
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+                    }}
+                >
+                    {alertMessage}
+                </Alert>
+            </Snackbar>
         </div>
     );
 });

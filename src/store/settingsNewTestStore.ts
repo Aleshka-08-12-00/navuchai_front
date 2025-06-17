@@ -1,5 +1,5 @@
 import { makeAutoObservable } from 'mobx';
-import { fetchData, postData } from '../api';
+import { fetchData, postData, putData } from '../api';
 import { ILocales, InterfaceTests, IPostTest, ITestCategories } from '../interface/interfaceStore';
 
 
@@ -65,6 +65,21 @@ class SettingsNewTestStore {
             window.location.href = window.location.href + '/' + result.id;
             alert('Тест успешно создан, продолжайте настраивать тест');
         }
+    }
+
+    updateTest = async (data: IPostTest, id: number) => {
+        const result = await putData('putTestsById', data, id);
+        if (result) {
+            alert('Тест успешно обновлен');
+        }
+    }
+
+    updateTestStatus = async (data: InterfaceTests, id: number) => {
+        const result = await putData('putTestsById', data, id);
+        if (result) {
+            return result;
+        }
+        return null;
     }
 
     generatePublicLink = () => {

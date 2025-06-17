@@ -45,7 +45,7 @@ const FontAwesomeSvgIcon = React.forwardRef<SVGSVGElement, FontAwesomeSvgIconPro
 const TestQuestionListPage = observer(() => {
     const { settingsStore, testQuestionListPageStore, authStore } = React.useContext(Context);
     const { getQuestionListByTestId, questionArray, deleteQuestionById } = testQuestionListPageStore
-    // const navigate = useNavigate();
+    const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
 
     // Состояние для поиска и выбора
@@ -182,6 +182,7 @@ const TestQuestionListPage = observer(() => {
                                 color="error"
                                 onClick={handleDeleteSelected}
                                 size="small"
+                                style={{textTransform: 'none'}}
                             >
                                 Удалить выбранные ({selectedQuestions.size})
                             </Button>
@@ -192,10 +193,17 @@ const TestQuestionListPage = observer(() => {
                         </Typography>
                     </Stack>
                 </Paper>
+                <Button 
+                color="success" 
+                variant="outlined"
+                style={{textTransform: 'none', marginBottom: 15}}
+                 onClick={() => navigate(`/main-page/new-test/${id}`)}>
+                + Добавить вопрос  
+                </Button>
 
                 <Grid container spacing={2}>
                     <Grid item xs={12} sm={12} md={12} lg={12} style={{ cursor: 'pointer' }} >
-                        {filteredQuestions.length && filteredQuestions.map((item: IQuestionInTest, index: number) => {
+                        {filteredQuestions.length ? filteredQuestions.map((item: IQuestionInTest, index: number) => {
                             const questionId = item.question.id;
                             const isSelected = selectedQuestions.has(questionId);
 
@@ -231,7 +239,7 @@ const TestQuestionListPage = observer(() => {
                             }
 
                             return null;
-                        })}
+                        }): 'В данном тесте нет вопросов'}
                     </Grid>
                 </Grid>
             </Box>

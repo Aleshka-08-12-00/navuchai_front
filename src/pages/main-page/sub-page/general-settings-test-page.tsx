@@ -45,6 +45,7 @@ const GeneralSettingsTestPage = observer(() => {
         postTestCategories,
         getTestById,
         testMainInfo,
+        updateTest,
     } = settingsNewTestStore;
 
     const [category, setCategory] = React.useState<string>('');
@@ -134,7 +135,13 @@ const GeneralSettingsTestPage = observer(() => {
 
     const handleSave = async () => {
         console.log(formData);
-        createNewTest({ ...formData, locale_id: Number(formData.locale_id) })
+        if (id) {
+            // Если есть id, обновляем существующий тест
+            updateTest({ ...formData, locale_id: Number(formData.locale_id) }, Number(id));
+        } else {
+            // Если нет id, создаем новый тест
+            createNewTest({ ...formData, locale_id: Number(formData.locale_id) });
+        }
     };
 
     const handleClose = () => {
@@ -268,7 +275,7 @@ const GeneralSettingsTestPage = observer(() => {
                 });
 
                 // Set other state values based on test info
-                // setCategory(testInfo?.category_id?.toString() ?? '');
+                setCategory(testInfo?.category_id?.toString() ?? '');
                 setLeng(testInfo?.locale_id?.toString() ?? '');
                 if (testInfo?.image?.path) {
                     setImageUrl(testInfo.image.path);
@@ -285,12 +292,12 @@ const GeneralSettingsTestPage = observer(() => {
     return (
         <div >
             <Typography variant="h6" color="textSecondary" >
-                Основная информация
+                {id ? 'Редактирование теста' : 'Основная информация'}
             </Typography>
             <MainCard contentSX={{ p: 2.25, pt: 3.3 }}>
                 <>
                     <Typography variant="h5"  >
-                        Начальные настройки
+                        {id ? 'Редактирование настроек' : 'Начальные настройки'}
                     </Typography>
                     <FormControl sx={{ m: 1, minWidth: '80%' }} variant="standard">
                         <InputLabel htmlFor="standard-adornment-amount">Название теста</InputLabel>
@@ -435,7 +442,7 @@ const GeneralSettingsTestPage = observer(() => {
                 style={{ textTransform: 'none', marginTop: 10 }}
                 onClick={() => clickSave()}
             >
-                сохранить
+                {id ? 'Обновить' : 'Сохранить'}
             </Button>
             <Button
                 variant='contained'
@@ -447,7 +454,7 @@ const GeneralSettingsTestPage = observer(() => {
             </Button>
             <DialogPopup
                 title='Подтверждение'
-                mainText='Сохранить Ваши изменения?'
+                mainText={id ? 'Обновить Ваши изменения?' : 'Сохранить Ваши изменения?'}
                 open={openDialogSave}
                 setOpen={setOpenDialogSave}
                 onConfirm={handleSave}

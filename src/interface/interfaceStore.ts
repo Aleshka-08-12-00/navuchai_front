@@ -4,6 +4,9 @@ export interface InterfaceTests {
   description: string;
   category_id: number;
   creator_id: number;
+  access_status_code: string;
+  access_status_color: string;
+  access_status_name: string;
   access_timestamp: string;
   status_id: number;
   frozen: boolean;

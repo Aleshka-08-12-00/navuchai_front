@@ -77,6 +77,31 @@ const SurveyAnswers = observer(({ onDataChange, initialData }: SurveyAnswersProp
         }
     }, [initialData]);
 
+    // Отдельный useEffect для обновления родительского компонента
+    useEffect(() => {
+        if (initialData && onDataChange) {
+            const surveyOptions = initialData.answers.map((answer, index) => ({
+                id: index + 1,
+                content: answer.body,
+                points: answer.points
+            }));
+            
+            const answers = surveyOptions.map(option => ({
+                body: option.content,
+                points: option.points
+            }));
+
+            onDataChange({
+                answers,
+                correctScore: initialData.correctScore,
+                incorrectScore: initialData.incorrectScore,
+                showMaxScore: initialData.showMaxScore,
+                requireAnswer: initialData.requireAnswer,
+                stopIfIncorrect: initialData.stopIfIncorrect
+            });
+        }
+    }, [initialData, onDataChange]);
+
     // Add a new answer option
     const addOption = () => {
         const newId = options.length + 1;

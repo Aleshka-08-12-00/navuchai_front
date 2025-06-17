@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import { observer } from "mobx-react-lite";
 import { Button, IconButton, Checkbox, TextField, Typography } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
@@ -36,9 +36,11 @@ interface MultipleChoiceProps {
 
 const MultipleChoice = observer(({ onDataChange, initialData }: MultipleChoiceProps) => {
     const editorRefs = useRef<Map<number, any>>(new Map());
+    const prevDataRef = useRef<any>(null);
+    const [nextId, setNextId] = useState<number>(3); // Счетчик для уникальных ID
     const [options, setOptions] = useState<Array<{ id: number; content: string; correct: boolean }>>([
-        { id: 1, content: "", correct: false },
-        { id: 2, content: "", correct: false }
+        // { id: 1, content: "", correct: false },
+        // { id: 2, content: "", correct: false }
     ]);
     const [correctScore, setCorrectScore] = useState<number>(0);
     const [incorrectScore, setIncorrectScore] = useState<number>(0);
@@ -46,6 +48,7 @@ const MultipleChoice = observer(({ onDataChange, initialData }: MultipleChoicePr
     const [requireAnswer, setRequireAnswer] = useState<boolean>(false);
     const [stopIfIncorrect, setStopIfIncorrect] = useState<boolean>(false);
 
+    // Инициализация состояния из initialData
     useEffect(() => {
         if (initialData) {
             const multipleOptions = initialData.answers.map((answer, index) => ({
@@ -54,6 +57,7 @@ const MultipleChoice = observer(({ onDataChange, initialData }: MultipleChoicePr
                 correct: answer.correct
             }));
             setOptions(multipleOptions);
+            setNextId(multipleOptions.length + 1); // Обновляем счетчик ID
             setCorrectScore(initialData.correctScore);
             setIncorrectScore(initialData.incorrectScore);
             setShowMaxScore(initialData.showMaxScore);
@@ -62,62 +66,88 @@ const MultipleChoice = observer(({ onDataChange, initialData }: MultipleChoicePr
         }
     }, [initialData]);
 
-    const updateParentData = () => {
+    // Обновление родительского компонента при изменении состояния
+    useEffect(() => {
         if (onDataChange) {
-            const answers = options.map(option => ({
-                body: option.content,
-                correct: option.correct
-            }));
-
-            onDataChange({
-                answers,
+            const currentData = {
+                answers: options.map(option => ({
+                    body: option.content,
+                    correct: option.correct
+                })),
                 correctScore,
                 incorrectScore,
                 showMaxScore,
                 requireAnswer,
                 stopIfIncorrect
-            });
+            };
+
+            // Проверяем, изменились ли данные
+            const prevData = prevDataRef.current;
+            if (!prevData || JSON.stringify(prevData) !== JSON.stringify(currentData)) {
+                prevDataRef.current = currentData;
+                onDataChange(currentData);
+            }
         }
-    };
+    }, [options, correctScore, incorrectScore, showMaxScore, requireAnswer, stopIfIncorrect, onDataChange]);
 
     const addOption = () => {
-        const newId = options.length + 1;
-        const updatedOptions = [...options, { id: newId, content: "", correct: false }];
-        setOptions(updatedOptions);
-        updateParentData();
+        const newOption = { id: nextId, content: "", correct: false };
+        setOptions(prev => [...prev, newOption]);
+        setNextId(prev => prev + 1);
     };
 
     const deleteOption = (id: number) => {
-        if (options.length > 2) {
-            const updatedOptions = options.filter(option => option.id !== id);
-            setOptions(updatedOptions);
-            updateParentData();
-        }
+        setOptions(prev => prev.filter(option => option.id !== id));
     };
 
     const handleEditorChange = (id: number, newContent: string) => {
-        const updatedOptions = options.map(option =>
+        setOptions(prev => prev.map(option =>
             option.id === id ? { ...option, content: newContent } : option
-        );
-        setOptions(updatedOptions);
-        updateParentData();
+        ));
     };
 
     const handleCheckboxChange = (id: number, checked: boolean) => {
-        const updatedOptions = options.map(option =>
+        console.log('Checkbox changed:', id, checked); // Отладочный лог
+        setOptions(prev => prev.map(option =>
             option.id === id ? { ...option, correct: checked } : option
-        );
-        setOptions(updatedOptions);
-        updateParentData();
+        ));
     };
 
-    const handleScoreChange = (type: 'correct' | 'incorrect', value: number) => {
-        if (type === 'correct') {
-            setCorrectScore(value);
-        } else {
-            setIncorrectScore(value);
+    const handleCheckboxClick = (e: React.MouseEvent, id: number) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const target = e.target as HTMLInputElement;
+        const checked = target.checked;
+        console.log('Checkbox clicked:', id, checked);
+        setOptions(prev => prev.map(option =>
+            option.id === id ? { ...option, correct: checked } : option
+        ));
+    };
+
+    const handleCheckboxChangeSafe = useCallback((e: React.ChangeEvent<HTMLInputElement>, id: number) => {
+        e.stopPropagation();
+        const checked = e.target.checked;
+        console.log('Checkbox change safe:', id, checked);
+        
+        // Принудительно обновляем состояние
+        setOptions(prev => {
+            const newOptions = prev.map(option =>
+                option.id === id ? { ...option, correct: checked } : option
+            );
+            console.log('New options:', newOptions);
+            return newOptions;
+        });
+    }, []);
+
+    const handleScoreChange = (type: 'correct' | 'incorrect', value: string) => {
+        const numValue = value === '' ? 0 : Number(value);
+        if (!isNaN(numValue)) {
+            if (type === 'correct') {
+                setCorrectScore(numValue);
+            } else {
+                setIncorrectScore(numValue);
+            }
         }
-        updateParentData();
     };
 
     const handleSwitchChange = (type: 'showMax' | 'require' | 'stop', checked: boolean) => {
@@ -132,7 +162,6 @@ const MultipleChoice = observer(({ onDataChange, initialData }: MultipleChoicePr
                 setStopIfIncorrect(checked);
                 break;
         }
-        updateParentData();
     };
 
     return (
@@ -145,31 +174,32 @@ const MultipleChoice = observer(({ onDataChange, initialData }: MultipleChoicePr
             </Typography>
             <div style={{ width: "95%", margin: "auto", float: 'left', marginLeft: 10 }}>
                 {options.map((option) => (
-                    <React.Fragment key={option.id}>
-                        <div style={{ display: "flex", alignItems: "center", marginBottom: "20px" }}>
-                            <Checkbox
-                                checked={option.correct}
-                                onChange={(e) => handleCheckboxChange(option.id, e.target.checked)}
-                                style={{ marginTop: "-10%" }}
+                    <div 
+                        key={`option-${option.id}`} 
+                        style={{ display: "flex", alignItems: "center", marginBottom: "20px" }}
+                    >
+                        <Checkbox
+                            id={`checkbox-${option.id}`}
+                            name={`option-${option.id}`}
+                            checked={option.correct}
+                            onChange={(e) => handleCheckboxChangeSafe(e, option.id)}
+                            style={{ marginTop: "-10%" }}
+                        />
+                        <div style={{ flexGrow: 1 }}>
+                            <JoditEditor
+                                ref={(ref) => editorRefs.current.set(option.id, ref)}
+                                value={option.content}
+                                onBlur={(newContent) => handleEditorChange(option.id, newContent)}
                             />
-                            <div style={{ flexGrow: 1 }}>
-                                <JoditEditor
-                                    ref={(ref) => editorRefs.current.set(option.id, ref)}
-                                    value={option.content}
-                                    onBlur={(newContent) => handleEditorChange(option.id, newContent)}
-                                />
-                            </div>
-                            {options.length > 2 && (
-                                <IconButton
-                                    aria-label="delete"
-                                    onClick={() => deleteOption(option.id)}
-                                    style={{ marginLeft: "10px", marginTop: "-10%" }}
-                                >
-                                    <DeleteIcon />
-                                </IconButton>
-                            )}
                         </div>
-                    </React.Fragment>
+                        <IconButton
+                            aria-label="delete"
+                            onClick={() => deleteOption(option.id)}
+                            style={{ marginLeft: "10px", marginTop: "-10%" }}
+                        >
+                            <DeleteIcon />
+                        </IconButton>
+                    </div>
                 ))}
                 <div style={{ textAlign: "left", marginBottom: 40 }}>
                     <Button
@@ -211,22 +241,24 @@ const MultipleChoice = observer(({ onDataChange, initialData }: MultipleChoicePr
                 </div>
                 <div style={{ marginBottom: 20 }}>
                     <TextField
+                        id="correct-score-field"
+                        name="correctScore"
                         style={{ width: "39%", marginRight: 30, marginLeft: 5 }}
-                        id="outlined-number"
                         label="Балл за правильный ответ"
                         type="number"
                         variant="standard"
                         value={correctScore}
-                        onChange={(e) => handleScoreChange('correct', Number(e.target.value))}
+                        onChange={(e) => handleScoreChange('correct', e.target.value)}
                     />
                     <TextField
+                        id="incorrect-score-field"
+                        name="incorrectScore"
                         style={{ width: "39%" }}
-                        id="outlined-number"
                         label="Баллов за неправильный ответ"
                         type="number"
                         variant="standard"
                         value={incorrectScore}
-                        onChange={(e) => handleScoreChange('incorrect', Number(e.target.value))}
+                        onChange={(e) => handleScoreChange('incorrect', e.target.value)}
                         helperText="Внимание! Количество баллов должно быть отрицательным или нулевым. Отрицательные значения должны включать знак минус, например, -1."
                     />
                 </div>
