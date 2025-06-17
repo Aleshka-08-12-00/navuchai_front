@@ -258,6 +258,7 @@ const MainPage = observer(() => {
 
   const roleColors = getRoleColors(roleCode);
 
+
   return (
     <>
       <Box sx={{
@@ -448,7 +449,7 @@ const MainPage = observer(() => {
                         justifyContent: 'space-between',
                         mb: 2
                       }}>
-                        <div onClick={() => navigate(`/main-page/new-test/${item.id}`)} >
+                        <div onClick={() => roleCode !== 'user' && navigate(`/main-page/new-test/${item.id}`)} >
                           <Chip
                             label={item.status_name_ru}
                             sx={{
@@ -456,7 +457,7 @@ const MainPage = observer(() => {
                               color: 'white',
                               fontWeight: 600,
                               fontSize: '0.875rem',
-                              cursor: 'pointer',
+                              cursor: roleCode === 'user' ? 'default' : 'pointer',
                             }}
                           />
                         </div>
@@ -514,10 +515,10 @@ const MainPage = observer(() => {
                         sx={{
                           fontWeight: 700,
                           mb: 2,
-                          cursor: 'pointer',
-                          '&:hover': { color: 'primary.main' }
+                          cursor: roleCode === 'user' ? 'default' : 'pointer',
+                          '&:hover': { color: roleCode === 'user' ? 'inherit' : 'primary.main' }
                         }}
-                        onClick={() => navigate(`/main-page/test/${item.id}`)}
+                        onClick={() => roleCode !== 'user' && navigate(`/main-page/test/${item.id}`)}
                       >
                         {item.title}
                       </Typography>
@@ -528,10 +529,10 @@ const MainPage = observer(() => {
                         color="textSecondary"
                         sx={{
                           mb: 3,
-                          cursor: 'pointer',
+                          cursor: roleCode === 'user' ? 'default' : 'pointer',
                           lineHeight: 1.6
                         }}
-                        onClick={() => navigate(`/main-page/test/${item.id}`)}
+                        onClick={() => roleCode !== 'user' && navigate(`/main-page/test/${item.id}`)}
                       >
                         {item.description}
                       </Typography>
