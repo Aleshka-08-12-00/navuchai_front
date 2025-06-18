@@ -61,6 +61,8 @@ const endpoints = {
   courses: 'api/courses',                                   // GET list, POST create
   courseById:    (id: string | number) => `api/courses/${id}`,          // GET/PUT/DELETE
   modulesByCourse: (courseId: string | number) => `api/courses/${courseId}/modules`,
+  userCourses: (userId: string | number) => `api/courses/users/${userId}/courses`,
+  courseEnroll: (courseId: string | number) => `api/courses/${courseId}/enroll`,
 
   /* МОДУЛИ */
   modules:      'api/modules',                              // POST если нужен «глобальный» create

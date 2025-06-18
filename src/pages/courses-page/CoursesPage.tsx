@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, useContext } from 'react'
 import {
   List,
   ListItem,
@@ -35,12 +35,15 @@ import {
   deleteModule,
   postLesson,
   putLesson,
-  deleteLesson
+  deleteLesson,
+  enrollCourse
 } from 'api'
 import JoditEditor from 'jodit-react'
 import MainCard from '../../components/MainCard'
 import LessonsPage from '../lessons-page/LessonsPage'
 import LessonViewPage from '../lessons-page/LessonViewPage'
+import { Context } from '../..'
+import { observer } from 'mobx-react-lite'
 
 interface Lesson {
   id: number
@@ -63,17 +66,21 @@ interface Course {
   open?: boolean
 }
 
-const CoursesPage = () => {
+const CoursesPage = observer(() => {
+  const { authStore } = useContext(Context)
   const [courses, setCourses] = useState<Course[]>([])
   const navigate = useNavigate()
   const [openCourseDialog, setOpenCourseDialog] = useState(false)
   const [editingCourseId, setEditingCourseId] = useState<number | null>(null)
   const [courseTitle, setCourseTitle] = useState('')
+  const [courseDescription, setCourseDescription] = useState('')
+  const [courseAccess, setCourseAccess] = useState<'public' | 'private'>('private')
 
   const [openModuleDialog, setOpenModuleDialog] = useState(false)
   const [moduleCourseId, setModuleCourseId] = useState<number | null>(null)
   const [editingModuleId, setEditingModuleId] = useState<number | null>(null)
   const [moduleTitle, setModuleTitle] = useState('')
+  const [moduleAccess, setModuleAccess] = useState<'public' | 'private'>('private')
 
   const [openLessonDialog, setOpenLessonDialog] = useState(false)
   const [lessonCourseId, setLessonCourseId] = useState<number | null>(null)
@@ -82,6 +89,7 @@ const CoursesPage = () => {
   const [lessonTitle, setLessonTitle] = useState('')
   const [lessonContent, setLessonContent] = useState('')
   const [lessonVideo, setLessonVideo] = useState('')
+  const [lessonAccess, setLessonAccess] = useState<'public' | 'private'>('private')
   const editor = useRef(null)
 
   // Состояние для выбранного урока
@@ -167,24 +175,31 @@ const CoursesPage = () => {
   const handleAddCourse = () => {
     setEditingCourseId(null)
     setCourseTitle('')
+    setCourseDescription('')
+    setCourseAccess('private')
     setOpenCourseDialog(true)
   }
 
   const handleEditCourse = (course: Course) => {
     setEditingCourseId(course.id)
     setCourseTitle(course.title)
+    //@ts-ignore
+    setCourseDescription((course as any).description || '')
+    //@ts-ignore
+    setCourseAccess((course as any).access || 'private')
     setOpenCourseDialog(true)
   }
 
   const saveCourse = async () => {
     try {
       if (editingCourseId) {
-        await putCourse(editingCourseId, { title: courseTitle })
+        await putCourse(editingCourseId, { title: courseTitle, description: courseDescription, access: courseAccess })
       } else {
-        await postCourse({ title: courseTitle })
+        await postCourse({ title: courseTitle, description: courseDescription, access: courseAccess })
       }
       setOpenCourseDialog(false)
       setCourseTitle('')
+      setCourseDescription('')
       setEditingCourseId(null)
       await loadCourses()
     } catch (e) {
@@ -206,6 +221,7 @@ const CoursesPage = () => {
     setModuleCourseId(courseId)
     setEditingModuleId(null)
     setModuleTitle('')
+    setModuleAccess('private')
     setOpenModuleDialog(true)
   }
 
@@ -213,6 +229,8 @@ const CoursesPage = () => {
     setModuleCourseId(courseId)
     setEditingModuleId(module.id)
     setModuleTitle(module.title)
+    //@ts-ignore
+    setModuleAccess((module as any).access || 'private')
     setOpenModuleDialog(true)
   }
 
@@ -220,11 +238,12 @@ const CoursesPage = () => {
     if (!moduleCourseId) return
     try {
       if (editingModuleId) {
-        await putModule(editingModuleId, { title: moduleTitle, course_id: moduleCourseId })
+        await putModule(editingModuleId, { title: moduleTitle, course_id: moduleCourseId, access: moduleAccess })
       } else {
-        await postModule(moduleCourseId, { title: moduleTitle })
+        await postModule(moduleCourseId, { title: moduleTitle, access: moduleAccess })
       }
       setOpenModuleDialog(false)
+      setModuleAccess('private')
       const modulesData = await getModules(moduleCourseId)
       setCourses(prev =>
         prev.map(c => (c.id === moduleCourseId ? { ...c, modules: modulesData } : c))
@@ -254,6 +273,7 @@ const CoursesPage = () => {
     setLessonTitle('')
     setLessonContent('')
     setLessonVideo('')
+    setLessonAccess('private')
     setOpenLessonDialog(true)
   }
 
@@ -264,6 +284,8 @@ const CoursesPage = () => {
     setLessonTitle(lesson.title)
     setLessonContent(lesson.content || '')
     setLessonVideo(lesson.video || '')
+    //@ts-ignore
+    setLessonAccess((lesson as any).access || 'private')
     setOpenLessonDialog(true)
   }
 
@@ -273,12 +295,13 @@ const CoursesPage = () => {
     setLessonTitle('')
     setLessonContent('')
     setLessonVideo('')
+    setLessonAccess('private')
   }
 
   const saveLesson = async () => {
     if (!lessonModuleId) return
     try {
-      const payload = { title: lessonTitle, content: lessonContent, video: lessonVideo, module_id: lessonModuleId }
+      const payload = { title: lessonTitle, content: lessonContent, video: lessonVideo, module_id: lessonModuleId, access: lessonAccess }
       if (editingLessonId) {
         await putLesson(editingLessonId, payload)
       } else {
@@ -326,6 +349,15 @@ const CoursesPage = () => {
     }
   }
 
+  const handleEnrollCourse = async (courseId: number) => {
+    try {
+      await enrollCourse(courseId)
+      alert('Записано!')
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
   const handleLessonClick = (courseId: number, moduleId: number, lessonId: number) => {
     setSelectedCourseId(courseId)
     setSelectedModuleId(moduleId)
@@ -355,6 +387,7 @@ const CoursesPage = () => {
                     secondaryAction={
                       <>
                         <IconButton edge="end" color="success" onClick={() => handleAddModule(course.id)}><AddIcon style={{ width: 15, height: 15}} /></IconButton>
+                        <Button size="small" onClick={() => handleEnrollCourse(course.id)}>Записаться</Button>
                         <IconButton edge="end" onClick={() => handleEditCourse(course)}><EditIcon style={{ width: 15, height: 15}} /></IconButton>
                         <IconButton edge="end" color="error" onClick={() => handleDeleteCourse(course.id)}><DeleteIcon style={{ width: 15, height: 15}} /></IconButton>
                       </>
@@ -431,7 +464,15 @@ const CoursesPage = () => {
       <Dialog open={openCourseDialog} onClose={() => setOpenCourseDialog(false)}>
         <DialogTitle>{editingCourseId ? 'Редактировать курс' : 'Новый курс'}</DialogTitle>
         <DialogContent>
-          <TextField fullWidth label="Название" value={courseTitle} onChange={e => setCourseTitle(e.target.value)} sx={{ mt: 1 }} />
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            <TextField label="Название" value={courseTitle} onChange={e => setCourseTitle(e.target.value)} />
+            <TextField label="Описание" multiline minRows={3} value={courseDescription} onChange={e => setCourseDescription(e.target.value)} />
+            <TextField select label="Доступ" value={courseAccess} onChange={e => setCourseAccess(e.target.value as 'public' | 'private')}
+              SelectProps={{ native: true }}>
+              <option value="private">private</option>
+              <option value="public">public</option>
+            </TextField>
+          </Stack>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenCourseDialog(false)}>Отмена</Button>
@@ -441,7 +482,14 @@ const CoursesPage = () => {
       <Dialog open={openModuleDialog} onClose={() => setOpenModuleDialog(false)}>
         <DialogTitle>{editingModuleId ? 'Редактировать модуль' : 'Новый модуль'}</DialogTitle>
         <DialogContent>
-          <TextField fullWidth label="Название" value={moduleTitle} onChange={e => setModuleTitle(e.target.value)} sx={{ mt: 1 }} />
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            <TextField label="Название" value={moduleTitle} onChange={e => setModuleTitle(e.target.value)} />
+            <TextField select label="Доступ" value={moduleAccess} onChange={e => setModuleAccess(e.target.value as 'public' | 'private')}
+              SelectProps={{ native: true }}>
+              <option value="private">private</option>
+              <option value="public">public</option>
+            </TextField>
+          </Stack>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenModuleDialog(false)}>Отмена</Button>
@@ -454,6 +502,10 @@ const CoursesPage = () => {
           <Stack spacing={2}>
             <TextField label="Название" value={lessonTitle} onChange={e => setLessonTitle(e.target.value)} />
             <TextField label="Ссылка на видео" value={lessonVideo} onChange={e => setLessonVideo(e.target.value)} />
+            <TextField select label="Доступ" value={lessonAccess} onChange={e => setLessonAccess(e.target.value as 'public' | 'private')} SelectProps={{ native: true }}>
+              <option value="private">private</option>
+              <option value="public">public</option>
+            </TextField>
             <JoditEditor ref={editor} value={lessonContent} onBlur={setLessonContent} />
           </Stack>
         </DialogContent>
@@ -464,6 +516,6 @@ const CoursesPage = () => {
       </Dialog>
     </div>
   )
-}
+})
 
 export default CoursesPage

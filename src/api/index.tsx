@@ -147,6 +147,7 @@ const deleteData = async (endpointKey: string, params: Params = {}, dynamicParam
 export { fetchData, postData, putData, deleteData }
 
 export const getCourses   = () => fetchData('courses')
+export const getCourse    = (id: number)                => fetchData('courseById', {}, id)
 export const postCourse   = (data: any)                 => postData('courses', data)
 export const putCourse    = (id: number, d: any)        => putData('courseById', d, id)
 export const deleteCourse = (id: number)                => deleteData('courseById', {}, id)
@@ -161,3 +162,7 @@ export const getLesson    = (id: number)                => fetchData('lessonById
 export const postLesson   = (moduleId: number, d: any)  => postData('lessonsByModule', d, moduleId)
 export const putLesson    = (id: number, d: any)        => putData('lessonById', d, id)
 export const deleteLesson = (id: number)                => deleteData('lessonById', {}, id)
+
+export const enrollCourse    = (courseId: number)                 => postData('courseEnroll', {}, courseId)
+export const getUserCourses  = (userId: number)                   => fetchData('userCourses', {}, userId)
+

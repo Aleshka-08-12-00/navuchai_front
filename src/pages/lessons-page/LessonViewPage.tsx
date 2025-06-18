@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Stack, Typography, Box } from '@mui/material';
-import { getLessons } from 'api';
+import { getLessons, getCourse } from 'api';
 
 interface Lesson {
   id: number;
@@ -16,14 +16,15 @@ interface LessonViewPageProps {
   onLessonChange?: (courseId: number, moduleId: number, lessonId: number) => void;
 }
 
-const LessonViewPage: React.FC<LessonViewPageProps> = ({ 
-  courseId, 
-  moduleId, 
-  lessonId, 
-  onLessonChange 
+const LessonViewPage: React.FC<LessonViewPageProps> = ({
+  courseId,
+  moduleId,
+  lessonId,
+  onLessonChange
 }) => {
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [courseInfo, setCourseInfo] = useState<{title: string; description?: string} | null>(null);
 
   useEffect(() => {
     if (!moduleId) return;
@@ -32,6 +33,18 @@ const LessonViewPage: React.FC<LessonViewPageProps> = ({
       setLessons(allLessons);
     })();
   }, [moduleId]);
+
+  useEffect(() => {
+    if (!courseId) return;
+    (async () => {
+      try {
+        const data = await getCourse(courseId);
+        setCourseInfo({ title: data.title, description: data.description });
+      } catch (e) {
+        console.error(e);
+      }
+    })();
+  }, [courseId]);
 
   useEffect(() => {
     if (!lessonId) return;
@@ -44,9 +57,17 @@ const LessonViewPage: React.FC<LessonViewPageProps> = ({
   if (!lesson) {
     return (
       <div>
-        <Typography variant="h6" color="text.secondary">
-          Выберите урок для просмотра
-        </Typography>
+        {courseInfo && (
+          <>
+            <Typography variant="h4" sx={{ mb: 2 }}>{courseInfo.title}</Typography>
+            {courseInfo.description && (
+              <Typography variant="body1" sx={{ whiteSpace: 'pre-line' }}>{courseInfo.description}</Typography>
+            )}
+          </>
+        )}
+        {!courseInfo && (
+          <Typography variant="h6" color="text.secondary">Выберите урок для просмотра</Typography>
+        )}
       </div>
     );
   }
@@ -54,6 +75,7 @@ const LessonViewPage: React.FC<LessonViewPageProps> = ({
   const index = lessons.findIndex((l) => l.id === lesson.id);
   const prevLesson = lessons[index - 1];
   const nextLesson = lessons[index + 1];
+  const progress = lessons.length ? Math.round(((index + 1) / lessons.length) * 100) : 0;
 
   const handlePrevLesson = () => {
     if (prevLesson && courseId && moduleId && onLessonChange) {
@@ -76,6 +98,9 @@ const LessonViewPage: React.FC<LessonViewPageProps> = ({
     <div>
       <Typography variant="h4" sx={{ mb: 2 }}>
         {lesson.title}
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+        Прогресс: {progress}%
       </Typography>
       {lesson.video && (
         <Box sx={{ mb: 2 }}>
