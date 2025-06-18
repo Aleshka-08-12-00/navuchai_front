@@ -54,8 +54,13 @@ const endpoints = {
   putPassword: 'api/profile/password',
 
   //Доступ к тестам
-  postGroupToTest: '/api/test-access/group',
-  postUserToTest: '/api/test-access/user',
+  postGroupToTest: 'api/test-access/group',
+  postUserToTest: 'api/test-access/user',
+  getGroupsInTest: (test_id: string | number | null): string => `api/test-access/${test_id}/groups`,
+  getUsersInTest: (test_id: string | number | null): string => `api/test-access/${test_id}/users`,
+  deleteUserInTest: (params: string | number | null): string => `api/test-access/user/${params}`,
+  deleteGroupInTest: (params: string | number | null): string => `api/test-access/group/${params}`,
+
 
   //Группы пользователей
   getUserGroups: 'api/user-groups',

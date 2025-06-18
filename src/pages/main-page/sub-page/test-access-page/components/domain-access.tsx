@@ -35,17 +35,31 @@ import {
 } from '@mui/icons-material';
 import { observer } from 'mobx-react-lite';
 import { Context } from '../../../../..';
+import { useParams } from "react-router";
 
 const DomainAccess = observer(() => {
     const { accessTestToUserStore } = React.useContext(Context);
 
-    const { getUsers, usersArray, getRespondentLists, respondentListsArray } = accessTestToUserStore;
+    const { 
+        getUsers,
+        usersArray,
+        getRespondentLists,
+        respondentListsArray,
+        postGroupToTest,
+        postUserToTest,
+        deleteUserFromTest,
+        deleteGroupFromTest,
+        getAccessGroups,
+        getAccessUsers,
+        accessGroupsArray,
+        accessUsersArray,
+     } = accessTestToUserStore;
 
     const navigate = useNavigate();
+
+    const { id } = useParams<{ id: string }>();
     const [selectedGroup, setSelectedGroup] = useState<string>('');
     const [selectedUser, setSelectedUser] = useState<string>('');
-    const [resultUsers, setResultUsers] = useState<any[]>([]);
-    const [selectedGroups, setSelectedGroups] = useState<any[]>([]);
     const [removedUsersNotification, setRemovedUsersNotification] = useState<{
         show: boolean;
         users: any[];
@@ -55,7 +69,11 @@ const DomainAccess = observer(() => {
     React.useEffect(() => {
         getUsers();
         getRespondentLists();
-    }, []);
+        if (id) {
+            getAccessGroups(Number(id));
+            getAccessUsers(Number(id));
+        }
+    }, [id]);
 
     const handleGroupChange = (event: SelectChangeEvent) => {
         setSelectedGroup(event.target.value);
@@ -65,70 +83,42 @@ const DomainAccess = observer(() => {
         setSelectedUser(event.target.value);
     };
 
-    const handleAddGroup = () => {
-        if (selectedGroup && selectedGroupInfo) {
+    const handleAddGroup = async () => {
+        if (selectedGroup && selectedGroupInfo && id) {
             // Проверяем, не добавлена ли уже эта группа
-            const isAlreadyAdded = selectedGroups.some(group => group.id === selectedGroupInfo.id);
+            const isAlreadyAdded = accessGroupsArray.some((group: any) => group.group_id === selectedGroupInfo.id);
             if (!isAlreadyAdded) {
-                // Получаем всех пользователей из новой группы
-                const newGroupUsers = selectedGroupInfo.members.map((member: any) => {
-                    const user = usersArray.find((u: any) => u.id === member.user_id);
-                    return user;
-                }).filter(Boolean);
-
-                // Находим пользователей, которые будут удалены из resultUsers
-                const usersToRemove = resultUsers.filter(user => 
-                    newGroupUsers.some(groupUser => groupUser && groupUser.id === user.id)
-                );
-
-                // Удаляем пользователей из resultUsers, которые есть в новой группе
-                const updatedResultUsers = resultUsers.filter(user => 
-                    !newGroupUsers.some(groupUser => groupUser && groupUser.id === user.id)
-                );
-
-                // Показываем уведомление, если были удалены пользователи
-                if (usersToRemove.length > 0) {
-                    setRemovedUsersNotification({
-                        show: true,
-                        users: usersToRemove,
-                        groupName: selectedGroupInfo.name
-                    });
-                    
-                    // Автоматически скрываем уведомление через 10 секунд
-                    setTimeout(() => {
-                        setRemovedUsersNotification({ show: false, users: [], groupName: '' });
-                    }, 10000);
-                }
-
-                // Обновляем состояние
-                setSelectedGroups([...selectedGroups, selectedGroupInfo]);
-                setResultUsers(updatedResultUsers);
+                await postGroupToTest(Number(id), selectedGroupInfo.id);
                 setSelectedGroup(''); // Очищаем выбор
             }
         }
     };
 
-    const handleRemoveGroup = (groupId: number) => {
-        setSelectedGroups(selectedGroups.filter(group => group.id !== groupId));
+    const handleRemoveGroup = async (groupId: number) => {
+        if (id && window.confirm('Вы уверены, что хотите удалить эту группу из теста?')) {
+            await deleteGroupFromTest(Number(id), groupId);
+        }
     };
 
     const handleCloseNotification = () => {
         setRemovedUsersNotification({ show: false, users: [], groupName: '' });
     };
 
-    const handleAddUser = () => {
-        if (selectedUser && selectedUserInfo) {
+    const handleAddUser = async () => {
+        if (selectedUser && selectedUserInfo && id) {
             // Проверяем, не добавлен ли уже этот пользователь
-            const isAlreadyAdded = resultUsers.some(user => user.id === selectedUserInfo.id);
-            if (!isAlreadyAdded) {
-                setResultUsers([...resultUsers, selectedUserInfo]);
+            const isUserAlreadyAdded = accessUsersArray.some((user: any) => user.user_id === selectedUserInfo.id);
+            if (!isUserAlreadyAdded) {
+                await postUserToTest(Number(id), selectedUserInfo.id);
                 setSelectedUser(''); // Очищаем выбор
             }
         }
     };
 
-    const handleRemoveUser = (userId: number) => {
-        setResultUsers(resultUsers.filter(user => user.id !== userId));
+    const handleRemoveUser = async (userId: number) => {
+        if (id && window.confirm('Вы уверены, что хотите удалить этого пользователя из теста?')) {
+            await deleteUserFromTest(Number(id), userId);
+        }
     };
 
     const handleNavigate = () => {
@@ -138,13 +128,15 @@ const DomainAccess = observer(() => {
     // Получаем всех пользователей из добавленных групп
     const getAllGroupUsers = () => {
         const groupUsers: any[] = [];
-        selectedGroups.forEach(group => {
-            group.members.forEach((member: any) => {
-                const user = usersArray.find((u: any) => u.id === member.user_id);
-                if (user && !groupUsers.some(gu => gu.id === user.id)) {
-                    groupUsers.push(user);
-                }
-            });
+        accessGroupsArray.forEach((group: any) => {
+            if (group.members) {
+                group.members.forEach((member: any) => {
+                    const user = usersArray.find((u: any) => u.id === member.user_id);
+                    if (user && !groupUsers.some(gu => gu.id === user.id)) {
+                        groupUsers.push(user);
+                    }
+                });
+            }
         });
         return groupUsers;
     };
@@ -153,8 +145,8 @@ const DomainAccess = observer(() => {
 
     // Проверяем, добавлен ли пользователь в список или в группы
     const isUserAdded = (userId: number) => {
-        return resultUsers.some(user => user.id === userId) || 
-               groupUsers.some(user => user.id === userId);
+        return accessUsersArray.some((user: any) => user.user_id === userId) || 
+               groupUsers.some((user: any) => user.id === userId);
     };
 
     // Получаем пользователей выбранной группы
@@ -256,19 +248,40 @@ const DomainAccess = observer(() => {
                                     label="Выберите группу"
                                     onChange={handleGroupChange}
                                 >
-                                    {respondentListsArray.map((group: any) => (
-                                        <MenuItem key={group.id} value={group.id.toString()}>
-                                            <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-                                                <GroupIcon sx={{ mr: 1, fontSize: 20 }} />
-                                                <Box>
-                                                    <Typography variant="body1">{group.name}</Typography>
-                                                    <Typography variant="caption" color="text.secondary">
-                                                        {group.members.length} участников
-                                                    </Typography>
+                                    {respondentListsArray.map((group: any) => {
+                                        const isAdded = accessGroupsArray.some((ag: any) => ag.group_id === group.id);
+                                        return (
+                                            <MenuItem 
+                                                key={group.id} 
+                                                value={group.id.toString()}
+                                                disabled={isAdded}
+                                                sx={{
+                                                    opacity: isAdded ? 0.6 : 1,
+                                                    '&.Mui-disabled': {
+                                                        opacity: 0.6
+                                                    }
+                                                }}
+                                            >
+                                                <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                                                    <GroupIcon sx={{ mr: 1, fontSize: 20 }} />
+                                                    <Box sx={{ flexGrow: 1 }}>
+                                                        <Typography variant="body1">{group.name}</Typography>
+                                                        <Typography variant="caption" color="text.secondary">
+                                                            {group.members.length} участников
+                                                        </Typography>
+                                                    </Box>
+                                                    {isAdded && (
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', ml: 1 }}>
+                                                            <CheckIcon sx={{ fontSize: 16, color: 'success.main', mr: 0.5 }} />
+                                                            <Typography variant="caption" color="success.main">
+                                                                Добавлена
+                                                            </Typography>
+                                                        </Box>
+                                                    )}
                                                 </Box>
-                                            </Box>
-                                        </MenuItem>
-                                    ))}
+                                            </MenuItem>
+                                        );
+                                    })}
                                 </Select>
                             </FormControl>
 
@@ -296,9 +309,9 @@ const DomainAccess = observer(() => {
                                         startIcon={<AddIcon />}
                                         onClick={handleAddGroup}
                                         fullWidth
-                                        disabled={selectedGroups.some(group => group.id === selectedGroupInfo.id)}
+                                        disabled={accessGroupsArray.some((group: any) => group.group_id === selectedGroupInfo.id)}
                                     >
-                                        {selectedGroups.some(group => group.id === selectedGroupInfo.id) 
+                                        {accessGroupsArray.some((group: any) => group.group_id === selectedGroupInfo.id) 
                                             ? 'Группа уже добавлена' 
                                             : 'Добавить группу'
                                         }
@@ -328,7 +341,7 @@ const DomainAccess = observer(() => {
                                     {usersArray.map((user: any) => {
                                         const isAdded = isUserAdded(user.id);
                                         const isInGroups = groupUsers.some(gu => gu.id === user.id);
-                                        const isInResultUsers = resultUsers.some(ru => ru.id === user.id);
+                                        const isInAccessUsers = accessUsersArray.some((au: any) => au.user_id === user.id);
                                         
                                         return (
                                             <MenuItem 
@@ -356,7 +369,7 @@ const DomainAccess = observer(() => {
                                                         <Box sx={{ display: 'flex', alignItems: 'center', ml: 1 }}>
                                                             <CheckIcon sx={{ fontSize: 16, color: 'success.main', mr: 0.5 }} />
                                                             <Typography variant="caption" color="success.main">
-                                                                {isInResultUsers ? 'Добавлен' : 'В группе'}
+                                                                {isInAccessUsers ? 'Добавлен' : 'В группе'}
                                                             </Typography>
                                                         </Box>
                                                     )}
@@ -397,7 +410,7 @@ const DomainAccess = observer(() => {
                                     {isUserAdded(selectedUserInfo.id) ? (
                                         <Box sx={{ p: 1, bgcolor: 'warning.light', borderRadius: 1, mb: 2 }}>
                                             <Typography variant="body2" color="warning.dark">
-                                                {resultUsers.some(user => user.id === selectedUserInfo.id) 
+                                                {accessUsersArray.some((user: any) => user.user_id === selectedUserInfo.id) 
                                                     ? 'Пользователь уже добавлен в список' 
                                                     : 'Пользователь уже присутствует в добавленных группах'
                                                 }
@@ -420,15 +433,15 @@ const DomainAccess = observer(() => {
                     </Card>
                 </Grid>
 
-                {/* Результирующая таблица пользователей */}
+                {/* Таблица пользователей с доступом к тесту */}
                 <Grid item xs={12}>
                     <Card>
                         <CardContent>
                             <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
                                 <PersonIcon sx={{ mr: 1 }} />
-                                Выбранные пользователи
+                                Пользователи с доступом к тесту
                                 <Chip 
-                                    label={resultUsers.length} 
+                                    label={accessUsersArray.length} 
                                     color="primary" 
                                     size="small" 
                                     sx={{ ml: 1 }}
@@ -462,8 +475,8 @@ const DomainAccess = observer(() => {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {resultUsers.length > 0 ? (
-                                            resultUsers.map((user: any) => (
+                                        {accessUsersArray.length > 0 ? (
+                                            accessUsersArray.map((user: any) => (
                                                 <TableRow key={user.id}>
                                                     <TableCell>
                                                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -500,7 +513,7 @@ const DomainAccess = observer(() => {
                                                     <TableCell align="center">
                                                         <IconButton
                                                             color="error"
-                                                            onClick={() => handleRemoveUser(user.id)}
+                                                            onClick={() => handleRemoveUser(user.user_id)}
                                                             size="small"
                                                         >
                                                             <DeleteIcon />
@@ -512,7 +525,7 @@ const DomainAccess = observer(() => {
                                             <TableRow>
                                                 <TableCell colSpan={5} align="center">
                                                     <Typography variant="body2" color="text.secondary" sx={{ py: 3 }}>
-                                                        Выберите пользователей для добавления в список
+                                                        Пользователи с доступом к тесту не найдены
                                                     </Typography>
                                                 </TableCell>
                                             </TableRow>
@@ -524,15 +537,15 @@ const DomainAccess = observer(() => {
                     </Card>
                 </Grid>
 
-                {/* Таблицы выбранных групп */}
-                {selectedGroups.map((group: any) => {
-                    const groupMembers = group.members.map((member: any) => {
+                {/* Таблицы групп с доступом к тесту */}
+                {accessGroupsArray.map((group: any) => {
+                    const groupMembers = group.members ? group.members.map((member: any) => {
                         const user = usersArray.find((u: any) => u.id === member.user_id);
                         return {
                             ...member,
                             user: user || null
                         };
-                    });
+                    }) : [];
 
                     return (
                         <Grid item xs={12} key={group.id}>
@@ -551,7 +564,7 @@ const DomainAccess = observer(() => {
                                         </Typography>
                                         <IconButton
                                             color="error"
-                                            onClick={() => handleRemoveGroup(group.id)}
+                                            onClick={() => handleRemoveGroup(group.group_id)}
                                             size="small"
                                         >
                                             <DeleteIcon />
@@ -753,16 +766,16 @@ const DomainAccess = observer(() => {
             </Grid>
 
             {/* Кнопка сохранения */}
-            <Box sx={{ mt: 4, display: 'flex', justifyContent: 'left' }}>
+            {/* <Box sx={{ mt: 4, display: 'flex', justifyContent: 'left' }}>
                 <Button
                     variant="contained"
                     color="success"
                     onClick={() => {
-                        const userIds = resultUsers.map(user => user.id);
-                        const groupIds = selectedGroups.map(group => group.id);
+                        const userIds = accessUsersArray.map((user: any) => user.id);
+                        const groupIds = accessGroupsArray.map((group: any) => group.id);
                         
                         const message = `
-Выбранные данные:
+Текущие данные доступа к тесту:
 
 Пользователи (${userIds.length}): ${userIds.length > 0 ? userIds.join(', ') : 'нет'}
 Группы (${groupIds.length}): ${groupIds.length > 0 ? groupIds.join(', ') : 'нет'}
@@ -772,14 +785,14 @@ const DomainAccess = observer(() => {
                         
                         alert(message);
                     }}
-                    disabled={resultUsers.length === 0 && selectedGroups.length === 0}
+                    disabled={accessUsersArray.length === 0 && accessGroupsArray.length === 0}
                     sx={{ 
                         textTransform: 'none'
                     }}
                 >
-                    Сохранить
+                    Показать текущие данные
                 </Button>
-            </Box>
+            </Box> */}
         </Box>
     );
 })
