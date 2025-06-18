@@ -53,6 +53,10 @@ const endpoints = {
   putProfile: 'api/profile',
   putPassword: 'api/profile/password',
 
+  //Доступ к тестам
+  postGroupToTest: '/api/test-access/group',
+  postUserToTest: '/api/test-access/user',
+
   //Группы пользователей
   getUserGroups: 'api/user-groups',
   postUserGroups: 'api/user-groups',

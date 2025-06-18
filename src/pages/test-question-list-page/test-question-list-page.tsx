@@ -64,9 +64,7 @@ const TestQuestionListPage = observer(() => {
         authStore.authMe()
     }, [id]);
 
-    console.log('333333333333')
-    console.log(questionArray)
-
+  
     // Фильтрация вопросов по поисковому запросу
     const filteredQuestions = useMemo(() => {
         if (!searchQuery.trim()) {

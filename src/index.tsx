@@ -42,6 +42,7 @@ import ResultTableStore from './store/resultTableStore';
 import RespondentsStore from './store/respondentsStore';
 import questionsStore from './store/questionsStore';
 import AdminStore from './store/adminStore';
+import AccessTestToUserStore from './store/accessTestToUserStore'
 
 const showAlert = (message: string, severity: 'success' | 'error') => {
   // This will be implemented by each component that needs alerts
@@ -58,6 +59,7 @@ const profileStore = new ProfileStore(showAlert);
 const resultTableStore = new ResultTableStore();
 const respondentsStore = new RespondentsStore(showAlert);
 const adminStore = new AdminStore();
+const accessTestToUserStore = new AccessTestToUserStore();
 
 
 const obStore = {
@@ -74,7 +76,8 @@ const obStore = {
   userStore,
   profileStore,
   respondentsStore,
-  adminStore
+  adminStore,
+  accessTestToUserStore,
 }
 
 export const Context = createContext(obStore);

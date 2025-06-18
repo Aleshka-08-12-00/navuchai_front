@@ -2,7 +2,6 @@ import React, { useRef, useState, useEffect, useCallback } from "react";
 import { observer } from "mobx-react-lite";
 import { Radio, Typography, TextField, FormGroup, FormControlLabel, Switch } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
-import JoditEditor from "jodit-react";
 
 interface TrueFalseProps {
     onDataChange?: (data: {
@@ -30,12 +29,17 @@ interface TrueFalseProps {
 }
 
 const TrueFalse = observer(({ onDataChange, initialData }: TrueFalseProps) => {
-    const editorRefs = useRef<Map<number, any>>(new Map());
     const prevDataRef = useRef<any>(null);
-    const [options, setOptions] = useState<Array<{ id: number; content: string; correct: boolean }>>([
-        { id: 1, content: "ДА", correct: false },
-        { id: 2, content: "НЕТ", correct: false }
-    ]);
+    const isInitializedRef = useRef<boolean>(false);
+    
+    // Функция для очистки HTML-тегов
+    const stripHtmlTags = (html: string): string => {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = html;
+        return tmp.textContent || tmp.innerText || '';
+    };
+
+    const [options, setOptions] = useState<Array<{ id: number; content: string; correct: boolean }>>([]);
     const [correctScore, setCorrectScore] = useState<number>(0);
     const [incorrectScore, setIncorrectScore] = useState<number>(0);
     const [showMaxScore, setShowMaxScore] = useState<boolean>(true);
@@ -44,24 +48,34 @@ const TrueFalse = observer(({ onDataChange, initialData }: TrueFalseProps) => {
 
     // Инициализация состояния из initialData
     useEffect(() => {
-        if (initialData) {
-            const trueFalseOptions = initialData.answers.map((answer, index) => ({
-                id: index + 1,
-                content: answer.body,
-                correct: answer.correct
-            }));
-            setOptions(trueFalseOptions);
-            setCorrectScore(initialData.correctScore);
-            setIncorrectScore(initialData.incorrectScore);
-            setShowMaxScore(initialData.showMaxScore);
-            setRequireAnswer(initialData.requireAnswer);
-            setStopIfIncorrect(initialData.stopIfIncorrect);
+        // Инициализируем только один раз при первом рендере
+        if (!isInitializedRef.current) {
+            if (initialData) {
+                const trueFalseOptions = initialData.answers.map((answer, index) => ({
+                    id: index + 1,
+                    content: stripHtmlTags(answer.body),
+                    correct: answer.correct
+                }));
+                setOptions(trueFalseOptions);
+                setCorrectScore(initialData.correctScore);
+                setIncorrectScore(initialData.incorrectScore);
+                setShowMaxScore(initialData.showMaxScore);
+                setRequireAnswer(initialData.requireAnswer);
+                setStopIfIncorrect(initialData.stopIfIncorrect);
+            } else {
+                // Устанавливаем значения по умолчанию, если initialData не предоставлен
+                setOptions([
+                    { id: 1, content: "ДА", correct: false },
+                    { id: 2, content: "НЕТ", correct: false }
+                ]);
+            }
+            isInitializedRef.current = true;
         }
-    }, [initialData]);
+    }, []); // Убираем initialData из зависимостей
 
     // Обновление родительского компонента при изменении состояния
     useEffect(() => {
-        if (onDataChange) {
+        if (onDataChange && isInitializedRef.current) {
             const currentData = {
                 answers: options.map(option => ({
                     body: option.content,
@@ -88,12 +102,6 @@ const TrueFalse = observer(({ onDataChange, initialData }: TrueFalseProps) => {
             ...option,
             correct: option.id === id
         })));
-    }, []);
-
-    const handleEditorChange = useCallback((id: number, newContent: string) => {
-        setOptions(prev => prev.map(option =>
-            option.id === id ? { ...option, content: newContent } : option
-        ));
     }, []);
 
     const handleScoreChange = useCallback((type: 'correct' | 'incorrect', value: string) => {
@@ -141,20 +149,15 @@ const TrueFalse = observer(({ onDataChange, initialData }: TrueFalseProps) => {
                             value={`option-${option.id}`}
                             name="true-false-group"
                             inputProps={{ "aria-label": `Option ${option.id}` }}
-                            style={{ marginTop: "-10%" }}
                             sx={{
                                 "&:hover": {
                                     backgroundColor: "transparent",
                                 },
                             }}
                         />
-                        <div style={{ flexGrow: 1 }}>
-                            <JoditEditor
-                                ref={(ref) => editorRefs.current.set(option.id, ref)}
-                                value={option.content}
-                                onBlur={(newContent) => handleEditorChange(option.id, newContent)}
-                            />
-                        </div>
+                        <Typography variant="body1" style={{ marginLeft: 8 }}>
+                            {option.content}
+                        </Typography>
                     </div>
                 ))}
             </div>
