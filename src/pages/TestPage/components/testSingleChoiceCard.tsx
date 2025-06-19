@@ -24,6 +24,8 @@ const TestSingleChoiceCard = ({
   const { text, answers, image, time_limit } = question.question;
   const stripHtml = (html: string) => html.replace(/<[^>]+>/g, "");
 
+  console.log(question);
+
   const handleTimeEnd = () => {
     if (selected) {
       onNext(selected);
@@ -61,7 +63,7 @@ const TestSingleChoiceCard = ({
           </Box>
 
           <Typography variant="body1" mb={2}>
-            {stripHtml(text)}
+            <span dangerouslySetInnerHTML={{ __html: text }} />
           </Typography>
 
           {image && (
@@ -91,7 +93,12 @@ const TestSingleChoiceCard = ({
           <RadioGroup value={selected || ""} onChange={(e) => setSelected(e.target.value)}>
             <Stack spacing={1}>
               {answers?.allAnswer?.map((answer: string, i: number) => (
-                <FormControlLabel key={i} value={answer} control={<Radio />} label={stripHtml(answer)} />
+                <FormControlLabel
+                  key={i}
+                  value={answer}
+                  control={<Radio />}
+                  label={<span dangerouslySetInnerHTML={{ __html: answer }} />}
+                />
               ))}
             </Stack>
           </RadioGroup>

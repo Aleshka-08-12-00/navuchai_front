@@ -61,7 +61,7 @@ const TestPage = observer(() => {
       if (isMounted) {
         await Promise.all([
           questionsStore.fetchQuestionsByTestIdPublick(parsedId),
-          // settingsNewTestStore.getTestById(parsedId),
+          settingsNewTestStore.getTestById(parsedId),
         ]);
         userAnswerStore.setTestId(parsedId);
       }
