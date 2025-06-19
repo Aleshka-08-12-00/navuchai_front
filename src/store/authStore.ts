@@ -34,6 +34,7 @@ class AuthStore {
       const response = await postData('postAuth', formData);
       //@ts-ignore
       localStorage.setItem('tokenNavuchai', response.access_token);
+      localStorage.setItem('refreshTokenNavuchai', response.refresh_token);
       window.location.replace('/');
     } catch (error: any) {
       this.setAuth(false);
@@ -46,6 +47,7 @@ class AuthStore {
     try {
       const response = await postData('postRegistration', data);
       localStorage.setItem('tokenNavuchai', response.access_token);
+      localStorage.setItem('refreshTokenNavuchai', response.refresh_token);
       window.location.replace('/');
     } catch (error) {
       this.error = error instanceof Error ? error.message : 'Произошла неизвестная ошибка при регистрации';

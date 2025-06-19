@@ -10,6 +10,7 @@ const endpoints = {
   postAuth: 'auth/login',
   postRegistration: 'auth/register',
   getAuthMe: 'auth/me',
+  postRefreshToken: 'auth/refresh',
 
   //Категории
   getCategories: 'api/categories',
