@@ -66,7 +66,7 @@ const TestMultipleChoiceCard = ({
         </Box>
 
           <Typography variant="body1" mb={2}>
-            {stripHtml(text)}
+            <span dangerouslySetInnerHTML={{ __html: text }} />
           </Typography>
 
           {image && (
@@ -99,7 +99,7 @@ const TestMultipleChoiceCard = ({
                     onChange={() => toggle(answer)}
                   />
                 }
-                label={stripHtml(answer)}
+                label={<span dangerouslySetInnerHTML={{ __html: answer }} />}
               />
             ))}
           </Stack>

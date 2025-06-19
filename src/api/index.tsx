@@ -34,17 +34,37 @@ const validateResponse = (response: AxiosResponse) => {
 };
 
 // Универсальная функция для обработки ошибок
-const handleError = (error: unknown) => {
+const handleError = async (error: unknown, originalRequest?: any) => {
   if (axios.isAxiosError(error)) {
     const axiosError = error as AxiosError;
     if (axiosError.response) {
       // Обработка 401 ошибки
-      if (axiosError.response.status === 401) {
-        window.location.replace('/login');
-        throw new Error('Требуется авторизация');
+      const responseData = axiosError.response.data;
+      if (
+        axiosError.response.status === 401 &&
+        typeof responseData === 'object' &&
+        responseData !== null &&
+        'detail' in responseData &&
+        responseData.detail === 'Неверный токен'
+      ) {
+        // Попытка обновить токен
+        try {
+          await refreshToken();
+          // Повторяем исходный запрос с новым токеном
+          if (originalRequest) {
+            originalRequest.headers = {
+              ...originalRequest.headers,
+              'Authorization': `Bearer ${localStorage.getItem('tokenNavuchai')}`
+            };
+            const retryResponse = await axios.request(originalRequest);
+            return validateResponse(retryResponse);
+          }
+        } catch (refreshError) {
+          window.location.replace('/login');
+          throw new Error('Требуется авторизация');
+        }
       }
       // Пытаемся получить detail из ответа
-      const responseData = axiosError.response.data;
       if (typeof responseData === 'object' && responseData !== null && 'detail' in responseData) {
         throw new Error(responseData.detail as string);
       }
@@ -57,6 +77,21 @@ const handleError = (error: unknown) => {
     }
   }
   throw error;
+};
+
+// Функция для обновления токена
+const refreshToken = async () => {
+  const refresh_token = localStorage.getItem('refreshTokenNavuchai');
+  if (!refresh_token) throw new Error('Нет refresh токена');
+  const url = buildUrl('postRefreshToken');
+  const response = await axios.post(url, { refresh_token });
+  if (response.status >= 200 && response.status < 300) {
+    const { access_token, refresh_token } = response.data;
+    if (access_token) localStorage.setItem('tokenNavuchai', access_token);
+    if (refresh_token) localStorage.setItem('refreshTokenNavuchai', refresh_token);
+    return response.data;
+  }
+  throw new Error('Не удалось обновить токен');
 };
 
 // Универсальная функция для выполнения GET-запроса с возможностью передачи дополнительных опций
@@ -78,37 +113,46 @@ const fetchData = async (
     });
     return validateResponse(response);
   } catch (error) {
-    return handleError(error);
+    return handleError(error, {
+      method: 'get',
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('tokenNavuchai')}`,
+        ...axiosConfig.headers,
+      },
+      ...axiosConfig,
+    });
   }
 };
-
 
 // Универсальная функция для выполнения POST-запроса
 const postData = async (endpointKey: string, data: any, dynamicParams: string | number | null = null): Promise<any> => {
   const url = buildUrl(endpointKey, {}, dynamicParams);
-  
   // Определяем, является ли data экземпляром FormData
   const isFormData = data instanceof FormData;
-  
   // Настраиваем заголовки в зависимости от типа данных
   const headers: Record<string, string> = {
     'Authorization': `Bearer ${localStorage.getItem('tokenNavuchai')}`
   };
-
   // Добавляем Content-Type только если это не FormData
   if (!isFormData) {
     headers['Content-Type'] = 'application/json';
   }
-
   try {
     const response: AxiosResponse = await axios.post(url, data, {
       headers,
-      // Если это FormData, не преобразуем данные
       transformRequest: isFormData ? [(data) => data] : undefined
     });
     return validateResponse(response);
   } catch (error) {
-    return handleError(error);
+    return handleError(error, {
+      method: 'post',
+      url,
+      data,
+      headers,
+      transformRequest: isFormData ? [(data: any) => data] : undefined
+    });
   }
 };
 
@@ -123,7 +167,15 @@ const putData = async (endpointKey: string, data: any, dynamicParams: string | n
     });
     return validateResponse(response);
   } catch (error) {
-    return handleError(error);
+    return handleError(error, {
+      method: 'put',
+      url,
+      data,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('tokenNavuchai')}`
+      }
+    });
   }
 };
 
@@ -138,7 +190,14 @@ const deleteData = async (endpointKey: string, params: Params = {}, dynamicParam
     });
     return validateResponse(response);
   } catch (error) {
-    return handleError(error);
+    return handleError(error, {
+      method: 'delete',
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('tokenNavuchai')}`
+      }
+    });
   }
 };
 
