@@ -46,7 +46,7 @@ const LessonsPage = () => {
   const handleSave = async () => {
     if (!moduleId) return;
     try {
-      const payload = { title, content, video, module_id: Number(moduleId) };
+      const payload = { title, content, video };
       if (editId) {
         await putLesson(editId, payload);
       } else {
