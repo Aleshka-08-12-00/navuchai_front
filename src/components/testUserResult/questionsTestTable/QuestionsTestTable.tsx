@@ -12,12 +12,18 @@ import {
   IconButton,
   Box,
   Typography,
+  Divider,
+  Chip,
+  Avatar,
 } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CancelIcon from "@mui/icons-material/Cancel";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { Context } from "../../..";
 
-const QuestionsTestTable: React.FC = observer(() => {
+function QuestionsTestTable() {
   const { resultTableStore } = React.useContext(Context);
 
   // Вытягиваем checked_answers из результата
@@ -38,6 +44,8 @@ const QuestionsTestTable: React.FC = observer(() => {
       isTimeExceeded: item.is_time_exceeded,
     })) ?? [];
 
+    console.log(questions);
+
   // Утилита для нормализации ответа в массив строк (универсально для одиночных и множественных)
   function stripHtml(html: string): string {
   const tmp = document.createElement("DIV");
@@ -45,11 +53,25 @@ const QuestionsTestTable: React.FC = observer(() => {
   return tmp.textContent || tmp.innerText || "";
 }
 
+// Восстановленная функция для нормализации ответов (для сравнения)
 function normalizeAnswers(ans: any): string[] {
   if (!ans) return [];
   if (Array.isArray(ans)) return ans.map(a => stripHtml(String(a).trim()));
   if (typeof ans === "string") return ans.split(",").map(a => stripHtml(a.trim()));
   return [stripHtml(String(ans).trim())];
+}
+
+// Универсальная функция для извлечения ключа ответа из HTML (текст + src картинок)
+function extractAnswerKey(html: string): string[] {
+  const tmp = document.createElement("DIV");
+  tmp.innerHTML = html;
+  // Извлекаем все src из img
+  const imgs = Array.from(tmp.getElementsByTagName("img")).map(img => img.src);
+  // Извлекаем текст
+  const text = tmp.textContent?.trim() || "";
+  if (imgs.length && text) return [text, ...imgs];
+  if (imgs.length) return imgs;
+  return [text];
 }
 
   const [openRows, setOpenRows] = React.useState<Record<number, boolean>>({});
@@ -61,15 +83,32 @@ function normalizeAnswers(ans: any): string[] {
     }));
   };
 
+  const questionTypeLabels: Record<string, string> = {
+    'single_choice': 'Одиночный выбор',
+    'multiple_choice': 'Множественный выбор',
+    'true_false': 'Верно/Неверно',
+    'descriptive': 'Развернутый',
+    'short_answer': 'Краткий ответ',
+    'survey': 'Опрос',
+    // ... другие типы ...
+  };
+  const questionTypeColors = {
+    'single_choice': 'primary',
+    'multiple_choice': 'secondary',
+    'true_false': 'success',
+    'descriptive': 'info',
+    'short_answer': 'warning',
+    'survey': 'default',
+  } as const;
+
   return (
-    <TableContainer component={Paper}>
+    <TableContainer component={Paper} sx={{ borderRadius: 4, boxShadow: 6, background: 'linear-gradient(135deg, #f8fafc 0%, #e3f2fd 100%)' }}>
       <Table aria-label="questions table">
         <TableHead>
-          <TableRow>
-            <TableCell />
-            <TableCell>№</TableCell>
-            <TableCell>Вопрос</TableCell>
-            <TableCell align="right">Время (сек)</TableCell>
+          <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+            <TableCell sx={{ width: 48, p: 0 }} />
+            <TableCell sx={{ fontWeight: 500, fontSize: 13, p: 0 }}>Вопрос</TableCell>
+            <TableCell align="right" sx={{ fontWeight: 500, fontSize: 13, width: 120, p: 0, pr: 2 }}>Время (сек)</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -81,86 +120,232 @@ function normalizeAnswers(ans: any): string[] {
             </TableRow>
           ) : (
             questions.map((q, index) => {
-              const correctAnswers = normalizeAnswers(q.correctAnswer);
-              const userAnswers = normalizeAnswers(q.userAnswer);
+              // Получаем массивы ключей для правильных и пользовательских ответов
+              const correctAnswerKeys = Array.isArray(q.correctAnswer)
+                ? q.correctAnswer.flatMap(extractAnswerKey)
+                : typeof q.correctAnswer === "string"
+                  ? q.correctAnswer.split(",").flatMap(a => extractAnswerKey(a.trim()))
+                  : extractAnswerKey(String(q.correctAnswer));
+              const userAnswerKeys = Array.isArray(q.userAnswer)
+                ? q.userAnswer.flatMap(extractAnswerKey)
+                : typeof q.userAnswer === "string"
+                  ? q.userAnswer.split(",").flatMap(a => extractAnswerKey(a.trim()))
+                  : extractAnswerKey(String(q.userAnswer));
 
+              // Определяем цвет полоски-статуса
+              let statusColor = q.isCorrect ? '#4caf50' : q.isTimeExceeded ? '#f44336' : '#ff9800';
               return (
                 <React.Fragment key={q.id}>
-                  <TableRow hover>
-                    <TableCell>
+                  <TableRow
+                    hover
+                    sx={{
+                      transition: 'background 0.3s',
+                      '&:hover': { background: 'linear-gradient(90deg, #e3f2fd 0%, #f8fafc 100%)' },
+                      position: 'relative',
+                      height: 64,
+                    }}
+                  >
+                    {/* Кнопка раскрытия/сворачивания с анимацией */}
+                    <TableCell sx={{ width: 48, textAlign: 'center', background: 'transparent', border: 'none', p: 0 }}>
                       <IconButton
-                        size="small"
+                        aria-label="expand row"
+                        size="medium"
                         onClick={() => toggleRow(q.id)}
-                        aria-label={openRows[q.id] ? "Свернуть" : "Развернуть"}
+                        sx={{
+                          transition: 'background 0.2s, box-shadow 0.2s',
+                          borderRadius: '50%',
+                          boxShadow: openRows[q.id] ? 2 : 0,
+                          background: openRows[q.id] ? 'rgba(33,150,243,0.08)' : 'transparent',
+                          '&:hover': {
+                            background: 'rgba(33,150,243,0.15)',
+                            boxShadow: 3,
+                          },
+                        }}
                       >
-                        {openRows[q.id] ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                        <Box
+                          component="span"
+                          sx={{
+                            display: 'inline-block',
+                            transition: 'transform 0.3s',
+                            transform: openRows[q.id] ? 'rotate(180deg)' : 'rotate(0deg)',
+                            color: openRows[q.id] ? '#1976d2' : '#333',
+                          }}
+                        >
+                          <KeyboardArrowDownIcon fontSize="large" />
+                        </Box>
                       </IconButton>
                     </TableCell>
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>
-                      <div dangerouslySetInnerHTML={{ __html: q.text }} />
+                    {/* Полоска-статус с градиентом и тенью */}
+                    <Box
+                      component="td"
+                      sx={{
+                        width: 8,
+                        background: `linear-gradient(180deg, ${statusColor} 60%, #fff 100%)`,
+                        borderRadius: 2,
+                        position: 'absolute',
+                        left: 0,
+                        top: 8,
+                        bottom: 8,
+                        zIndex: 1,
+                        height: '80%',
+                        minWidth: 8,
+                        maxWidth: 8,
+                        boxShadow: openRows[q.id] ? '0 0 8px 2px rgba(33,150,243,0.15)' : 'none',
+                        transition: 'box-shadow 0.3s, background 0.3s',
+                      }}
+                    />
+                    {/* Вопрос + аватар с номером */}
+                    <TableCell sx={{ zIndex: 2, background: 'transparent', border: 'none', p: 0, display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Avatar sx={{
+                        bgcolor: openRows[q.id] ? '#1565c0' : '#1976d2',
+                        color: '#fff',
+                        width: 32,
+                        height: 32,
+                        fontWeight: 700,
+                        fontSize: 15,
+                        boxShadow: openRows[q.id] ? 4 : 2,
+                        transition: 'background 0.3s, box-shadow 0.3s',
+                        mr: 1.2
+                      }}>
+                        {index + 1}
+                      </Avatar>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 500, ml: 0, fontSize: 15, textAlign: 'left' }}>
+                        <span dangerouslySetInnerHTML={{ __html: q.text }} />
+                      </Typography>
                     </TableCell>
-                    <TableCell align="right">{q.timeSeconds}</TableCell>
+                    <TableCell align="right" sx={{ zIndex: 2, background: 'transparent', border: 'none', width: 120, p: 0, pr: 6 }}>
+                      <Box sx={{ fontWeight: 500, color: q.isTimeExceeded ? 'error.main' : 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+                        {q.timeSeconds}
+                        {q.isTimeExceeded && (
+                          <ErrorOutlineIcon color="error" sx={{ mr: 1, verticalAlign: 'middle' }} fontSize="small" />
+                        )}
+                      </Box>
+                    </TableCell>
                   </TableRow>
 
                   <TableRow>
                     <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={4}>
-                      <Collapse in={openRows[q.id]} timeout="auto" unmountOnExit>
-                        <Box margin={1}>
-                          <Typography variant="subtitle1" gutterBottom component="div">
-                            Варианты ответов
+                      <Collapse
+                        in={openRows[q.id]}
+                        timeout={400}
+                        unmountOnExit
+                        sx={{
+                          '& .MuiBox-root': {
+                            background: 'linear-gradient(135deg, #e3f2fd 0%, #f8fafc 100%)',
+                            borderRadius: 4,
+                            boxShadow: 6,
+                            p: { xs: 2, sm: 4 },
+                            mt: 1,
+                            mb: 2,
+                            transition: 'box-shadow 0.3s, background 0.3s',
+                            animation: openRows[q.id] ? 'fadeIn 0.5s' : 'none',
+                          },
+                        }}
+                      >
+                        <Typography variant="subtitle1" gutterBottom component="div" sx={{ fontWeight: 600, mb: 1 }}>
+                          Варианты ответов
+                        </Typography>
+                        <Divider sx={{ mb: 2 }} />
+                        {q.options.length === 0 ? (
+                          <Typography variant="body2" color="textSecondary">
+                            Варианты ответов отсутствуют
                           </Typography>
-
-                          {q.options.length === 0 ? (
-                            <Typography variant="body2" color="textSecondary">
-                              Варианты ответов отсутствуют
+                        ) : (
+                          <Table size="small" aria-label="options">
+                            <TableBody>
+                              {q.options.map((opt: string, i: number) => {
+                                const optKeys = extractAnswerKey(opt);
+                                const isCorrect = optKeys.some(key => correctAnswerKeys.includes(key));
+                                const isUser = optKeys.some(key => userAnswerKeys.includes(key));
+                                return (
+                                  <TableRow
+                                    key={i}
+                                    sx={{
+                                      backgroundColor: isCorrect
+                                        ? "rgba(76, 175, 80, 0.10)"
+                                        : isUser
+                                        ? "rgba(244, 67, 54, 0.08)"
+                                        : "inherit",
+                                      transition: 'background 0.2s',
+                                      borderRadius: 2,
+                                      boxShadow: isCorrect || isUser ? 2 : 0,
+                                      '.MuiTableCell-root': {
+                                        border: 'none',
+                                      },
+                                    }}
+                                  >
+                                    <TableCell component="th" scope="row" sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 1.2 }}>
+                                      {isCorrect && <CheckCircleIcon color="success" fontSize="small" />}
+                                      {!isCorrect && isUser && <CancelIcon color="error" fontSize="small" />}
+                                      <span dangerouslySetInnerHTML={{ __html: opt }} />
+                                    </TableCell>
+                                  </TableRow>
+                                );
+                              })}
+                            </TableBody>
+                          </Table>
+                        )}
+                        <Divider sx={{ my: 2 }} />
+                        <Box display="flex" flexDirection={{ xs: 'column', sm: 'row' }} gap={2} alignItems={{ sm: 'center' }}>
+                          <Box
+                            sx={{
+                              background: q.isCorrect ? 'linear-gradient(90deg, #e8f5e9 0%, #c8e6c9 100%)' : 'linear-gradient(90deg, #ffebee 0%, #ffcdd2 100%)',
+                              borderRadius: 3,
+                              p: 2,
+                              display: 'flex',
+                              alignItems: 'center',
+                              minWidth: 220,
+                              gap: 1.5,
+                              boxShadow: 2,
+                              transition: 'box-shadow 0.3s',
+                            }}
+                          >
+                            {q.isCorrect ? (
+                              <CheckCircleIcon color="success" />
+                            ) : (
+                              <CancelIcon color="error" />
+                            )}
+                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                              Ваш ответ: {q.userAnswer ? <span dangerouslySetInnerHTML={{ __html: q.userAnswer }} /> : "-"}
                             </Typography>
-                          ) : (
-                            <Table size="small" aria-label="options">
-                              <TableBody>
-                                {q.options.map((opt: string, i: number) => {
-                                  const cleanOpt = opt.replace(/<\/?p>/g, "").trim();
-
-                                  const isCorrect = correctAnswers.includes(cleanOpt);
-                                  const isUser = userAnswers.includes(cleanOpt);
-
-                                  return (
-                                    <TableRow
-                                      key={i}
-                                      sx={{
-                                        backgroundColor: isCorrect
-                                          ? "rgba(76, 175, 80, 0.3)" // зелёный для правильных
-                                          : isUser
-                                          ? "rgba(244, 67, 54, 0.3)" // красный для выбранных неправильных
-                                          : "inherit",
-                                      }}
-                                    >
-                                      <TableCell component="th" scope="row">
-                                        <div dangerouslySetInnerHTML={{ __html: opt }} />
-                                      </TableCell>
-                                    </TableRow>
-                                  );
-                                })}
-                              </TableBody>
-                            </Table>
-                          )}
-
-                          <Box mt={2}>
-                            <Typography variant="body2">
-                              <b>Ваш ответ:</b>{" "}
-                              <span style={{ color: q.isCorrect ? "green" : "red" }}>
-                                {q.userAnswer || "-"}
-                              </span>
+                          </Box>
+                          <Box
+                            sx={{
+                              background: 'linear-gradient(90deg, #e3f2fd 0%, #bbdefb 100%)',
+                              borderRadius: 3,
+                              p: 2,
+                              display: 'flex',
+                              alignItems: 'center',
+                              minWidth: 220,
+                              gap: 1.5,
+                              boxShadow: 2,
+                              transition: 'box-shadow 0.3s',
+                            }}
+                          >
+                            <CheckCircleIcon color="primary" />
+                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                              Правильный ответ: {q.correctAnswer ? <span dangerouslySetInnerHTML={{ __html: q.correctAnswer }} /> : "-"}
                             </Typography>
-                            <Typography variant="body2">
-                              <b>Правильный ответ:</b> {q.correctAnswer || "-"}
-                            </Typography>
-                            {q.isTimeExceeded && (
-                              <Typography variant="body2" color="error">
+                          </Box>
+                          {q.isTimeExceeded && (
+                            <Box
+                              sx={{
+                                background: 'linear-gradient(90deg, #ffebee 0%, #ffcdd2 100%)',
+                                borderRadius: 3,
+                                p: 2,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1.5,
+                                boxShadow: 2,
+                                transition: 'box-shadow 0.3s',
+                              }}
+                            >
+                              <ErrorOutlineIcon color="error" />
+                              <Typography variant="body2" color="error" sx={{ fontWeight: 500 }}>
                                 Превышено время на вопрос
                               </Typography>
-                            )}
-                          </Box>
+                            </Box>
+                          )}
                         </Box>
                       </Collapse>
                     </TableCell>
@@ -173,6 +358,6 @@ function normalizeAnswers(ans: any): string[] {
       </Table>
     </TableContainer>
   );
-});
+}
 
-export default QuestionsTestTable;
+export default observer(QuestionsTestTable);
