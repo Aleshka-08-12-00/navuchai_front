@@ -15,7 +15,11 @@ import {
   DialogTitle,
   Stack,
   TextField,
-  Grid
+  Grid,
+  Box,
+  Card,
+  CardContent,
+  Chip
 } from '@mui/material'
 import ExpandLess from '@mui/icons-material/ExpandLess'
 import ExpandMore from '@mui/icons-material/ExpandMore'
@@ -41,6 +45,7 @@ import JoditEditor from 'jodit-react'
 import MainCard from '../../components/MainCard'
 import LessonsPage from '../lessons-page/LessonsPage'
 import LessonViewPage from '../lessons-page/LessonViewPage'
+import { Context } from '../..'
 
 interface Lesson {
   id: number
@@ -52,6 +57,7 @@ interface Lesson {
 interface Module {
   id: number
   title: string
+  description?: string
   lessons?: Lesson[]
   open?: boolean
 }
@@ -59,21 +65,26 @@ interface Module {
 interface Course {
   id: number
   title: string
+  description?: string
   modules?: Module[]
   open?: boolean
 }
 
 const CoursesPage = () => {
+  const { authStore } = React.useContext(Context)
+  const { roleCode } = authStore
   const [courses, setCourses] = useState<Course[]>([])
   const navigate = useNavigate()
   const [openCourseDialog, setOpenCourseDialog] = useState(false)
   const [editingCourseId, setEditingCourseId] = useState<number | null>(null)
   const [courseTitle, setCourseTitle] = useState('')
+  const [courseDescription, setCourseDescription] = useState('')
 
   const [openModuleDialog, setOpenModuleDialog] = useState(false)
   const [moduleCourseId, setModuleCourseId] = useState<number | null>(null)
   const [editingModuleId, setEditingModuleId] = useState<number | null>(null)
   const [moduleTitle, setModuleTitle] = useState('')
+  const [moduleDescription, setModuleDescription] = useState('')
 
   const [openLessonDialog, setOpenLessonDialog] = useState(false)
   const [lessonCourseId, setLessonCourseId] = useState<number | null>(null)
@@ -123,6 +134,10 @@ const CoursesPage = () => {
         )
       )
     }
+
+    setSelectedCourseId(courseId)
+    setSelectedModuleId(undefined)
+    setSelectedLessonId(undefined)
   }
 
   const toggleModule = async (courseId: number, moduleId: number) => {
@@ -162,29 +177,36 @@ const CoursesPage = () => {
         )
       )
     }
+
+    setSelectedCourseId(courseId)
+    setSelectedModuleId(moduleId)
+    setSelectedLessonId(undefined)
   }
 
   const handleAddCourse = () => {
     setEditingCourseId(null)
     setCourseTitle('')
+    setCourseDescription('')
     setOpenCourseDialog(true)
   }
 
   const handleEditCourse = (course: Course) => {
     setEditingCourseId(course.id)
     setCourseTitle(course.title)
+    setCourseDescription(course.description || '')
     setOpenCourseDialog(true)
   }
 
   const saveCourse = async () => {
     try {
       if (editingCourseId) {
-        await putCourse(editingCourseId, { title: courseTitle })
+        await putCourse(editingCourseId, { title: courseTitle, description: courseDescription })
       } else {
-        await postCourse({ title: courseTitle })
+        await postCourse({ title: courseTitle, description: courseDescription })
       }
       setOpenCourseDialog(false)
       setCourseTitle('')
+      setCourseDescription('')
       setEditingCourseId(null)
       await loadCourses()
     } catch (e) {
@@ -206,6 +228,7 @@ const CoursesPage = () => {
     setModuleCourseId(courseId)
     setEditingModuleId(null)
     setModuleTitle('')
+    setModuleDescription('')
     setOpenModuleDialog(true)
   }
 
@@ -213,6 +236,7 @@ const CoursesPage = () => {
     setModuleCourseId(courseId)
     setEditingModuleId(module.id)
     setModuleTitle(module.title)
+    setModuleDescription(module.description || '')
     setOpenModuleDialog(true)
   }
 
@@ -220,11 +244,12 @@ const CoursesPage = () => {
     if (!moduleCourseId) return
     try {
       if (editingModuleId) {
-        await putModule(editingModuleId, { title: moduleTitle, course_id: moduleCourseId })
+        await putModule(editingModuleId, { title: moduleTitle, description: moduleDescription })
       } else {
-        await postModule(moduleCourseId, { title: moduleTitle })
+        await postModule(moduleCourseId, { title: moduleTitle, description: moduleDescription })
       }
       setOpenModuleDialog(false)
+      setModuleDescription('')
       const modulesData = await getModules(moduleCourseId)
       setCourses(prev =>
         prev.map(c => (c.id === moduleCourseId ? { ...c, modules: modulesData } : c))
@@ -278,7 +303,7 @@ const CoursesPage = () => {
   const saveLesson = async () => {
     if (!lessonModuleId) return
     try {
-      const payload = { title: lessonTitle, content: lessonContent, video: lessonVideo, module_id: lessonModuleId }
+      const payload = { title: lessonTitle, content: lessonContent, video: lessonVideo }
       if (editingLessonId) {
         await putLesson(editingLessonId, payload)
       } else {
@@ -338,14 +363,62 @@ const CoursesPage = () => {
     setSelectedLessonId(lessonId)
   }
 
-  return (
-    <div>
-      <Typography variant="h4" sx={{ mb: 2 }}>Курсы</Typography>
-      <Stack direction="row" justifyContent="flex-end" sx={{ mb: 2 }}>
-        <Button variant='outlined' color="success" startIcon={<AddIcon />} onClick={handleAddCourse}>Добавить курс</Button>
-      </Stack>
+  const selectedCourse = courses.find(c => c.id === selectedCourseId)
+  const selectedModule = selectedCourse?.modules?.find(m => m.id === selectedModuleId)
 
-      <Grid container spacing={2}>
+  return (
+    <Box sx={{
+      flexGrow: 1,
+      background: '#edf7ff',
+      minHeight: '100vh'
+    }}>
+      <Box sx={{ maxWidth: 1400, mx: 'auto' }}>
+        <Card sx={{
+          mb: 3,
+          background: ' #667eea',
+          color: 'white',
+          borderRadius: 3,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.1)'
+        }}>
+          <CardContent sx={{ p: 4 }}>
+            <Box sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: 2
+            }}>
+              <Box>
+                <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>Курсы</Typography>
+                <Chip label={`${courses.length} курсов`} sx={{ background: 'rgba(255,255,255,0.2)', color: 'white', fontWeight: 600 }} />
+              </Box>
+              <Box sx={roleCode !== 'admin' ? { display: 'none' } : {}}>
+                <Stack direction="row" spacing={2}>
+                  <Button
+                    variant="contained"
+                    sx={{
+                      textTransform: 'none',
+                      background: 'linear-gradient(45deg, #4caf50, #45a049)',
+                      fontWeight: 600,
+                      boxShadow: '0 4px 15px rgba(76, 175, 80, 0.3)',
+                      '&:hover': {
+                        background: 'linear-gradient(45deg, #45a049, #4caf50)',
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 6px 20px rgba(76, 175, 80, 0.4)'
+                      }
+                    }}
+                    startIcon={<AddIcon />}
+                    onClick={handleAddCourse}
+                  >
+                    Новый курс
+                  </Button>
+                </Stack>
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
+
+        <Grid container spacing={2}>
         <Grid item xs={4}>
           <MainCard>
             <List>
@@ -353,11 +426,13 @@ const CoursesPage = () => {
                 <React.Fragment key={course.id}>
                   <ListItem
                     secondaryAction={
-                      <>
-                        <IconButton edge="end" color="success" onClick={() => handleAddModule(course.id)}><AddIcon style={{ width: 15, height: 15}} /></IconButton>
-                        <IconButton edge="end" onClick={() => handleEditCourse(course)}><EditIcon style={{ width: 15, height: 15}} /></IconButton>
-                        <IconButton edge="end" color="error" onClick={() => handleDeleteCourse(course.id)}><DeleteIcon style={{ width: 15, height: 15}} /></IconButton>
-                      </>
+                      roleCode === 'admin' && (
+                        <>
+                          <IconButton edge="end" color="success" onClick={() => handleAddModule(course.id)}><AddIcon style={{ width: 15, height: 15}} /></IconButton>
+                          <IconButton edge="end" onClick={() => handleEditCourse(course)}><EditIcon style={{ width: 15, height: 15}} /></IconButton>
+                          <IconButton edge="end" color="error" onClick={() => handleDeleteCourse(course.id)}><DeleteIcon style={{ width: 15, height: 15}} /></IconButton>
+                        </>
+                      )
                     }
                     disablePadding
                   >
@@ -373,12 +448,14 @@ const CoursesPage = () => {
                         <React.Fragment key={mod.id}>
                           <ListItem
                             secondaryAction={
-                              <>
-                              <IconButton edge="end" color="success" onClick={() => handleAddLesson(course.id, mod.id)}><AddIcon style={{ width: 15, height: 15}} /></IconButton>
-                              <IconButton edge="end" onClick={() => handleEditModule(course.id, mod)}><EditIcon style={{ width: 15, height: 15}} /></IconButton>
-                              <IconButton edge="end" color="error" onClick={() => handleDeleteModule(course.id, mod.id)}><DeleteIcon style={{ width: 15, height: 15}} /></IconButton>
-                                
-                              </>
+                              roleCode === 'admin' && (
+                                <>
+                                <IconButton edge="end" color="success" onClick={() => handleAddLesson(course.id, mod.id)}><AddIcon style={{ width: 15, height: 15}} /></IconButton>
+                                <IconButton edge="end" onClick={() => handleEditModule(course.id, mod)}><EditIcon style={{ width: 15, height: 15}} /></IconButton>
+                                <IconButton edge="end" color="error" onClick={() => handleDeleteModule(course.id, mod.id)}><DeleteIcon style={{ width: 15, height: 15}} /></IconButton>
+
+                                </>
+                              )
                             }
                             disablePadding
                           >
@@ -393,10 +470,12 @@ const CoursesPage = () => {
                                 <ListItem
                                   key={lesson.id}
                                   secondaryAction={
-                                    <>
-                                      <IconButton edge="end" onClick={() => handleEditLesson(course.id, mod.id, lesson)}><EditIcon style={{ width: 15, height: 15}} /></IconButton>
-                                      <IconButton edge="end" color="error" onClick={() => handleDeleteLesson(course.id, mod.id, lesson.id)}><DeleteIcon style={{ width: 15, height: 15}} /></IconButton>
-                                    </>
+                                    roleCode === 'admin' && (
+                                      <>
+                                        <IconButton edge="end" onClick={() => handleEditLesson(course.id, mod.id, lesson)}><EditIcon style={{ width: 15, height: 15}} /></IconButton>
+                                        <IconButton edge="end" color="error" onClick={() => handleDeleteLesson(course.id, mod.id, lesson.id)}><DeleteIcon style={{ width: 15, height: 15}} /></IconButton>
+                                      </>
+                                    )
                                   }
                                   disablePadding
                                 >
@@ -418,21 +497,38 @@ const CoursesPage = () => {
         </Grid>
         <Grid item xs={8}>
           <MainCard>
-            <LessonViewPage 
-              courseId={selectedCourseId}
-              moduleId={selectedModuleId}
-              lessonId={selectedLessonId}
-              onLessonChange={handleLessonChange}
-            />
+            {selectedLessonId ? (
+              <LessonViewPage
+                courseId={selectedCourseId}
+                moduleId={selectedModuleId}
+                lessonId={selectedLessonId}
+                onLessonChange={handleLessonChange}
+              />
+            ) : selectedModuleId ? (
+              <Box>
+                <Typography variant="h4" sx={{ mb: 2 }}>{selectedModule?.title}</Typography>
+                <Typography sx={{ whiteSpace: 'pre-line' }}>{selectedModule?.description}</Typography>
+              </Box>
+            ) : selectedCourseId ? (
+              <Box>
+                <Typography variant="h4" sx={{ mb: 2 }}>{selectedCourse?.title}</Typography>
+                <Typography sx={{ whiteSpace: 'pre-line' }}>{selectedCourse?.description}</Typography>
+              </Box>
+            ) : (
+              <Typography variant="h6" color="text.secondary">Выберите элемент</Typography>
+            )}
           </MainCard>
         </Grid>
       </Grid>
 
       <Dialog open={openCourseDialog} onClose={() => setOpenCourseDialog(false)}>
         <DialogTitle>{editingCourseId ? 'Редактировать курс' : 'Новый курс'}</DialogTitle>
-        <DialogContent>
-          <TextField fullWidth label="Название" value={courseTitle} onChange={e => setCourseTitle(e.target.value)} sx={{ mt: 1 }} />
-        </DialogContent>
+      <DialogContent>
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            <TextField fullWidth label="Название" value={courseTitle} onChange={e => setCourseTitle(e.target.value)} />
+            <TextField fullWidth label="Описание" multiline minRows={3} value={courseDescription} onChange={e => setCourseDescription(e.target.value)} />
+          </Stack>
+      </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenCourseDialog(false)}>Отмена</Button>
           <Button onClick={saveCourse} variant="contained" color="success">Сохранить</Button>
@@ -440,9 +536,12 @@ const CoursesPage = () => {
       </Dialog>
       <Dialog open={openModuleDialog} onClose={() => setOpenModuleDialog(false)}>
         <DialogTitle>{editingModuleId ? 'Редактировать модуль' : 'Новый модуль'}</DialogTitle>
-        <DialogContent>
-          <TextField fullWidth label="Название" value={moduleTitle} onChange={e => setModuleTitle(e.target.value)} sx={{ mt: 1 }} />
-        </DialogContent>
+      <DialogContent>
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            <TextField fullWidth label="Название" value={moduleTitle} onChange={e => setModuleTitle(e.target.value)} />
+            <TextField fullWidth label="Описание" multiline minRows={3} value={moduleDescription} onChange={e => setModuleDescription(e.target.value)} />
+          </Stack>
+      </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenModuleDialog(false)}>Отмена</Button>
           <Button onClick={saveModule} variant="contained" color="success">Сохранить</Button>
@@ -462,7 +561,8 @@ const CoursesPage = () => {
           <Button onClick={saveLesson} variant="contained" color="success">Сохранить</Button>
         </DialogActions>
       </Dialog>
-    </div>
+      </Box>
+    </Box>
   )
 }
 
