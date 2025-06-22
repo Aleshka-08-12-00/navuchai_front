@@ -44,6 +44,9 @@ import {
   enrollCourse,
   getUserCourses,
   getCourseProgress,
+  getCourseTests,
+  getModuleProgress,
+  getModuleTests,
   completeLesson
 } from 'api';
 import JoditEditor from 'jodit-react';
@@ -66,6 +69,8 @@ interface Module {
   description?: string;
   lessons?: Lesson[];
   open?: boolean;
+  progress?: number;
+  tests?: any[];
 }
 
 interface Course {
@@ -76,6 +81,7 @@ interface Course {
   open?: boolean;
   hasAccess?: boolean;
   progress?: number;
+  tests?: any[];
 }
 
 const CoursesPage = () => {
@@ -131,15 +137,17 @@ const CoursesPage = () => {
         data.map(async (c: Course) => {
           const hasAccess = userCourses.includes(c.id);
           let progress = 0;
+          let tests: any[] = [];
           if (hasAccess) {
             try {
               const p = await getCourseProgress(c.id);
               progress = p.percent;
+              tests = await getCourseTests(c.id);
             } catch (e) {
               console.error(e);
             }
           }
-          return { ...c, hasAccess, progress };
+          return { ...c, hasAccess, progress, tests };
         })
       );
       setCourses(coursesWithAccess);
@@ -164,7 +172,23 @@ const CoursesPage = () => {
     if (!course.modules) {
       try {
         const modulesData = await getModules(courseId);
-        setCourses((prev) => prev.map((c) => (c.id === courseId ? { ...c, modules: modulesData, open: !c.open } : c)));
+        const modulesWithInfo = await Promise.all(
+          modulesData.map(async (m: Module) => {
+            let progress = 0;
+            let tests: any[] = [];
+            if (course.hasAccess) {
+              try {
+                const mp = await getModuleProgress(m.id);
+                progress = mp.percent;
+                tests = await getModuleTests(m.id);
+              } catch (e) {
+                console.error(e);
+              }
+            }
+            return { ...m, progress, tests };
+          })
+        );
+        setCourses((prev) => prev.map((c) => (c.id === courseId ? { ...c, modules: modulesWithInfo, open: !c.open } : c)));
       } catch (e) {
         console.error(e);
       }
@@ -185,12 +209,23 @@ const CoursesPage = () => {
     if (!mod.lessons) {
       try {
         const lessonsData = await getLessons(moduleId);
+        let progress = 0;
+        let tests: any[] = [];
+        if (course.hasAccess) {
+          try {
+            const p = await getModuleProgress(moduleId);
+            progress = p.percent;
+            tests = await getModuleTests(moduleId);
+          } catch (e) {
+            console.error(e);
+          }
+        }
         setCourses((prev) =>
           prev.map((c) =>
             c.id === courseId
               ? {
                   ...c,
-                  modules: c.modules?.map((m) => (m.id === moduleId ? { ...m, lessons: lessonsData, open: !m.open } : m))
+                  modules: c.modules?.map((m) => (m.id === moduleId ? { ...m, lessons: lessonsData, progress, tests, open: !m.open } : m))
                 }
               : c
           )
@@ -199,16 +234,40 @@ const CoursesPage = () => {
         console.error(e);
       }
     } else {
-      setCourses((prev) =>
-        prev.map((c) =>
-          c.id === courseId
-            ? {
-                ...c,
-                modules: c.modules?.map((m) => (m.id === moduleId ? { ...m, open: !m.open } : m))
-              }
-            : c
-        )
-      );
+      if (mod.progress === undefined || mod.tests === undefined) {
+        try {
+          let progress = 0;
+          let tests: any[] = [];
+          if (course.hasAccess) {
+            const p = await getModuleProgress(moduleId);
+            progress = p.percent;
+            tests = await getModuleTests(moduleId);
+          }
+          setCourses((prev) =>
+            prev.map((c) =>
+              c.id === courseId
+                ? {
+                    ...c,
+                    modules: c.modules?.map((m) => (m.id === moduleId ? { ...m, progress, tests, open: !m.open } : m))
+                  }
+                : c
+            )
+          );
+        } catch (e) {
+          console.error(e);
+        }
+      } else {
+        setCourses((prev) =>
+          prev.map((c) =>
+            c.id === courseId
+              ? {
+                  ...c,
+                  modules: c.modules?.map((m) => (m.id === moduleId ? { ...m, open: !m.open } : m))
+                }
+              : c
+          )
+        );
+      }
     }
 
     setSelectedCourseId(courseId);
@@ -575,7 +634,10 @@ const CoursesPage = () => {
                               >
                                 <ListItemButton onClick={() => toggleModule(course.id, mod.id)} sx={{ pl: 2 }}>
                                   <ListItemIcon sx={{ minWidth: 28 }}>{mod.open ? <ExpandLess /> : <ExpandMore />}</ListItemIcon>
-                                  <ListItemText primary={mod.title} />
+                                  <ListItemText
+                                    primary={mod.title}
+                                    secondary={course.hasAccess ? `Прогресс: ${mod.progress ?? 0}%` : undefined}
+                                  />
                                 </ListItemButton>
                               </ListItem>
                               <Collapse in={mod.open} timeout="auto" unmountOnExit>
@@ -634,6 +696,23 @@ const CoursesPage = () => {
                     {selectedModule?.title}
                   </Typography>
                   <Typography sx={{ whiteSpace: 'pre-line' }}>{selectedModule?.description}</Typography>
+                  {selectedCourse?.hasAccess && (
+                    <Box sx={{ mt: 1 }}>
+                      <Typography variant="body2">Прогресс модуля: {selectedModule?.progress ?? 0}%</Typography>
+                      {roleCode !== 'admin' &&
+                        selectedModule?.progress === 100 &&
+                        selectedModule?.tests &&
+                        selectedModule.tests.length > 0 && (
+                          <Button
+                            variant="contained"
+                            sx={{ mt: 1 }}
+                            onClick={() => navigate(`/start_test/${selectedModule!.tests![0].id}`)}
+                          >
+                            Пройти тест
+                          </Button>
+                        )}
+                    </Box>
+                  )}
                 </Box>
               ) : selectedCourseId ? (
                 <Box>

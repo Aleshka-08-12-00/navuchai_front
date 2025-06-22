@@ -10,7 +10,6 @@ type Params = { [key: string]: string | number };
 
 axios.defaults.withCredentials = false;
 
-
 // Конструктор URL
 const buildUrl = (endpointKey: string, params: Params = {}, dynamicParams: string | number | null = null): string => {
   let endpoint = endpoints[endpointKey as keyof typeof endpoints];
@@ -19,8 +18,8 @@ const buildUrl = (endpointKey: string, params: Params = {}, dynamicParams: strin
     endpoint = endpoint(dynamicParams);
   }
   const url = new URL(`${BASE_URL}/${endpoint}`);
- 
-  Object.keys(params).forEach(key => url.searchParams.append(key, params[key].toString()));
+
+  Object.keys(params).forEach((key) => url.searchParams.append(key, params[key].toString()));
 
   return url.toString();
 };
@@ -106,10 +105,10 @@ const fetchData = async (
     const response: AxiosResponse = await axios.get(url, {
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('tokenNavuchai')}`,
-        ...axiosConfig.headers, // Позволяем переопределять заголовки при необходимости
+        Authorization: `Bearer ${localStorage.getItem('tokenNavuchai')}`,
+        ...axiosConfig.headers // Позволяем переопределять заголовки при необходимости
       },
-      ...axiosConfig, // Остальные опции axios
+      ...axiosConfig // Остальные опции axios
     });
     return validateResponse(response);
   } catch (error) {
@@ -129,11 +128,13 @@ const fetchData = async (
 // Универсальная функция для выполнения POST-запроса
 const postData = async (endpointKey: string, data: any, dynamicParams: string | number | null = null): Promise<any> => {
   const url = buildUrl(endpointKey, {}, dynamicParams);
+
   // Определяем, является ли data экземпляром FormData
   const isFormData = data instanceof FormData;
+
   // Настраиваем заголовки в зависимости от типа данных
   const headers: Record<string, string> = {
-    'Authorization': `Bearer ${localStorage.getItem('tokenNavuchai')}`
+    Authorization: `Bearer ${localStorage.getItem('tokenNavuchai')}`
   };
   // Добавляем Content-Type только если это не FormData
   if (!isFormData) {
@@ -162,7 +163,7 @@ const putData = async (endpointKey: string, data: any, dynamicParams: string | n
     const response: AxiosResponse = await axios.put(url, data, {
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('tokenNavuchai')}`
+        Authorization: `Bearer ${localStorage.getItem('tokenNavuchai')}`
       }
     });
     return validateResponse(response);
@@ -185,7 +186,7 @@ const deleteData = async (endpointKey: string, params: Params = {}, dynamicParam
     const response: AxiosResponse = await axios.delete(url, {
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('tokenNavuchai')}`
+        Authorization: `Bearer ${localStorage.getItem('tokenNavuchai')}`
       }
     });
     return validateResponse(response);
@@ -201,29 +202,31 @@ const deleteData = async (endpointKey: string, params: Params = {}, dynamicParam
   }
 };
 
-export { fetchData, postData, putData, deleteData }
+export { fetchData, postData, putData, deleteData };
 
-export const getCourses   = () => fetchData('courses')
-export const postCourse   = (data: any)                 => postData('courses', data)
-export const putCourse    = (id: number, d: any)        => putData('courseById', d, id)
-export const deleteCourse = (id: number)                => deleteData('courseById', {}, id)
+export const getCourses = () => fetchData('courses');
+export const postCourse = (data: any) => postData('courses', data);
+export const putCourse = (id: number, d: any) => putData('courseById', d, id);
+export const deleteCourse = (id: number) => deleteData('courseById', {}, id);
 
-export const getModules   = (courseId: number)          => fetchData('modulesByCourse', {}, courseId)
-export const postModule   = (courseId: number, d: any)  => postData('modulesByCourse', d, courseId)
-export const putModule    = (id: number, d: any)        => putData('moduleById', d, id)
-export const deleteModule = (id: number)                => deleteData('moduleById', {}, id)
+export const getModules = (courseId: number) => fetchData('modulesByCourse', {}, courseId);
+export const postModule = (courseId: number, d: any) => postData('modulesByCourse', d, courseId);
+export const putModule = (id: number, d: any) => putData('moduleById', d, id);
+export const deleteModule = (id: number) => deleteData('moduleById', {}, id);
 
-export const getLessons   = (moduleId: number)          => fetchData('lessonsByModule', {}, moduleId)
-export const getLesson    = (id: number)                => fetchData('lessonById', {}, id)
-export const postLesson   = (moduleId: number, d: any)  => postData('lessonsByModule', d, moduleId)
-export const putLesson    = (id: number, d: any)        => putData('lessonById', d, id)
-export const deleteLesson = (id: number)                => deleteData('lessonById', {}, id)
+export const getLessons = (moduleId: number) => fetchData('lessonsByModule', {}, moduleId);
+export const getLesson = (id: number) => fetchData('lessonById', {}, id);
+export const postLesson = (moduleId: number, d: any) => postData('lessonsByModule', d, moduleId);
+export const putLesson = (id: number, d: any) => putData('lessonById', d, id);
+export const deleteLesson = (id: number) => deleteData('lessonById', {}, id);
 
-export const enrollCourse = (courseId: number) => postData('enrollCourse', {}, courseId)
-export const enrollCourseAdmin = (courseId: number, userId: number) => postData('enrollCourseAdmin', {}, `${courseId}/enroll/${userId}`)
-export const getUserCourses = (userId: number) => fetchData('userCourses', {}, userId)
-export const getCourseProgress = (courseId: number) => fetchData('courseProgress', {}, courseId)
-export const getCourseTests = (courseId: number) => fetchData('courseTests', {}, courseId)
-export const getModuleProgress = (moduleId: number) => fetchData('moduleProgress', {}, moduleId)
-export const getModuleTests = (moduleId: number) => fetchData('moduleTests', {}, moduleId)
-export const completeLesson = (lessonId: number) => postData('lessonComplete', {}, lessonId)
+export const enrollCourse = (courseId: number) => postData('enrollCourse', {}, courseId);
+export const enrollCourseAdmin = (courseId: number, userId: number) => postData('enrollCourseAdmin', {}, `${courseId}/enroll/${userId}`);
+export const getUserCourses = (userId: number) => fetchData('userCourses', {}, userId);
+export const getCourseProgress = (courseId: number) => fetchData('courseProgress', {}, courseId);
+export const getCourseTests = (courseId: number) => fetchData('courseTests', {}, courseId);
+export const postCourseTest = (courseId: number, d: any) => postData('courseTests', d, courseId);
+export const getModuleProgress = (moduleId: number) => fetchData('moduleProgress', {}, moduleId);
+export const getModuleTests = (moduleId: number) => fetchData('moduleTests', {}, moduleId);
+export const postModuleTest = (moduleId: number, d: any) => postData('moduleTests', d, moduleId);
+export const completeLesson = (lessonId: number) => postData('lessonComplete', {}, lessonId);
