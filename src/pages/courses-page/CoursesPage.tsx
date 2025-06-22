@@ -26,6 +26,7 @@ import ExpandMore from '@mui/icons-material/ExpandMore'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import AddIcon from '@mui/icons-material/Add'
+import LibraryBooksIcon from '@mui/icons-material/LibraryBooks'
 import { useNavigate } from 'react-router-dom'
 import {
   getCourses,
@@ -39,7 +40,11 @@ import {
   deleteModule,
   postLesson,
   putLesson,
-  deleteLesson
+  deleteLesson,
+  enrollCourse,
+  getUserCourses,
+  getCourseProgress,
+  completeLesson
 } from 'api'
 import JoditEditor from 'jodit-react'
 import MainCard from '../../components/MainCard'
@@ -68,11 +73,13 @@ interface Course {
   description?: string
   modules?: Module[]
   open?: boolean
+  hasAccess?: boolean
+  progress?: number
 }
 
 const CoursesPage = () => {
   const { authStore } = React.useContext(Context)
-  const { roleCode } = authStore
+  const { roleCode, userId } = authStore
   const [courses, setCourses] = useState<Course[]>([])
   const navigate = useNavigate()
   const [openCourseDialog, setOpenCourseDialog] = useState(false)
@@ -95,6 +102,14 @@ const CoursesPage = () => {
   const [lessonVideo, setLessonVideo] = useState('')
   const editor = useRef(null)
 
+  const handleCreateTestForCourse = (courseId: number) => {
+    navigate(`/main-page/new-test?course=${courseId}`)
+  }
+
+  const handleCreateTestForModule = (courseId: number, moduleId: number) => {
+    navigate(`/main-page/new-test?course=${courseId}&module=${moduleId}`)
+  }
+
   // Состояние для выбранного урока
   const [selectedCourseId, setSelectedCourseId] = useState<number | undefined>(undefined)
   const [selectedModuleId, setSelectedModuleId] = useState<number | undefined>(undefined)
@@ -103,7 +118,31 @@ const CoursesPage = () => {
   const loadCourses = async () => {
     try {
       const data = await getCourses()
-      setCourses(data)
+      let userCourses: number[] = []
+      if (userId) {
+        try {
+          const ucs = await getUserCourses(userId)
+          userCourses = ucs.map((uc: any) => uc.course_id)
+        } catch (e) {
+          console.error(e)
+        }
+      }
+      const coursesWithAccess = await Promise.all(
+        data.map(async (c: Course) => {
+          const hasAccess = userCourses.includes(c.id)
+          let progress = 0
+          if (hasAccess) {
+            try {
+              const p = await getCourseProgress(c.id)
+              progress = p.percent
+            } catch (e) {
+              console.error(e)
+            }
+          }
+          return { ...c, hasAccess, progress }
+        })
+      )
+      setCourses(coursesWithAccess)
     } catch (e) {
       console.error(e)
     }
@@ -116,6 +155,12 @@ const CoursesPage = () => {
   const toggleCourse = async (courseId: number) => {
     const course = courses.find(c => c.id === courseId)
     if (!course) return
+    if (roleCode !== 'admin' && !course.hasAccess) {
+      setSelectedCourseId(courseId)
+      setSelectedModuleId(undefined)
+      setSelectedLessonId(undefined)
+      return
+    }
     if (!course.modules) {
       try {
         const modulesData = await getModules(courseId)
@@ -218,6 +263,15 @@ const CoursesPage = () => {
     if (!window.confirm('Удалить курс?')) return
     try {
       await deleteCourse(id)
+      await loadCourses()
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  const handleEnrollCourse = async (id: number) => {
+    try {
+      await enrollCourse(id)
       await loadCourses()
     } catch (e) {
       console.error(e)
@@ -363,6 +417,17 @@ const CoursesPage = () => {
     setSelectedLessonId(lessonId)
   }
 
+  const handleLessonComplete = async (lessonId: number, courseId: number) => {
+    try {
+      await completeLesson(lessonId)
+      if (courseId === selectedCourseId) {
+        await loadCourses()
+      }
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
   const selectedCourse = courses.find(c => c.id === selectedCourseId)
   const selectedModule = selectedCourse?.modules?.find(m => m.id === selectedModuleId)
 
@@ -419,7 +484,7 @@ const CoursesPage = () => {
         </Card>
 
         <Grid container spacing={2}>
-        <Grid item xs={4}>
+        <Grid item xs={5}>
           <MainCard>
             <List>
               {courses.map(course => (
@@ -429,6 +494,7 @@ const CoursesPage = () => {
                       roleCode === 'admin' && (
                         <>
                           <IconButton edge="end" color="success" onClick={() => handleAddModule(course.id)}><AddIcon style={{ width: 15, height: 15}} /></IconButton>
+                          <IconButton edge="end" color="primary" onClick={() => handleCreateTestForCourse(course.id)}><LibraryBooksIcon style={{ width: 15, height: 15}} /></IconButton>
                           <IconButton edge="end" onClick={() => handleEditCourse(course)}><EditIcon style={{ width: 15, height: 15}} /></IconButton>
                           <IconButton edge="end" color="error" onClick={() => handleDeleteCourse(course.id)}><DeleteIcon style={{ width: 15, height: 15}} /></IconButton>
                         </>
@@ -436,13 +502,17 @@ const CoursesPage = () => {
                     }
                     disablePadding
                   >
-                    <ListItemButton onClick={() => toggleCourse(course.id)}>
+                    <ListItemButton onClick={() => toggleCourse(course.id)} sx={{ py: 2 }}>
                       <ListItemIcon sx={{ minWidth: 28 }}>{course.open ? <ExpandLess /> : <ExpandMore />}</ListItemIcon>
                       <ListItemText primary={course.title} />
                     </ListItemButton>
                   </ListItem>
-                  <Collapse in={course.open} timeout="auto" unmountOnExit>
-
+                  <Collapse in={course.open && (roleCode === 'admin' || course.hasAccess)} timeout="auto" unmountOnExit>
+                    {roleCode !== 'admin' && !course.hasAccess ? (
+                      <Box sx={{ p: 2 }}>
+                        <Typography variant="body2">Доступ к курсу закрыт</Typography>
+                      </Box>
+                    ) : (
                     <List component="div" disablePadding sx={{ pl: 4 }}>
                       {course.modules?.map(mod => (
                         <React.Fragment key={mod.id}>
@@ -451,6 +521,7 @@ const CoursesPage = () => {
                               roleCode === 'admin' && (
                                 <>
                                 <IconButton edge="end" color="success" onClick={() => handleAddLesson(course.id, mod.id)}><AddIcon style={{ width: 15, height: 15}} /></IconButton>
+                                <IconButton edge="end" color="primary" onClick={() => handleCreateTestForModule(course.id, mod.id)}><LibraryBooksIcon style={{ width: 15, height: 15}} /></IconButton>
                                 <IconButton edge="end" onClick={() => handleEditModule(course.id, mod)}><EditIcon style={{ width: 15, height: 15}} /></IconButton>
                                 <IconButton edge="end" color="error" onClick={() => handleDeleteModule(course.id, mod.id)}><DeleteIcon style={{ width: 15, height: 15}} /></IconButton>
 
@@ -489,13 +560,14 @@ const CoursesPage = () => {
                         </React.Fragment>
                       ))}
                     </List>
+                    )}
                   </Collapse>
                 </React.Fragment>
               ))}
             </List>
           </MainCard>
         </Grid>
-        <Grid item xs={8}>
+        <Grid item xs={7}>
           <MainCard>
             {selectedLessonId ? (
               <LessonViewPage
@@ -503,6 +575,7 @@ const CoursesPage = () => {
                 moduleId={selectedModuleId}
                 lessonId={selectedLessonId}
                 onLessonChange={handleLessonChange}
+                onLessonComplete={handleLessonComplete}
               />
             ) : selectedModuleId ? (
               <Box>
@@ -512,7 +585,22 @@ const CoursesPage = () => {
             ) : selectedCourseId ? (
               <Box>
                 <Typography variant="h4" sx={{ mb: 2 }}>{selectedCourse?.title}</Typography>
-                <Typography sx={{ whiteSpace: 'pre-line' }}>{selectedCourse?.description}</Typography>
+                <Typography sx={{ whiteSpace: 'pre-line', mb: 1 }}>{selectedCourse?.description}</Typography>
+                {roleCode !== 'admin' && !selectedCourse?.hasAccess && (
+                  <Button variant="contained" onClick={() => handleEnrollCourse(selectedCourseId!)}>
+                    Записаться
+                  </Button>
+                )}
+                {selectedCourse?.hasAccess && (
+                  <Box sx={{ mt: 1 }}>
+                    <Typography variant="body2">Прогресс: {selectedCourse?.progress ?? 0}%</Typography>
+                    {roleCode !== 'admin' && selectedCourse?.progress === 100 && (
+                      <Button variant="contained" sx={{ mt: 1 }} onClick={() => navigate(`/start_test/${selectedCourse?.id}`)}>
+                        Пройти тест
+                      </Button>
+                    )}
+                  </Box>
+                )}
               </Box>
             ) : (
               <Typography variant="h6" color="text.secondary">Выберите элемент</Typography>
