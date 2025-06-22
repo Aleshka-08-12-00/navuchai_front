@@ -90,6 +90,19 @@ const endpoints = {
   lessons: 'api/lessons',
   lessonById: (id: string | number) => `api/lessons/${id}`,
   lessonsByModule: (moduleId: string | number) => `api/modules/${moduleId}/lessons`,
+
+  // Доступ и прогресс курсов
+  enrollCourse: (courseId: string | number) => `api/courses/${courseId}/enroll`,
+  enrollCourseAdmin: (courseId: string | number, userId: string | number) =>
+    `api/courses/${courseId}/enroll/${userId}`,
+  userCourses: (userId: string | number) => `api/courses/users/${userId}/courses`,
+  courseProgress: (courseId: string | number) => `api/courses/${courseId}/progress`,
+  courseTests: (courseId: string | number) => `api/courses/${courseId}/tests`,
+
+  moduleProgress: (moduleId: string | number) => `api/modules/${moduleId}/progress`,
+  moduleTests: (moduleId: string | number) => `api/modules/${moduleId}/tests`,
+
+  lessonComplete: (lessonId: string | number) => `api/lessons/${lessonId}/complete`,
 };
 
 export default endpoints;

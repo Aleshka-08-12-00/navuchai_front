@@ -85,6 +85,16 @@ const dashboard = {
       code: 'anyCode',
       allowedRoles: ['admin']
     },
+    {
+      id: '7',
+      title: 'Доступ к курсам',
+      type: 'item',
+      url: '/admin/course-access',
+      icon: icons.AdminPanelSettingsIcon,
+      breadcrumbs: true,
+      code: 'anyCode',
+      allowedRoles: ['admin']
+    },
 
   ]
 };

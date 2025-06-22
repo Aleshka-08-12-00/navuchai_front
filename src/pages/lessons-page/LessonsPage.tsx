@@ -13,7 +13,7 @@ import {
   DialogTitle
 } from '@mui/material';
 import JoditEditor from 'jodit-react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { getLessons, postLesson, putLesson, deleteLesson } from 'api';
 
 interface Lesson {
@@ -25,6 +25,7 @@ interface Lesson {
 
 const LessonsPage = () => {
   const { moduleId, courseId } = useParams();
+  const navigate = useNavigate();
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
@@ -97,6 +98,7 @@ const LessonsPage = () => {
       <Typography variant="h4" sx={{ mb: 2 }}>
         Уроки
       </Typography>
+      <Button variant="outlined" sx={{ mb: 2 }} onClick={() => navigate(-1)}>Назад</Button>
       <Stack direction="row" justifyContent="flex-end" sx={{ mb: 2 }}>
         <Button variant="contained" color="success" onClick={handleAdd}>
           Добавить урок
