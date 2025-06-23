@@ -8,7 +8,7 @@ import {
   CardMedia,
   TextField,
 } from "@mui/material";
-import TestTimer from "./testTimer";
+// import TestTimer from "./testTimer";
 
 const TestTextAnswerCard = ({
   question,
@@ -55,7 +55,7 @@ const TestTextAnswerCard = ({
             Вопрос
           </Typography>
 
-          <TestTimer timeLimit={qData.time_limit} onTimeEnd={handleTimeEnd} />
+          {/* <TestTimer timeLimit={qData.time_limit} onTimeEnd={handleTimeEnd} /> */}
         </Box>
           <Typography variant="body1" mb={2}>
             {stripHtml(qData.text)}

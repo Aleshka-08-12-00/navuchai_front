@@ -142,32 +142,35 @@ const GeneralInformationPage = observer(() => {
 
                 <hr />
 
-                <Box sx={{ p: 2 }}>
-                    <Typography variant="h6">План: <strong style={{ color: 'green' }}>MAX (trial)</strong></Typography>
-                    <Typography variant="h6">Trial expiry date: <strong>2025-04-08 14:11</strong></Typography>
-                    <Typography variant="h6">Trial days left: <strong>8</strong></Typography>
+                <Box sx={{ p: 2, opacity: 0.1 }}>
+                    <Typography variant="h6">План: <strong style={{ color: 'green' }}>MAX (пробная версия)</strong></Typography>
+                    <Typography variant="h6">Дата окончания пробного периода: <strong>2025-04-08 14:11</strong></Typography>
+                    <Typography variant="h6">Осталось дней пробного периода: <strong>8</strong></Typography>
                     <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
-                        All trial subscriptions limit the number of collected results.
+                        Все пробные подписки ограничивают количество собираемых результатов.
                     </Typography>
                     <Typography variant="h6" sx={{ mt: 1 }}>
-                        Results limit used: <strong>4/15</strong>
+                        Использовано результатов: <strong>4/15</strong>
                     </Typography>
-                    <Button variant="contained" color="success" size="small" sx={{ mt: 1 }}>
+                    <Button disabled variant="contained" color="success" size="small" sx={{ mt: 1 }}>
                         Обновить
                     </Button>
                 </Box>
 
                 <hr />
+                <Box sx={{ p: 2, opacity: 0.1 }}>
+                    <Stack sx={{ mt: 2, mb: 2 }}>
+                        <Typography variant="h5" sx={{ pb: 1 }}>Статистика</Typography>
 
-                <Stack sx={{ mt: 2, mb: 2 }}>
-                    <Typography variant="h5" sx={{ pb: 1 }}>Статистика</Typography>
+                        <Typography variant="body1">Создано тестов: <strong>5</strong></Typography>
+                        <Typography variant="body1">Пройдено тестов за последние 30 дней: <strong>4</strong></Typography>
+                        <Typography variant="body1">Всего пройдено тестов: <strong>4</strong></Typography>
+                        <Typography variant="body1">Пройдено тренировочных тестов за последние 30 дней: <strong>0</strong></Typography>
+                        <Typography variant="body1">Всего пройдено тренировочных тестов: <strong>0</strong></Typography>
+                    </Stack>
+                </Box>
 
-                    <Typography variant="body1">Tests created: <strong>5</strong></Typography>
-                    <Typography variant="body1">Tests completed in the last 30 days: <strong>4</strong></Typography>
-                    <Typography variant="body1">Tests completed in total: <strong>4</strong></Typography>
-                    <Typography variant="body1">Training tests completed in the last 30 days: <strong>0</strong></Typography>
-                    <Typography variant="body1">Training tests completed in total: <strong>0</strong></Typography>
-                </Stack>
+
             </MainCard>
 
             {/* Модалка редактирования профиля */}
@@ -243,9 +246,9 @@ const GeneralInformationPage = observer(() => {
                 </Box>
             </Modal>
 
-            <Snackbar 
-                open={alertOpen} 
-                autoHideDuration={6000} 
+            <Snackbar
+                open={alertOpen}
+                autoHideDuration={6000}
                 onClose={handleCloseAlert}
                 anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
             >

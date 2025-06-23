@@ -9,16 +9,23 @@ export default class RespondentsStore {
     usersArray: IUsers[] = [];
     respondentListInfo: IRespondentLists | null = null;
     onAlert?: (message: string, severity: 'success' | 'error') => void;
+    loadingRespondentLists: boolean = false;
+    loadingUsers: boolean = false;
+    loadingRespondentListInfo: boolean = false;
 
     constructor(onAlert?: (message: string, severity: 'success' | 'error') => void) {
         makeAutoObservable(this);
         this.onAlert = onAlert;
     }
 
-    getRespondentLists = async () => {
+    getRespondentLists = async (force = false) => {
+        if (this.loadingRespondentLists) return;
+        if (!force && this.respondentListsArray.length > 0) return;
+        this.loadingRespondentLists = true;
         const result = await fetchData('getUserGroups', {});
         if (result)
             this.setRespondentLists(result)
+        this.loadingRespondentLists = false;
     }
 
     postUserGroups = async (data: any) => {
@@ -42,16 +49,24 @@ export default class RespondentsStore {
         this.respondentListsArray = value
     }
 
-    getUsers = async () => {
+    getUsers = async (force = false) => {
+        if (this.loadingUsers) return;
+        if (!force && this.usersArray.length > 0) return;
+        this.loadingUsers = true;
         const result = await fetchData('getUsers', {});
         if (result)
             this.setUsers(result)
+        this.loadingUsers = false;
     }
 
-    getUserGroupsById = async (id: string) => {
+    getUserGroupsById = async (id: string, force = false) => {
+        if (this.loadingRespondentListInfo) return;
+        if (!force && this.respondentListInfo && String(this.respondentListInfo.id) === String(id)) return;
+        this.loadingRespondentListInfo = true;
         const result = await fetchData('getUserGroupsById', {}, id);
         if (result)
             this.setRespondentListInfo(result)
+        this.loadingRespondentListInfo = false;
     }
 
     setRespondentListInfo = (value: IRespondentLists) => {

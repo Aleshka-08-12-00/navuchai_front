@@ -20,12 +20,16 @@ export default class TestResultStore {
   loading = false;
   error: string | null = null;
   resultsByUserIdArray: ITestResultCreateResponse[] = [];
+  loadingResultsByUser = false;
 
   constructor() {
     makeAutoObservable(this);
   }
 
-  getResultByUser = async (user_id: number) => {
+  getResultByUser = async (user_id: number, force = false) => {
+    if (this.loadingResultsByUser) return;
+    if (!force && this.resultsByUserIdArray.length > 0) return;
+    this.loadingResultsByUser = true;
     try {
       const result = await fetchData("getResultsByUserId", {}, user_id);
       if (result) {
@@ -37,6 +41,8 @@ export default class TestResultStore {
       runInAction(() => {
         this.error = error.message || "Ошибка загрузки результатов";
       });
+    } finally {
+      this.loadingResultsByUser = false;
     }
   };
 

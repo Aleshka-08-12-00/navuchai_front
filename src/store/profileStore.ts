@@ -8,6 +8,7 @@ export default class ProfileStore {
     error: string = '';
     profile: IProfileUser | null = null;
     onAlert?: (message: string, severity: 'success' | 'error') => void;
+    loadingProfile: boolean = false;
  
     constructor(onAlert?: (message: string, severity: 'success' | 'error') => void) {
         makeAutoObservable(this);
@@ -15,7 +16,10 @@ export default class ProfileStore {
     }
 
 
-    async getProfile() {
+    async getProfile(force = false) {
+        if (this.loadingProfile) return;
+        if (!force && this.profile !== null) return;
+        this.loadingProfile = true;
         try {
             const response = await fetchData('getProfile');
             if (response) {
@@ -27,6 +31,8 @@ export default class ProfileStore {
             runInAction(() => {
                 this.error = error.message || 'Ошибка при получении профиля';
             });
+        } finally {
+            this.loadingProfile = false;
         }
     }
 

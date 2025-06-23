@@ -19,7 +19,7 @@ const YourTrialPage = observer(() => {
             <Typography variant="h6" color="textSecondary" >
                 Ваш пакет
             </Typography>
-            <MainCard contentSX={{ p: 2.25, pt: 3.3 }}>
+            <MainCard contentSX={{ p: 2.25, pt: 3.3, opacity: 0.1 }}>
                 <>
                     <Typography variant="h5"  >
                        Детали Вашего пакета

@@ -11,6 +11,9 @@ class SettingsNewTestStore {
     locales: ILocales[] = [];
     testMainInfo: InterfaceTests = {} as InterfaceTests
     timeLimit: number = 0;
+    loadingTestCategories = false;
+    loadingTestById = false;
+    loadingLocales = false;
 
     constructor() {
         makeAutoObservable(this);
@@ -22,33 +25,44 @@ class SettingsNewTestStore {
         return test_limit_time;
     }
 
-    getTestCategories = async () => {
+    getTestCategories = async (force = false) => {
+        if (this.loadingTestCategories) return;
+        if (!force && this.testCategories.length > 0) return;
+        this.loadingTestCategories = true;
         const result = await fetchData('getCategories', {});
         if (result)
             this.setTestCategories(result)
+        this.loadingTestCategories = false;
     }
 
     postTestCategories = async (value: string) => {
         const result = await postData('postCategories', { name: value });
         if (result)
-            alert('новая категория создана')
         this.getTestCategories()
     }
 
-    getTestById = async (id: number) => {
+    getTestById = async (id: number, force = false) => {
+        if (this.loadingTestById) return;
+        if (!force && this.testMainInfo && this.testMainInfo.id === id) return;
+        this.loadingTestById = true;
         const result = await fetchData('getTestsById', {}, id);
         if (result)
             this.setTestById(result)
+        this.loadingTestById = false;
     }
 
     setTestById = (value: InterfaceTests) => {
         this.testMainInfo = value
     }
 
-    getLocales = async () => {
+    getLocales = async (force = false) => {
+        if (this.loadingLocales) return;
+        if (!force && this.locales.length > 0) return;
+        this.loadingLocales = true;
         const result = await fetchData('getLocales', {});
         if (result)
             this.setLocales(result)
+        this.loadingLocales = false;
     }
 
     setTestCategories = (value: ITestCategories[]) => {
@@ -63,14 +77,13 @@ class SettingsNewTestStore {
         const result = await postData('postTests', data);
         if (result) {
             window.location.href = window.location.href + '/' + result.id;
-            alert('Тест успешно создан, продолжайте настраивать тест');
         }
     }
 
     updateTest = async (data: IPostTest, id: number) => {
         const result = await putData('putTestsById', data, id);
         if (result) {
-            alert('Тест успешно обновлен');
+            this.getTestById(id, true);
         }
     }
 

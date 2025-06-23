@@ -14,6 +14,7 @@ export default class ResultTableStore {
   selectedResult: ITestResultCreateResponse | null = null;
   loading = false;
   error: string | null = null;
+  loadingResults = false;
 
   constructor() {
     makeAutoObservable(this);
@@ -64,7 +65,10 @@ export default class ResultTableStore {
     }
   };
 
-  getResults = async () => {
+  getResults = async (force = false) => {
+    if (this.loadingResults) return;
+    if (!force && this.resultsArray.length > 0) return;
+    this.loadingResults = true;
     this.loading = true;
     this.error = null;
 
@@ -80,6 +84,7 @@ export default class ResultTableStore {
     } finally {
       runInAction(() => {
         this.loading = false;
+        this.loadingResults = false;
       });
     }
   };

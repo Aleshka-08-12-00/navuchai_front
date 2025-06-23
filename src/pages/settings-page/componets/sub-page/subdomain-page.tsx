@@ -18,7 +18,7 @@ const SubdomainPage = observer(() => {
             <Typography variant="h6" color="textSecondary" >
                 Поддомен
             </Typography>
-            <MainCard contentSX={{ p: 2.25, pt: 3.3 }}>
+            <MainCard contentSX={{ p: 2.25, pt: 3.3, opacity: 0.1 }}>
                 <>
                     <Typography variant="h5"  >
                         Настройки поддомена
@@ -51,6 +51,7 @@ const SubdomainPage = observer(() => {
             </MainCard>
             <div style={{ display: 'flex', alignItems: 'center', margin: 'auto', justifyContent: 'space-between', padding: 20 }}>
                 <Button
+                    disabled
                     variant='contained'
                     color='success'
                     style={{ textTransform: 'none' }}

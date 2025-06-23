@@ -14,6 +14,7 @@ import LessonViewPage from 'pages/lessons-page/LessonViewPage';
 import TestUserResult from 'components/testUserResult/TestUserResult';
 import CreateRespondentsPage from 'pages/respondents-page/create-respondents-list';
 import AdminPage from 'pages/admin-page/AdminPage';
+import CourseAccessAdminPage from 'pages/course-access-admin/CourseAccessAdminPage';
 
 
 // ==============================|| MAIN ROUTING ||============================== //
@@ -81,6 +82,10 @@ const MainRoutes = {
         {
           path: '/admin',
           element: <AdminPage />
+        },
+        {
+          path: '/admin/course-access',
+          element: <CourseAccessAdminPage />
         },
         {
           path: '/courses',

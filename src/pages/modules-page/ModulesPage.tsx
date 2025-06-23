@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { List, ListItemButton, ListItemText, Typography } from '@mui/material';
+import { List, ListItemButton, ListItemText, Typography, Button } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getModules } from 'api';
 
@@ -25,6 +25,7 @@ const ModulesPage = () => {
       <Typography variant="h4" sx={{ mb: 2 }}>
         Модули курса
       </Typography>
+      <Button variant="outlined" sx={{ mb: 2 }} onClick={() => navigate(-1)}>Назад</Button>
       <List>
         {modules.map((m) => (
           <ListItemButton

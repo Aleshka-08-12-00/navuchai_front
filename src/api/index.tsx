@@ -218,3 +218,12 @@ export const getLesson    = (id: number)                => fetchData('lessonById
 export const postLesson   = (moduleId: number, d: any)  => postData('lessonsByModule', d, moduleId)
 export const putLesson    = (id: number, d: any)        => putData('lessonById', d, id)
 export const deleteLesson = (id: number)                => deleteData('lessonById', {}, id)
+
+export const enrollCourse = (courseId: number) => postData('enrollCourse', {}, courseId)
+export const enrollCourseAdmin = (courseId: number, userId: number) => postData('enrollCourseAdmin', {}, `${courseId}/enroll/${userId}`)
+export const getUserCourses = (userId: number) => fetchData('userCourses', {}, userId)
+export const getCourseProgress = (courseId: number) => fetchData('courseProgress', {}, courseId)
+export const getCourseTests = (courseId: number) => fetchData('courseTests', {}, courseId)
+export const getModuleProgress = (moduleId: number) => fetchData('moduleProgress', {}, moduleId)
+export const getModuleTests = (moduleId: number) => fetchData('moduleTests', {}, moduleId)
+export const completeLesson = (lessonId: number) => postData('lessonComplete', {}, lessonId)

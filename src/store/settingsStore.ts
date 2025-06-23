@@ -7,7 +7,7 @@ export default class SettingsStore {
     error: string = ''
     idSettingsNumber: string = '51';
     idSettingsNumberNext: string = '41'
-    accessType: AccessType = 'public';
+    accessType: AccessType = 'group';
 
     constructor() {
         makeAutoObservable(this);

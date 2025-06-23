@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Stack, Typography, Box } from '@mui/material';
+import { Button, Stack, Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import { getLessons } from '../../api';
 import VideoPlayer from '../../components/VideoPlayer';
 
@@ -15,16 +16,19 @@ interface LessonViewPageProps {
   moduleId?: number;
   lessonId?: number;
   onLessonChange?: (courseId: number, moduleId: number, lessonId: number) => void;
+  onLessonComplete?: (lessonId: number, courseId: number) => void;
 }
 
-const LessonViewPage: React.FC<LessonViewPageProps> = ({ 
-  courseId, 
-  moduleId, 
-  lessonId, 
-  onLessonChange 
+const LessonViewPage: React.FC<LessonViewPageProps> = ({
+  courseId,
+  moduleId,
+  lessonId,
+  onLessonChange,
+  onLessonComplete
 }) => {
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [lessons, setLessons] = useState<Lesson[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!moduleId) return;
@@ -81,8 +85,15 @@ const LessonViewPage: React.FC<LessonViewPageProps> = ({
     }
   };
 
+  const handleComplete = () => {
+    if (lesson && onLessonComplete && courseId) {
+      onLessonComplete(lesson.id, courseId);
+    }
+  };
+
   return (
     <div>
+      <Button variant="outlined" sx={{ mb: 2 }} onClick={() => navigate(-1)}>Назад</Button>
       <Typography variant="h4" sx={{ mb: 2 }}>
         {lesson.title}
       </Typography>
@@ -90,6 +101,7 @@ const LessonViewPage: React.FC<LessonViewPageProps> = ({
         <VideoPlayer videoUrl={lesson.video} title={lesson.title} />
       )}
       <div dangerouslySetInnerHTML={{ __html: lesson.content }} />
+      <Button variant="outlined" sx={{ mt: 2 }} onClick={handleComplete}>Отметить как пройдено</Button>
       <Stack direction="row" justifyContent="space-between" sx={{ mt: 3 }}>
         <Button
           disabled={!prevLesson}

@@ -10,9 +10,11 @@ interface TestStartPageProps {
   questionsLength: number;
   testTitle?: string;
   testLogo?: string;
+  welcomeMessage?: string;
+  timeLimit?: number;
 }
 
-const TestStartPage: React.FC<TestStartPageProps> = observer(({ setStart, start, questionsLength, testTitle, testLogo }) => {
+const TestStartPage: React.FC<TestStartPageProps> = observer(({ setStart, start, questionsLength, testTitle, testLogo, welcomeMessage, timeLimit }) => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [alertOpen, setAlertOpen] = useState(false);
@@ -50,6 +52,33 @@ const TestStartPage: React.FC<TestStartPageProps> = observer(({ setStart, start,
     setStart(!start);
   };
 
+  // Helper to format time limit with declension
+  const declOfNum = (n: number, forms: [string, string, string]) => {
+    n = Math.abs(n) % 100;
+    const n1 = n % 10;
+    if (n > 10 && n < 20) return forms[2];
+    if (n1 > 1 && n1 < 5) return forms[1];
+    if (n1 === 1) return forms[0];
+    return forms[2];
+  };
+
+  const formatTimeLimit = (seconds?: number) => {
+    if (!seconds || seconds === 0) return 'Время на решение теста не ограничено';
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    let result = 'Время на решение теста — ';
+    if (hours > 0) {
+      result += `${hours} ${declOfNum(hours, ['час', 'часа', 'часов'])}`;
+      if (minutes > 0) {
+        result += ` ${minutes} ${declOfNum(minutes, ['минута', 'минуты', 'минут'])}`;
+      }
+    } else {
+      result += `${minutes} ${declOfNum(minutes, ['минута', 'минуты', 'минут'])}`;
+    }
+    result += '.';
+    return result;
+  };
+
   return (
     <>
       <Box
@@ -79,19 +108,29 @@ const TestStartPage: React.FC<TestStartPageProps> = observer(({ setStart, start,
             <Typography variant="h5" align="center" gutterBottom>
               Здравствуйте!
             </Typography>
-            <Typography variant="body1" color="textSecondary" paragraph>
-              Этот тест состоит из {questionsLength} вопросов. Время на решение одного вопроса — 2 минуты. Убедитесь, что у вас
-              достаточно времени, а затем приступайте к тесту. Удачи!
-            </Typography>
+            {welcomeMessage ? (
+              /<[a-z][\s\S]*>/i.test(welcomeMessage) ? (
+                <div style={{ marginBottom: 16 }} dangerouslySetInnerHTML={{ __html: welcomeMessage }} />
+              ) : (
+                <Typography variant="body1" color="textSecondary" paragraph>
+                  {welcomeMessage}
+                </Typography>
+              )
+            ) : (
+              <Typography variant="body1" color="textSecondary" paragraph>
+                Этот тест состоит из {questionsLength} вопросов. {formatTimeLimit(timeLimit)} Убедитесь, что у вас
+                достаточно времени, а затем приступайте к тесту. Удачи!
+              </Typography>
+            )}
 
             <Divider sx={{ marginY: 2 }} />
 
-            <Box sx={{ display: 'flex', alignItems: 'flex-start', background: '#e3e3e3', padding: 2, borderRadius: 2 }}>
+            {/* <Box sx={{ display: 'flex', alignItems: 'flex-start', background: '#e3e3e3', padding: 2, borderRadius: 2 }}>
               <InfoIcon sx={{ marginRight: 1 }} />
               <Typography variant="body2">
                 <b>Сосредоточьтесь на тесте!</b> Тест защищен технологией Honest Respondent Technology. Не переключайтесь между вкладками, так как любое движение будет зарегистрировано. Рекомендуем отключить фоновые программы и уведомления.
               </Typography>
-            </Box>
+            </Box> */}
 
             <Typography variant="h5" align="center" sx={{ marginTop: 3 }} gutterBottom>
               Начать тест

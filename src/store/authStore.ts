@@ -10,7 +10,8 @@ class AuthStore {
   objForShow: string[] = [];
   name: string = '';
   email: string = '';
-  roleName: string = ''
+  roleName: string = '';
+  loadingAuthMe: boolean = false;
 
   constructor() {
     makeAutoObservable(this);
@@ -55,13 +56,17 @@ class AuthStore {
     }
   }
 
-  authMe = async (): Promise<IAuthUser | null> => {
+  authMe = async (force = false): Promise<IAuthUser | null> => {
+    if (this.loadingAuthMe) return null;
+    if (!force && this.isAuth) return null;
+    this.loadingAuthMe = true;
     const result = await fetchData('getAuthMe');
     if (result) {
-      console.log(result)
       this.setUserData(result);
+      this.loadingAuthMe = false;
       return result;
     }
+    this.loadingAuthMe = false;
     return null;
   };
 

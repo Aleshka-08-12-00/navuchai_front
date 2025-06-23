@@ -31,7 +31,8 @@ const settingsMenu = {
       icon: icons.ManageAccountsIcon,
       breadcrumbs: false,
       code: 'anyCode',
-      allowedRoles: ['admin', 'user', 'guest', 'moderator']
+      allowedRoles: ['admin', 'user', 'guest', 'moderator'],
+      disabled: false,
     },
     {
       id: '42',
@@ -40,7 +41,8 @@ const settingsMenu = {
       icon: icons.SyncAltIcon,
       breadcrumbs: false,
       code: 'anyCode',
-      allowedRoles: ['admin', 'moderator']
+      allowedRoles: ['admin', 'moderator'],
+      disabled: true
     },
     {
       id: '43',
@@ -49,7 +51,8 @@ const settingsMenu = {
       icon: icons.CreditCardIcon,
       breadcrumbs: false,
       code: 'anyCode',
-      allowedRoles: ['admin', 'moderator']
+      allowedRoles: ['admin', 'moderator'],
+      disabled: true
     },
     {
       id: '44',
@@ -58,7 +61,8 @@ const settingsMenu = {
       icon: icons.DomainIcon,
       breadcrumbs: false,
       code: 'anyCode',
-      allowedRoles: ['admin', 'moderator']
+      allowedRoles: ['admin', 'moderator'],
+      disabled: true
     },
     {
       id: '45',
@@ -67,7 +71,8 @@ const settingsMenu = {
       icon: icons.ImageIcon,
       breadcrumbs: false,
       code: 'anyCode',
-      allowedRoles: ['admin', 'moderator']
+      allowedRoles: ['admin', 'moderator'],
+      disabled: true
     },
     {
       id: '46',
@@ -76,7 +81,8 @@ const settingsMenu = {
       icon: icons.LanguageIcon,
       breadcrumbs: false,
       code: 'anyCode',
-      allowedRoles: ['admin', 'moderator']
+      allowedRoles: ['admin', 'moderator'],
+      disabled: true
     },
  
   ]
