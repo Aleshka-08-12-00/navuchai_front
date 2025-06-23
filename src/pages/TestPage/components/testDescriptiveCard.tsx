@@ -61,9 +61,9 @@ const TestDescriptiveCard: React.FC<QuestionProps> = ({ question, onNext }) => {
            <Typography variant="subtitle1" fontWeight="bold">
              Вопрос
            </Typography>
-            {qData.time_limit && (
+            {/* {qData.time_limit && (
               <TestTimer timeLimit={qData.time_limit} onTimeEnd={handleTimeEnd} />
-            )}
+            )} */}
         </Box>
           <Typography variant="body1" mb={2}>
             {stripHtml(qData.text)}

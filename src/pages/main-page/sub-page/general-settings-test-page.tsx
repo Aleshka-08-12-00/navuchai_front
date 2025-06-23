@@ -307,8 +307,9 @@ const GeneralSettingsTestPage = observer(() => {
                             onChange={handleTitleChange}
                         />
                     </FormControl>
+                    <div>
                     <FormControl variant="standard" sx={{ m: 1, minWidth: '62%', mt: 1 }}>
-                        <InputLabel id="demo-simple-select-standard-label">Нет категории</InputLabel>
+                        <InputLabel id="demo-simple-select-standard-label">Категория</InputLabel>
                         <Select
                             labelId="demo-simple-select-standard-label"
                             id="demo-simple-select-standard"
@@ -334,18 +335,21 @@ const GeneralSettingsTestPage = observer(() => {
                         Создать категорию
                     </Button>
 
+                    </div>
+                   
 
-                    <FormControl variant="standard" sx={{ m: 1, minWidth: '80%', mt: 1 }}>
+                    <FormControl variant="standard" sx={{ m: 1, minWidth: '80%', mt: 2 }}>
                         <TextField
                             id="outlined-multiline-static"
-                            label="Добавьте описание теста для идентификации. Оно будет видно только вам."
+                            label="Добавьте описание теста для идентификации."
                             multiline
-                            rows={4}
+                            rows={2}
                             value={formData.description}
                             onChange={handleDescriptionChange}
+                            inputProps={{ maxLength: 100 }}
                         />
                     </FormControl>
-                    <FormControl variant="standard" sx={{ m: 1, minWidth: '80%', mt: 1 }}>
+                    {/* <FormControl variant="standard" sx={{ m: 1, minWidth: '80%', mt: 1 }}>
                         <InputLabel id="demo-simple-select-standard-label">Русский</InputLabel>
                         <Select
                             labelId="demo-simple-select-standard-label"
@@ -361,7 +365,7 @@ const GeneralSettingsTestPage = observer(() => {
                                 <MenuItem key={item.id} value={item.id.toString()}>{item.name}</MenuItem>
                             ))}
                         </Select>
-                    </FormControl>
+                    </FormControl> */}
                 </>
             </MainCard>
             <MainCard contentSX={{ p: 2.25, pt: 3.3 }} sx={{ mt: 3 }}>
@@ -444,14 +448,14 @@ const GeneralSettingsTestPage = observer(() => {
             >
                 {id ? 'Обновить' : 'Сохранить'}
             </Button>
-            <Button
+            {/* <Button
                 variant='contained'
                 color='inherit'
                 style={{ textTransform: 'none', marginTop: 10, marginLeft: 15 }}
                 onClick={() => clickClose()}
             >
                 выйти
-            </Button>
+            </Button> */}
             <DialogPopup
                 title='Подтверждение'
                 mainText={id ? 'Обновить Ваши изменения?' : 'Сохранить Ваши изменения?'}

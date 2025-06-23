@@ -25,13 +25,14 @@ import MultipleChoice from './components/multiple-choice';
 import { IPostQuestion } from '../../../../interface/interfaceStore';
 import { useParams } from "react-router-dom";
 import { fetchData, postData } from '../../../../api';
+import questionsStore from '../../../../store/questionsStore';
 
 const ConstructorPage = observer(() => {
 
     const { id } = useParams<{ id: string }>();
     const { questionId } = useParams<{ questionId: string }>();
 
-    const { createQuestionsStore, testQuestionListPageStore } = React.useContext(Context);
+    const { createQuestionsStore, testQuestionListPageStore, questionsStore } = React.useContext(Context);
     const { postQuestion, putQuestion } = createQuestionsStore;
     const { getQuestionTypes, questionsTypesArray } = testQuestionListPageStore;
     const editor = React.useRef<any>(null);
@@ -67,6 +68,8 @@ const ConstructorPage = observer(() => {
         }
     });
 
+    const [selectedQuestionId, setSelectedQuestionId] = React.useState<string | number>('new');
+
     // Функция для показа алертов
     const showAlert = (message: string, severity: 'success' | 'error') => {
         setAlertMessage(message);
@@ -99,9 +102,17 @@ const ConstructorPage = observer(() => {
 
     React.useEffect(() => {
         getQuestionTypes();
-    }, []);
+        if (id) {
+            questionsStore.fetchQuestionsByTestId(Number(id));
+        }
+    }, [id]);
 
- 
+    React.useEffect(() => {
+        // Если вопросы загрузились и нет выбранного — выбрать "создать новый вопрос"
+        if (questionsStore.questions.length > 0 && selectedQuestionId === null) {
+            setSelectedQuestionId('new');
+        }
+    }, [questionsStore.questions, selectedQuestionId]);
 
     React.useEffect(() => {
         const fetchQuestionData = async () => {
@@ -134,6 +145,56 @@ const ConstructorPage = observer(() => {
         fetchQuestionData();
     }, [questionId]);
 
+    // Новый useEffect для подгрузки вопроса при выборе из выпадающего списка
+    React.useEffect(() => {
+        const fetchSelectedQuestion = async () => {
+            if (selectedQuestionId === 'new') {
+                // Сбросить форму для создания нового вопроса
+                setQuestionData({
+                    text: "",
+                    text_abstract: "",
+                    type_id: 0,
+                    reviewable: false,
+                    answers: {
+                        correctAnswer: [],
+                        allAnswer: [],
+                        settings: {
+                            correctScore: 0,
+                            incorrectScore: 0,
+                            showMaxScore: true,
+                            requireAnswer: false,
+                            stopIfIncorrect: false
+                        }
+                    }
+                });
+                setContent("");
+                setAnswerType("");
+                return;
+            }
+            if (selectedQuestionId && String(selectedQuestionId) !== String(questionId)) {
+                try {
+                    const result = await fetchData('getQuestionsByIdById', {}, selectedQuestionId);
+                    if (result) {
+                        setQuestionData(result);
+                        setContent(result.text || "");
+                        const typeCode = typeof result.type === 'object' && result.type?.code 
+                            ? result.type.code 
+                            : result.type;
+                        setAnswerType(typeCode?.toLowerCase() || "");
+                        if (result.type_id) {
+                            setQuestionData(prev => ({
+                                ...prev,
+                                type_id: result.type_id
+                            }));
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error fetching selected question:', error);
+                }
+            }
+        };
+        fetchSelectedQuestion();
+    }, [selectedQuestionId, questionId]);
 
     const handleSingleChoiceDataChange = (data: any) => {
         const correctAnswers = data.answers
@@ -439,6 +500,31 @@ const ConstructorPage = observer(() => {
 
     return (
         <div>
+             <Typography variant="h6" color="textSecondary">
+                            Создание и редактирование вопросов
+            </Typography>
+            <div style={{ marginBottom: 10,  }}>
+            <MainCard contentSX={{ p: 1, pt: 1 }}>
+             <FormControl variant="standard" sx={{ m: 1, width: '98%', mt: 1 }}>
+                <InputLabel id="question-select-label">Вопросы теста</InputLabel>
+                <Select
+                    labelId="question-select-label"
+                    value={selectedQuestionId}
+                    onChange={e => setSelectedQuestionId(e.target.value)}
+                    label="Вопросы теста"
+                >
+                    <MenuItem value="new" style={{ fontWeight: 'bold', color: '#1976d2' }}>Создать новый вопрос</MenuItem>
+                    {questionsStore.questions.map(q => (
+                        <MenuItem key={q.question.id} value={q.question.id}>
+                            {q.question.text_abstract || q.question.text.slice(0, 40) || `Вопрос #${q.question.id}`}
+                        </MenuItem>
+                    ))}
+                </Select>
+            </FormControl>
+             </MainCard>
+            </div>
+           
+           
             <MainCard contentSX={{ p: 2.25, pt: 3.3 }}>
                 <>
                     <div style={{ padding: 5 }}>
@@ -486,25 +572,27 @@ const ConstructorPage = observer(() => {
                     </div>
 
                     <FormControl variant="standard" sx={{ m: 1,width: '98%', mt: 1 }}>
-                        {!questionId ?  <InputLabel id="answer-type-select-label">Тип ответа</InputLabel> : null}
-                        {questionId ? <>
-                        <Typography variant="h6" >
-                            Тип ответа: {(questionData as any).type?.name || 'Не определен'}
-                        </Typography>
-                        </> : <>
-                        <Select
-                            labelId="answer-type-select-label"
-                            value={answerType}
-                            onChange={handleChangeAnswerType}
-                            label="Answer Type"
-                        >
-                            {questionsTypesArray.map((type) => (
-                                <MenuItem key={type.id} value={type.code.toLowerCase()}>
-                                    {type.name}
-                                </MenuItem>
-                            ))}
-                        </Select></>}
-                      
+                        {selectedQuestionId !== 'new' ? (
+                            <Typography variant="h6" >
+                                Тип ответа: {(questionData as any).type?.name || 'Не определен'}
+                            </Typography>
+                        ) : (
+                            <>
+                                <InputLabel id="answer-type-select-label">Тип ответа</InputLabel>
+                                <Select
+                                    labelId="answer-type-select-label"
+                                    value={answerType}
+                                    onChange={handleChangeAnswerType}
+                                    label="Answer Type"
+                                >
+                                    {questionsTypesArray.map((type) => (
+                                        <MenuItem key={type.id} value={type.code.toLowerCase()}>
+                                            {type.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </>
+                        )}
                     </FormControl>
 
                     {answerType === 'single_choice' && <SingleChoice onDataChange={handleSingleChoiceDataChange} initialData={questionData.answers.allAnswer.length > 0 ? {

@@ -11,7 +11,7 @@ import {
   FormControlLabel,
   RadioGroup,
 } from "@mui/material";
-import TestTimer from "./testTimer";
+// import TestTimer from "./testTimer";
 
 const TestSingleChoiceCard = ({
   question,
@@ -59,7 +59,7 @@ const TestSingleChoiceCard = ({
               Вопрос
             </Typography>
 
-            <TestTimer timeLimit={time_limit} onTimeEnd={handleTimeEnd} />
+            {/* <TestTimer timeLimit={time_limit} onTimeEnd={handleTimeEnd} /> */}
           </Box>
 
           <Typography variant="body1" mb={2}>

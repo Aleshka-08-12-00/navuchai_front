@@ -285,8 +285,8 @@ function extractAnswerKey(html: string): string[] {
                             </TableBody>
                           </Table>
                         )}
-                        <Divider sx={{ my: 2 }} />
-                        <Box display="flex" flexDirection={{ xs: 'column', sm: 'row' }} gap={2} alignItems={{ sm: 'center' }}>
+                        {/* <Divider sx={{ my: 2 }} /> */}
+                        {/* <Box display="flex" flexDirection={{ xs: 'column', sm: 'row' }} gap={2} alignItems={{ sm: 'center' }}>
                           <Box
                             sx={{
                               background: q.isCorrect ? 'linear-gradient(90deg, #e8f5e9 0%, #c8e6c9 100%)' : 'linear-gradient(90deg, #ffebee 0%, #ffcdd2 100%)',
@@ -346,7 +346,7 @@ function extractAnswerKey(html: string): string[] {
                               </Typography>
                             </Box>
                           )}
-                        </Box>
+                        </Box> */}
                       </Collapse>
                     </TableCell>
                   </TableRow>

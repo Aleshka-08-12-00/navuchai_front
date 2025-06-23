@@ -22,14 +22,14 @@ const InformationRorRespondents: React.FC = () => {
 
     return (
         <div style={{ marginBottom: 20 }}>
-            <MainCard contentSX={{ p: 2.25, pt: 3.3 }}>
+            <MainCard contentSX={{ p: 2.25, pt: 3.3 , opacity: 0.1}}>
                 <Typography variant="h5" color="textSecondary" style={{ marginBottom: 10 }}>
                     Информация для респондентов
                 </Typography>
                 <Typography variant="h6" color="textSecondary" style={{ marginRight: 10, marginBottom: 20 }}>
                     Выберите, какую информацию показывать респондентам в конце теста.
                 </Typography>
-                <div style={{ background: '#e3e3e3', width: '100%', borderRadius: 10, padding: 20, marginTop: 20 }}>
+                <div style={{ opacity: 0.1, background: '#e3e3e3', width: '100%', borderRadius: 10, padding: 20, marginTop: 20 }}>
                     <div style={{ display: 'flex' }}>
                         <InfoIcon />
                         <Typography variant="h6" color="textSecondary" style={{ marginLeft: 5, marginBottom: 5 }}>
@@ -41,16 +41,17 @@ const InformationRorRespondents: React.FC = () => {
                     </Typography>
                 </div>
                 <FormGroup style={{marginTop: 20}}>
-                    <FormControlLabel control={<Checkbox defaultChecked />} label="Процентный балл" />
-                    <FormControlLabel control={<Checkbox defaultChecked />} label="Баллы в единицах" />
-                    <FormControlLabel control={<Checkbox defaultChecked />} label="Оценка" />
-                    <FormControlLabel control={<Checkbox defaultChecked />} label="Описательная оценка" />
-                    <FormControlLabel control={<Checkbox defaultChecked />} label="Правильные ответы на вопросы" />
+                    <FormControlLabel disabled control={<Checkbox defaultChecked />} label="Процентный балл" />
+                    <FormControlLabel disabled control={<Checkbox defaultChecked />} label="Баллы в единицах" />
+                    <FormControlLabel disabled control={<Checkbox defaultChecked />} label="Оценка" />
+                    <FormControlLabel disabled control={<Checkbox defaultChecked />} label="Описательная оценка" />
+                    <FormControlLabel disabled control={<Checkbox defaultChecked />} label="Правильные ответы на вопросы" />
                     <FormControlLabel control={<Checkbox defaultChecked />} label="Сообщение о прохождении или провале" />
                 </FormGroup>
                 <div style={{ marginTop: 20 }}>
                     <FormGroup>
                         <FormControlLabel
+                            disabled
                             control={<Switch checked={isRedirectionEnabled} onChange={handleSwitchChange} />}
                             label="Сообщить респонденту о результате по электронной почте"
                         />

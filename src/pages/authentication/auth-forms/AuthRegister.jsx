@@ -60,13 +60,17 @@ export default function AuthRegister() {
           email: '',
           company: '',
           password: '',
+          confirmPassword: '',
           submit: null
         }}
         validationSchema={Yup.object().shape({
           firstname: Yup.string().max(255).required('Имя обязательно'),
           lastname: Yup.string().max(255).required('Фамилия обязательна'),
           email: Yup.string().email('Введите корректный email').max(255).required('Email обязателен'),
-          password: Yup.string().max(255).required('Пароль обязателен')
+          password: Yup.string().max(255).required('Пароль обязателен'),
+          confirmPassword: Yup.string()
+            .oneOf([Yup.ref('password'), null], 'Пароли должны совпадать')
+            .required('Повторите пароль')
         })}
         onSubmit={async (values, { setSubmitting, setErrors }) => {
           const registerData = {
@@ -74,7 +78,7 @@ export default function AuthRegister() {
             username: values.email,
             email: values.email,
             password: values.password,
-            role_id: 2,
+            role_id: 2
           };
 
           try {
@@ -222,6 +226,25 @@ export default function AuthRegister() {
                     {errors.password}
                   </FormHelperText>
                 )}
+                <Stack spacing={1} sx={{ mt: 2 }}>
+                  <InputLabel htmlFor="confirm-password-signup">Повторите пароль*</InputLabel>
+                  <OutlinedInput
+                    fullWidth
+                    error={Boolean(touched.confirmPassword && errors.confirmPassword)}
+                    id="confirm-password-signup"
+                    type={showPassword ? 'text' : 'password'}
+                    value={values.confirmPassword}
+                    name="confirmPassword"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    placeholder="******"
+                  />
+                </Stack>
+                {touched.confirmPassword && errors.confirmPassword && (
+                  <FormHelperText error id="helper-text-confirm-password-signup">
+                    {errors.confirmPassword}
+                  </FormHelperText>
+                )}
                 <FormControl fullWidth sx={{ mt: 2 }}>
                   <Grid container spacing={2} alignItems="center">
                     <Grid item>
@@ -229,7 +252,12 @@ export default function AuthRegister() {
                     </Grid>
                     <Grid item>
                       <Typography variant="subtitle1" fontSize="0.75rem">
-                        {level?.label}
+                        {level?.label === 'Poor' && 'Очень слабый'}
+                        {level?.label === 'Weak' && 'Слабый'}
+                        {level?.label === 'Normal' && 'Нормальный'}
+                        {level?.label === 'Good' && 'Хороший'}
+                        {level?.label === 'Strong' && 'Сильный'}
+                        {level?.label !== 'Poor' && level?.label !== 'Weak' && level?.label !== 'Normal' && level?.label !== 'Good' && level?.label !== 'Strong' && level?.label}
                       </Typography>
                     </Grid>
                   </Grid>

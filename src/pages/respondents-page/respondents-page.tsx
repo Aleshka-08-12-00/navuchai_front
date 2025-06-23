@@ -95,7 +95,7 @@ const RespondentsPage = observer(() => {
                 <div onClick={() => navigate(`/respondents/${item.id}`)} style={{cursor: 'pointer'}}>
                   <div style={{ display: 'flex', alignItems: 'center', margin: 'auto', justifyContent: 'space-between' }}>
                     <Typography variant="h6" color="textSecondary" >
-                      создан: {moment(item.created_at).format('DD-MM-YYYY')} 
+                      создан: {moment(item.created_at).format('DD.MM.YYYY HH:mm')} 
                     </Typography>
                     <span>
                       <IconButton 

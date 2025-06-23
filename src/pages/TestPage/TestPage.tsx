@@ -32,7 +32,7 @@ const TestPage = observer(() => {
 
   const [start, setStart] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [questionStartTime, setQuestionStartTime] = useState<number | null>(null);
+  const [prevQuestionTime, setPrevQuestionTime] = useState<number | null>(null);
   const { testId } = useParams<{ testId: string }>();
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
@@ -82,25 +82,24 @@ const TestPage = observer(() => {
     };
   }, [testId, authStore.userId, questionsStore, settingsNewTestStore, userAnswerStore, authStore]);
 
+  useEffect(() => {
+    if (start) {
+      userAnswerStore.reset();
+      if (testId) userAnswerStore.setTestId(parseInt(testId, 10));
+      if (authStore.userId) userAnswerStore.setUserId(authStore.userId);
+      const now = new Date().toISOString();
+      userAnswerStore.setTimeStart(now);
+      setPrevQuestionTime(Date.now());
+    }
+    // eslint-disable-next-line
+  }, [start]);
+
   const questions = questionsStore.questions;
   const loading = questionsStore.loading;
   const error = questionsStore.error;
   const test = settingsNewTestStore.testMainInfo;
 
   const timeLimit = Number(settingsNewTestStore.timeLimitFromTest) || 0;
-
-  useEffect(() => {
-    if (start) {
-      userAnswerStore.reset();
-      if (testId) userAnswerStore.setTestId(parseInt(testId, 10));
-      if (authStore.userId) userAnswerStore.setUserId(authStore.userId);
-      console.log(authStore.userId)
-      const now = new Date().toISOString();
-      userAnswerStore.setTimeStart(now);
-      setQuestionStartTime(Date.now());
-      setCurrentQuestionIndex(0);
-    }
-  }, [start, testId, authStore.userId, userAnswerStore]);
 
   const handleAnswer = async (answerValue: any) => {
     if (answerValue === null || answerValue === undefined) {
@@ -114,48 +113,38 @@ const TestPage = observer(() => {
       return;
     }
 
-    const questionEndTime = new Date().toISOString();
-    const questionStart = questionStartTime
-      ? new Date(questionStartTime).toISOString()
-      : questionEndTime;
+    const now = Date.now();
+    const startTime = prevQuestionTime ?? now;
+    setPrevQuestionTime(now);
 
     userAnswerStore.saveAnswer(
       current.question.id,
       { value: answerValue },
-      questionStart,
-      questionEndTime
+      new Date(startTime).toISOString(),
+      new Date(now).toISOString()
     );
 
     const isLastQuestion = currentQuestionIndex >= questions.length - 1;
 
     if (!isLastQuestion) {
       setCurrentQuestionIndex((prev) => prev + 1);
-      setQuestionStartTime(Date.now());
     } else {
       userAnswerStore.setTimeEnd(new Date().toISOString());
-
       const fullPayload = userAnswerStore.getPayload();
-
-      if (
-        !fullPayload ||
-        !fullPayload.answers ||
-        fullPayload.answers.length === 0
-      ) {
+      if (!fullPayload || !fullPayload.answers || fullPayload.answers.length === 0) {
         showAlert("Недостаточно данных для отправки результатов", "error");
         return;
       }
-
       try {
-       const result = await testResultStore.createTestResult(fullPayload);
+        const result = await testResultStore.createTestResult(fullPayload);
         if (result) {
           setResultData(result);
           setShowResultCard(true);
-
           setTimeout(() => {
             userAnswerStore.reset();
             setStart(false);
             setCurrentQuestionIndex(0);
-            setQuestionStartTime(null);
+            setPrevQuestionTime(null);
           }, 500);
         }
         if (result?.result?.percentage !== undefined) {
@@ -170,7 +159,7 @@ const TestPage = observer(() => {
         userAnswerStore.reset();
         setStart(false);
         setCurrentQuestionIndex(0);
-        setQuestionStartTime(null);
+        setPrevQuestionTime(null);
       }
     }
   };
@@ -205,7 +194,7 @@ const TestPage = observer(() => {
       userAnswerStore.reset();
       setStart(false);
       setCurrentQuestionIndex(0);
-      setQuestionStartTime(null);
+      setPrevQuestionTime(null);
     }
   };
 
@@ -215,6 +204,7 @@ const TestPage = observer(() => {
       open={showResultCard}
       resultTestData={resultData}
       onClose={() => setShowResultCard(false)}
+      goodbyeMessage={test?.goodbye_message}
     />
   );
 }
@@ -227,6 +217,8 @@ const TestPage = observer(() => {
         questionsLength={questions.length}
         testTitle={test?.title}
         testLogo={test?.image?.path}
+        welcomeMessage={test?.welcome_message}
+        timeLimit={timeLimit}
       />
     );
   }
@@ -320,6 +312,7 @@ const TestPage = observer(() => {
         open={showResultCard}
         resultTestData={resultData}
         onClose={() => setShowResultCard(false)}
+        goodbyeMessage={test?.goodbye_message}
       />
     )}
     </>

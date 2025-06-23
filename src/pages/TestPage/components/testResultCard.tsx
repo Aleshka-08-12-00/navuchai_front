@@ -23,6 +23,7 @@ interface TestResultCardProps {
   open: boolean;
   resultTestData: ITestResultCreateResponse;
   onClose: () => void;
+  goodbyeMessage?: string;
 }
 
 const stripHtml = (html: string) => html.replace(/<[^>]+>/g, "");
@@ -31,6 +32,7 @@ const TestResultCard: React.FC<TestResultCardProps> = ({
   open,
   onClose,
   resultTestData,
+  goodbyeMessage,
 }) => {
   const navigate = useNavigate();
   const { percentage, total_time_seconds, checked_answers } = resultTestData.result;
@@ -96,9 +98,9 @@ const TestResultCard: React.FC<TestResultCardProps> = ({
           </Typography>
 
           {/* Здесь отображаем имя пользователя под результатами */}
-          <Typography variant="subtitle1" sx={{ mt: 1, fontWeight: "medium" }}>
+          {/* <Typography variant="subtitle1" sx={{ mt: 1, fontWeight: "medium" }}>
             Пользователь: {userName}
-          </Typography>
+          </Typography> */}
         </Box>
 
         <Box mt={2}>
@@ -165,6 +167,17 @@ const TestResultCard: React.FC<TestResultCardProps> = ({
             })}
           </List>
         </Box>
+
+        {/* Goodbye message */}
+        {goodbyeMessage && (
+          <Box mt={4} textAlign="center">
+            {/<[a-z][\s\S]*>/i.test(goodbyeMessage) ? (
+              <div dangerouslySetInnerHTML={{ __html: goodbyeMessage }} />
+            ) : (
+              <Typography variant="body1">{goodbyeMessage}</Typography>
+            )}
+          </Box>
+        )}
       </DialogContent>
 
       <DialogActions
