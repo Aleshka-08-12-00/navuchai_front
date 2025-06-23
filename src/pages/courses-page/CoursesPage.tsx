@@ -542,7 +542,7 @@ const CoursesPage = () => {
                 <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
                   Курсы
                 </Typography>
-                <Chip label={`${courses.length} курсов`} sx={{ background: 'rgba(255,255,255,0.2)', color: 'white', fontWeight: 600 }} />
+                <Chip label={`Количество курсов: ${courses.length}`} sx={{ background: 'rgba(255,255,255,0.2)', color: 'white', fontWeight: 600 }} />
               </Box>
               <Box sx={roleCode !== 'admin' ? { display: 'none' } : {}}>
                 <Stack direction="row" spacing={2}>
