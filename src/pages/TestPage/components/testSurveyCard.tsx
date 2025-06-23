@@ -8,7 +8,7 @@ import {
   CardMedia,
   Slider,
 } from "@mui/material";
-import TestTimer from "./testTimer";
+// import TestTimer from "./testTimer";
 
 interface QuestionProps {
   question: {
@@ -56,9 +56,9 @@ const TestSurveyCard: React.FC<QuestionProps> = ({ question, onNext }) => {
             <Typography variant="subtitle1" fontWeight="bold">
               Вопрос
             </Typography>
-              {qData.time_limit && (
+              {/* {qData.time_limit && (
                 <TestTimer timeLimit={qData.time_limit} onTimeEnd={handleTimeEnd} />
-              )}
+              )} */}
           </Box>
           <Typography variant="body1" mb={2}>
             {stripHtml(qData.text)}

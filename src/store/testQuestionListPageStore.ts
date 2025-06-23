@@ -7,6 +7,8 @@ export default class testQuestionSPageStore {
     error: string = '';
     questionArray: IQuestionInTest[] = [];
     questionsTypesArray: IQuestionTypes[] = [];
+    loadingQuestions = false;
+    loadingQuestionTypes = false;
     onAlert?: (message: string, severity: 'success' | 'error') => void;
 
     constructor(onAlert?: (message: string, severity: 'success' | 'error') => void) {
@@ -15,16 +17,24 @@ export default class testQuestionSPageStore {
     }
 
 
-    getQuestionListByTestId = async (id: number) => {
+    getQuestionListByTestId = async (id: number, force = false) => {
+        if (this.loadingQuestions) return;
+        if (!force && this.questionArray.length > 0) return;
+        this.loadingQuestions = true;
         const result = await fetchData('getQuestionsById', {}, id);
         if (result)
             this.setQuestionArrays(result)
+        this.loadingQuestions = false;
     }
 
-    getQuestionTypes = async () => {
+    getQuestionTypes = async (force = false) => {
+        if (this.loadingQuestionTypes) return;
+        if (!force && this.questionsTypesArray.length > 0) return;
+        this.loadingQuestionTypes = true;
         const result = await fetchData('getQuestionsTypes', {});
         if (result)
             this.setQuestionTypesArrays(result)
+        this.loadingQuestionTypes = false;
     }
 
     deleteQuestionById = async (id: number, testId: number) => {

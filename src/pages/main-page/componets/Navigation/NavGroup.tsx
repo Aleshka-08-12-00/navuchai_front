@@ -15,7 +15,7 @@ import { useGetMenuMaster } from '../../api/menu';
 import { Context } from '../../../..';
 
 const NavGroup = observer(({ item }: any) => {
-  const { settingsNewTestStore } = React.useContext(Context);
+  const { settingsNewTestStore, mainPageStore } = React.useContext(Context);
   const { id } = useParams<{ id: string }>();
   const { menuMaster } = useGetMenuMaster();
   //@ts-ignore
@@ -68,10 +68,11 @@ const NavGroup = observer(({ item }: any) => {
       if (result) {
         // Обновляем локальную информацию о тесте
         settingsNewTestStore.setTestById(updatedTestData);
-        
+        mainPageStore.getTests(true);
         setAlertMessage(`Тест успешно ${getStatusActionText(newStatusId)}!`);
         setAlertSeverity('success');
         setAlertOpen(true);
+       
       } else {
         setAlertMessage(`Ошибка при ${getStatusActionText(newStatusId)} теста`);
         setAlertSeverity('error');
@@ -159,20 +160,21 @@ const NavGroup = observer(({ item }: any) => {
               style={{ width: '100%', textTransform: 'none' }} 
               variant="contained"
               color="warning"
+              sx={{ backgroundColor: '#a569bd', '&:hover': { backgroundColor: '#8e44ad' } }}
               disabled={isLoading}
               onClick={handleDeactivateTest}
             >
-              {isLoading ? 'Деактивация...' : 'Деактивировать тест'}
+              {isLoading ? 'Редактирование...' : 'Редактирование теста'}
             </Button>
             <Button
               startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <StopIcon />}
               style={{ width: '100%', textTransform: 'none' }} 
               variant="contained"
-              color="error"
+              color='inherit'
               disabled={isLoading}
               onClick={handleEndTest}
             >
-              {isLoading ? 'Завершение...' : 'Окончить тест'}
+              {isLoading ? 'Завершение...' : 'Закончить тест'}
             </Button>
           </Stack>
         );
@@ -184,6 +186,7 @@ const NavGroup = observer(({ item }: any) => {
             style={{ width: '100%', textTransform: 'none' }} 
             variant="contained"
             color="success"
+            sx={{ backgroundColor: '#58d68d', '&:hover': { backgroundColor: '#48b97d' } }}
             disabled={isLoading}
             onClick={handleActivateTest}
           >
@@ -240,7 +243,7 @@ const NavGroup = observer(({ item }: any) => {
       </List>
       
       {/* Информация о статусе теста */}
-      {id && isTestLoaded && (
+      {/* {id && isTestLoaded && (
         <Box sx={{ 
           p: 2, 
           mb: 2, 
@@ -251,9 +254,6 @@ const NavGroup = observer(({ item }: any) => {
           <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
             Статус теста: <strong>{testStatus}</strong>
           </Typography>
-          <Typography variant="caption" color="textSecondary">
-            ID статуса: {currentStatusId}
-          </Typography>
           <Box sx={{ 
             mt: 1, 
             width: '100%', 
@@ -262,7 +262,7 @@ const NavGroup = observer(({ item }: any) => {
             borderRadius: 2
           }} />
         </Box>
-      )}
+      )} */}
       
       {/* Кнопки действий */}
       {getActionButtons()}

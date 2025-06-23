@@ -6,7 +6,7 @@ const MyFeedback: React.FC = () => {
 
     return (
         <div style={{ marginBottom: 20 }}>
-            <MainCard contentSX={{ p: 2.25, pt: 3.3 }}>
+            <MainCard contentSX={{ p: 2.25, pt: 3.3 , opacity: 0.1}}>
                 <Typography variant="h5" color="textSecondary" style={{ marginBottom: 10 }}>
                     Мой отзыв
                 </Typography>

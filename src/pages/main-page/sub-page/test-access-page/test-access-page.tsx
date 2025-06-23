@@ -43,10 +43,10 @@ const TestAccessPage = observer(() => {
      const { settingsStore } = React.useContext(Context);
 
      const accessOptions = [
-        { value: 'public', label: 'Открытый доступ', icon: <LockOpenOutlinedIcon sx={{fontSize: 16,}}/>},
-        { value: 'private', label: 'Закрытый доступ', icon: <LockOutlinedIcon sx={{fontSize: 16,}}/>},
-        { value: 'group', label: 'Групповой доступ', icon: <PeopleOutlinedIcon sx={{fontSize: 16,}}/>},
-        { value: 'training', label: 'Тренировка', icon: <TimerOutlinedIcon sx={{fontSize: 16,}}/>},
+        { disabled: true, value: 'public', label: 'Открытый доступ', icon: <LockOpenOutlinedIcon sx={{fontSize: 16,}}/>},
+        { disabled: true, value: 'private', label: 'Закрытый доступ', icon: <LockOutlinedIcon sx={{fontSize: 16,}}/>},
+        { disabled: false, value: 'group', label: 'Групповой доступ', icon: <PeopleOutlinedIcon sx={{fontSize: 16,}}/>},
+        { disabled: true, value: 'training', label: 'Тренировка', icon: <TimerOutlinedIcon sx={{fontSize: 16,}}/>},
     ];
     
     const [selectedOption, setSelectedOption] = useState<string>('disable');
@@ -74,6 +74,7 @@ const TestAccessPage = observer(() => {
                                 variant={settingsStore.accessType === option.value ? 'contained' : 'outlined'}
                                 onClick={() => settingsStore.setAccessType(option.value as any)}
                                 startIcon= {option.icon}
+                                disabled={option.disabled}
                                 sx={{
                                     textTransform: 'none',
                                     border: '1px solid #f1f5f8',
@@ -109,7 +110,7 @@ const TestAccessPage = observer(() => {
                 </>
             </MainCard>
 
-            <MainCard contentSX={{ p: 2.25, pt: 3.3 }} sx={{ mt: 3 }}>
+            <MainCard contentSX={{ p: 2.25, pt: 3.3 , opacity: 0.1}} sx={{ mt: 3 }}>
                 <Typography variant="h5" gutterBottom>
                     Технология честного респондента
                 </Typography>
@@ -158,13 +159,14 @@ const TestAccessPage = observer(() => {
                         py: 1
                     }}
                 >
-                    <FormControlLabel value="disable" control={<Radio />} label="Отключить" />
-                    <FormControlLabel value="warning" control={<Radio />} label="Включить предупреждение" />
-                    <FormControlLabel value="block" control={<Radio />} label="Включить предупреждение и блокировку теста" />
+                    <FormControlLabel disabled value="disable" control={<Radio />} label="Отключить" />
+                    <FormControlLabel disabled value="warning" control={<Radio />} label="Включить предупреждение" />
+                    <FormControlLabel disabled value="block" control={<Radio />} label="Включить предупреждение и блокировку теста" />
                 </RadioGroup>
             </MainCard>
 
             <Button
+                disabled
                 variant='contained'
                 color='success'
                 style={{ textTransform: 'none', marginTop: 10 }}
@@ -172,6 +174,7 @@ const TestAccessPage = observer(() => {
                 сохранить
             </Button>
             <Button
+                disabled
                 variant='contained'
                 color='inherit'
                 style={{ textTransform: 'none', marginTop: 10, marginLeft: 15 }}

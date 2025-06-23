@@ -34,7 +34,8 @@ const newTestMenu = {
       // url: '/main-page',
       icon: icons.SettingsIcon,
       breadcrumbs: true,
-      code: 'anyCode'
+      code: 'anyCode',
+      disabled: false
     },
     {
       id: '52',
@@ -43,7 +44,8 @@ const newTestMenu = {
       // url: '/main-page/test/:id/question/:questionId',
       icon: icons.TuneIcon,
       breadcrumbs: true,
-      code: 'anyCode'
+      code: 'anyCode',
+      disabled: false
     },
     {
       id: '53',
@@ -52,7 +54,8 @@ const newTestMenu = {
       // url: '/main-page/test/:id',
       icon: icons.AppsIcon,
       breadcrumbs: true,
-      code: 'anyCode'
+      code: 'anyCode',
+      disabled: true
     },
     {
       id: '54',
@@ -61,7 +64,8 @@ const newTestMenu = {
       // url: '/main-page/test/:id',
       icon: icons.VpnKeyIcon,
       breadcrumbs: true,
-      code: 'anyCode'
+      code: 'anyCode',
+      disabled: false
     },
     {
       id: '55',
@@ -70,7 +74,8 @@ const newTestMenu = {
       // url: '/main-page/test/:id',
       icon: icons.HomeIcon,
       breadcrumbs: true,
-      code: 'anyCode'
+      code: 'anyCode',
+      disabled: false
     },
     {
       id: '56',
@@ -79,7 +84,8 @@ const newTestMenu = {
       // url: '/main-page/test/:id',
       icon: icons.StickyNote2Icon,
       breadcrumbs: true,
-      code: 'anyCode'
+      code: 'anyCode',
+      disabled: false
     },
     {
       id: '57',
@@ -88,7 +94,8 @@ const newTestMenu = {
       // url: '/main-page/test/:id',
       icon: icons.ManageHistoryIcon,
       breadcrumbs: true,
-      code: 'anyCode'
+      code: 'anyCode',
+      disabled: false
     },
     {
       id: '58',
@@ -97,7 +104,8 @@ const newTestMenu = {
       // url: '/main-page/test/:id',
       icon: icons.EmojiEventsIcon,
       breadcrumbs: true,
-      code: 'anyCode'
+      code: 'anyCode',
+      disabled: true
     },
  
   ]

@@ -24,18 +24,19 @@ const TestStartPage = observer(() => {
             </Typography>
 
             <InstructionsForRespondents />
+            {/* <Button
+                variant='contained'
+                color='success'
+                style={{ textTransform: 'none', marginBottom: 20 }}
+            >
+                сохранить
+            </Button> */}
 
             <TestStartForm />
 
             <Consent />
 
-            <Button
-                variant='contained'
-                color='success'
-                style={{ textTransform: 'none', marginTop: 10 }}
-            >
-                сохранить
-            </Button>
+           
         </div>
     );
 })

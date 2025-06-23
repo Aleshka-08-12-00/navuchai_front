@@ -34,6 +34,9 @@ export interface InterfaceTests {
   completed?: number;
   status_name_ru?: string;
   status_color?: string;
+  goodbye_message?: string;
+  instructions_for_respondents?: string;
+  welcome_message?: string;
 }
 
 export interface IPostTest {
@@ -51,6 +54,9 @@ export interface IPostTest {
   locale_id: number;
   time_limit: number;
   img_id: number;
+  goodbye_message?: string;
+  instructions_for_respondents?: string;
+  welcome_message?: string;
 }
 
 export interface IRegisterUser {

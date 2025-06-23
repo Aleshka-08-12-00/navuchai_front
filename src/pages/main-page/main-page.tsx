@@ -258,6 +258,25 @@ const MainPage = observer(() => {
 
   const roleColors = getRoleColors(roleCode);
 
+  // Функция для склонения слова "раз"
+  function getAttemptWord(count: number) {
+    const absCount = Math.abs(count) % 100;
+    const lastDigit = absCount % 10;
+    if (absCount > 10 && absCount < 20) return 'раз';
+    if (lastDigit > 1 && lastDigit < 5) return 'раза';
+    if (lastDigit === 1) return 'раз';
+    return 'раз';
+  }
+
+  // Функция для склонения слова "тест"
+  function getTestWord(count: number) {
+    const absCount = Math.abs(count) % 100;
+    const lastDigit = absCount % 10;
+    if (absCount > 10 && absCount < 20) return 'тестов';
+    if (lastDigit > 1 && lastDigit < 5) return 'теста';
+    if (lastDigit === 1) return 'тест';
+    return 'тестов';
+  }
 
   return (
     <>
@@ -290,7 +309,7 @@ const MainPage = observer(() => {
                     Мои тесты
                   </Typography>
                   <Chip
-                    label={`${testsArray.length} тестов`}
+                    label={`${testsArray.length} ${getTestWord(testsArray.length)}`}
                     sx={{
                       background: 'rgba(255,255,255,0.2)',
                       color: 'white',
@@ -437,7 +456,7 @@ const MainPage = observer(() => {
                     background: 'rgba(255,255,255,0.9)',
                     backdropFilter: 'blur(10px)',
                     '&:hover': {
-                      transform: 'translateY(-8px)',
+                      transform: 'translateY(-2px)',
                       boxShadow: '0 12px 40px rgba(0,0,0,0.15)',
                     }
                   }}>
@@ -488,7 +507,7 @@ const MainPage = observer(() => {
                             }}
                           >
                             <MenuItem onClick={() => handleDeleteTestById(item.id)}>Удалить</MenuItem>
-                            <MenuItem 
+                            <MenuItem
                               onClick={() => {
                                 if (item.access_status_code !== 'FAILED' && item.access_status_code !== 'COMPLETED') {
                                   window.open(`/start_test/${item.id}`, '_blank');
@@ -500,11 +519,11 @@ const MainPage = observer(() => {
                                 cursor: (item.access_status_code === 'FAILED' || item.access_status_code === 'COMPLETED') ? 'not-allowed' : 'pointer'
                               }}
                             >
-                              {item.access_status_code === 'FAILED' ? 'Тест провален' : 
-                               item.access_status_code === 'COMPLETED' ? 'Тест пройден' : 
-                               'Начать тест'}
+                              {item.access_status_code === 'FAILED' ? 'Тест провален' :
+                                item.access_status_code === 'COMPLETED' ? 'Тест пройден' :
+                                  'Начать тест'}
                             </MenuItem>
-                            <MenuItem onClick={() => window.open(`/main-page/test/${item.id}`, '_blank')}>Редактировать</MenuItem>
+                            <MenuItem onClick={() => navigate(`/main-page/new-test/${item.id}`)}>Редактировать</MenuItem>
                           </Menu>
                         </Box>
                       </Box>
@@ -538,7 +557,7 @@ const MainPage = observer(() => {
                       </Typography>
 
                       {/* Access Time */}
-                      <Box sx={{
+                      {/* <Box sx={{
                         display: 'flex',
                         alignItems: 'center',
                         gap: 1,
@@ -551,25 +570,31 @@ const MainPage = observer(() => {
                         <Typography variant="body2" color="textSecondary">
                           Доступен с: {moment(item.access_timestamp).format('HH:mm DD.MM.YYYY')}
                         </Typography>
-                      </Box>
+                      </Box> */}
 
                       {/* Progress Section */}
                       <Box sx={{ mb: 3 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-                          {roleCode === 'user' ?   <Typography variant="body2" color="textSecondary" sx={{ fontWeight: 600 }}>
-                            Средний результат по итогам {item.user_completed} попыток
-                          </Typography> :   <Typography variant="body2" color="textSecondary" sx={{ fontWeight: 600 }}>
+                          {roleCode === 'user' ? <Typography variant="body2" color="textSecondary" sx={{ fontWeight: 600 }}>
+                            Пройдено {item.user_completed} {getAttemptWord(item.user_completed)}
+                          </Typography> : <Typography variant="body2" color="textSecondary" sx={{ fontWeight: 600 }}>
                             Средний результат
                           </Typography>}
-                        {roleCode === 'user' ?  <Typography variant="h6" sx={{ fontWeight: 700, color: getProgressColor(Number(item.user_percent) || 0) }}>
-                            {item.user_percent}%
-                          </Typography> :  <Typography variant="h6" sx={{ fontWeight: 700, color: getProgressColor(Number(item.percent) || 0) }}>
-                            {item.percent}%
-                          </Typography>}
+                          {roleCode === 'user' ?
+                            <>
+                              <Typography variant="body2" color="textSecondary" sx={{ fontWeight: 600 }}>
+                                Средний результат
+                              </Typography>
+                              <Typography variant="h6" sx={{ fontWeight: 700, color: getProgressColor(Number(item.user_percent) || 0) }}>
+                                {item.user_percent}%
+                              </Typography>
+                            </> : <Typography variant="h6" sx={{ fontWeight: 700, color: getProgressColor(Number(item.percent) || 0) }}>
+                              {item.percent}%
+                            </Typography>}
                         </Box>
                         <LinearProgress
                           variant="determinate"
-                          value={roleCode === 'user' ?  Number(item.user_percent)  : Number(item.percent) || 0}
+                          value={roleCode === 'user' ? Number(item.user_percent) : Number(item.percent) || 0}
                           sx={{
                             height: 8,
                             borderRadius: 4,
@@ -596,7 +621,7 @@ const MainPage = observer(() => {
                               {item.completed}
                             </Typography>
                           </Box> : <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Typography style={{color: getStatusColor(item.access_status_color)}} variant="body2" color="textSecondary">
+                            <Typography style={{ color: getStatusColor(item.access_status_color) }} variant="body2" color="textSecondary">
                               {item.access_status_name}
                             </Typography>
                             {/* <Chip
@@ -614,7 +639,7 @@ const MainPage = observer(() => {
                               }}
                             /> */}
                           </Box>}
-                          
+
                           <Typography variant="body2" color="textSecondary">
                             |
                           </Typography>
@@ -630,8 +655,8 @@ const MainPage = observer(() => {
                           sx={{
                             textTransform: 'none',
                             fontWeight: 600,
-                            background: (item.access_status_code === 'FAILED' || item.access_status_code === 'COMPLETED') 
-                              ? '#ccc' 
+                            background: (item.access_status_code === 'FAILED' || item.access_status_code === 'COMPLETED')
+                              ? '#ccc'
                               : '#21CBF3',
                             '&:hover': {
                               background: (item.access_status_code === 'FAILED' || item.access_status_code === 'COMPLETED')
@@ -652,9 +677,9 @@ const MainPage = observer(() => {
                             }
                           }}
                         >
-                          {item.access_status_code === 'FAILED' ? 'Тест провален' : 
-                           item.access_status_code === 'COMPLETED' ? 'Тест пройден' : 
-                           'Начать тест'}
+                          {item.access_status_code === 'FAILED' ? 'Тест провален' :
+                            item.access_status_code === 'COMPLETED' ? 'Тест пройден' :
+                              'Начать тест'}
                         </Button>
                       </Box>
                     </CardContent>
