@@ -317,7 +317,7 @@ const MainPage = observer(() => {
                     }}
                   />
                 </Box>
-                <Box sx={roleCode !== 'admin' ? { display: 'none' } : {}}>
+                <Box sx={roleCode === 'user' ? { display: 'none' } : {}}>
                   <Stack direction="row" spacing={2}>
                     <Button
                       color="inherit"
