@@ -211,29 +211,45 @@ const CourseFormDialog: React.FC<CourseFormDialogProps> = ({ open, onClose, onSa
               />
               <Typography variant="subtitle1">Уроки</Typography>
               {mod.lessons.map((les, lesIndex) => (
-                <Stack key={lesIndex} direction="row" spacing={1} alignItems="center">
+                <Stack key={lesIndex} spacing={1} sx={{ border: '1px dashed #ccc', p: 1, borderRadius: 1 }}>
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <TextField
+                      label="Название"
+                      value={les.title}
+                      onChange={(e) => handleLessonChange(modIndex, lesIndex, 'title', e.target.value)}
+                      fullWidth
+                    />
+                    <Button variant="outlined" component="label" size="small">
+                      Картинка
+                      <input
+                        type="file"
+                        hidden
+                        accept="image/*"
+                        onChange={(e) => {
+                          const f = e.target.files?.[0];
+                          if (f) handleLessonImageSelect(modIndex, lesIndex, f);
+                        }}
+                      />
+                    </Button>
+                    {les.image && <img src={les.image} alt="lesson" style={{ height: 30 }} />}
+                    <IconButton onClick={() => removeLesson(modIndex, lesIndex)}>
+                      <DeleteIcon />
+                    </IconButton>
+                  </Stack>
                   <TextField
-                    label="Название"
-                    value={les.title}
-                    onChange={(e) => handleLessonChange(modIndex, lesIndex, 'title', e.target.value)}
+                    label="Ссылка на видео"
+                    value={les.video}
+                    onChange={(e) => handleLessonChange(modIndex, lesIndex, 'video', e.target.value)}
                     fullWidth
                   />
-                  <Button variant="outlined" component="label" size="small">
-                    Картинка
-                    <input
-                      type="file"
-                      hidden
-                      accept="image/*"
-                      onChange={(e) => {
-                        const f = e.target.files?.[0];
-                        if (f) handleLessonImageSelect(modIndex, lesIndex, f);
-                      }}
-                    />
-                  </Button>
-                  {les.image && <img src={les.image} alt="lesson" style={{ height: 30 }} />}
-                  <IconButton onClick={() => removeLesson(modIndex, lesIndex)}>
-                    <DeleteIcon />
-                  </IconButton>
+                  <TextField
+                    label="Содержание"
+                    multiline
+                    minRows={3}
+                    value={les.content}
+                    onChange={(e) => handleLessonChange(modIndex, lesIndex, 'content', e.target.value)}
+                    fullWidth
+                  />
                 </Stack>
               ))}
               <Button startIcon={<AddIcon />} onClick={() => addLesson(modIndex)}>

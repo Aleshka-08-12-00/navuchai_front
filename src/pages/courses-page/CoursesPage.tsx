@@ -63,7 +63,13 @@ const CoursesPage = () => {
 
   const saveCourse = async (data: CourseFormData) => {
     try {
-      const res = await postCourse({ title: data.title, description: data.description });
+      const res = await postCourse({
+        title: data.title,
+        description: data.description,
+        accessType: data.accessType,
+        accessId: data.accessId,
+        image: data.image
+      });
       const id = res?.id;
       if (id) {
         for (const mod of data.modules) {
@@ -71,7 +77,12 @@ const CoursesPage = () => {
           const modId = m?.id;
           if (modId) {
             for (const les of mod.lessons) {
-              await postLesson(modId, { title: les.title, content: les.content, video: les.video });
+              await postLesson(modId, {
+                title: les.title,
+                content: les.content,
+                video: les.video,
+                image: les.image
+              });
             }
           }
         }
