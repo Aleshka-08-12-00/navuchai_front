@@ -16,12 +16,14 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { postData } from '../api';
 
 interface LessonForm {
   id?: number;
   title: string;
   content?: string;
   video?: string;
+  image?: string;
 }
 
 interface ModuleForm {
@@ -36,6 +38,7 @@ export interface CourseFormData {
   description?: string;
   accessType: 'public' | 'group' | 'user';
   accessId?: string;
+  image?: string;
   modules: ModuleForm[];
 }
 
@@ -55,6 +58,8 @@ const CourseFormDialog: React.FC<CourseFormDialogProps> = ({ open, onClose, onSa
   const [accessType, setAccessType] = useState<'public' | 'group' | 'user'>('public');
   const [accessId, setAccessId] = useState('');
   const [modules, setModules] = useState<ModuleForm[]>([emptyModule()]);
+  const [courseImage, setCourseImage] = useState<string>('');
+  const [courseImageFile, setCourseImageFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (course) {
@@ -63,12 +68,14 @@ const CourseFormDialog: React.FC<CourseFormDialogProps> = ({ open, onClose, onSa
       setAccessType(course.accessType);
       setAccessId(course.accessId || '');
       setModules(course.modules.length ? course.modules : [emptyModule()]);
+      setCourseImage(course.image || '');
     } else if (open) {
       setTitle('');
       setDescription('');
       setAccessType('public');
       setAccessId('');
       setModules([emptyModule()]);
+      setCourseImage('');
     }
   }, [course, open]);
 
@@ -106,8 +113,21 @@ const CourseFormDialog: React.FC<CourseFormDialogProps> = ({ open, onClose, onSa
     });
   };
 
+  const handleLessonImageSelect = async (moduleIndex: number, lessonIndex: number, file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const res = await postData('uploadLogo', formData);
+      if (res && res.url) {
+        handleLessonChange(moduleIndex, lessonIndex, 'image', res.url);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const handleSave = () => {
-    onSave({ title, description, accessType, accessId, modules });
+    onSave({ title, description, accessType, accessId, image: courseImage, modules });
   };
 
   return (
@@ -124,6 +144,35 @@ const CourseFormDialog: React.FC<CourseFormDialogProps> = ({ open, onClose, onSa
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
+          <Stack direction="row" spacing={2} alignItems="center">
+            <Button variant="outlined" component="label">
+              Загрузить изображение
+              <input type="file" hidden accept="image/*" onChange={(e) => setCourseImageFile(e.target.files?.[0] || null)} />
+            </Button>
+            {courseImageFile && (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={async () => {
+                  if (!courseImageFile) return;
+                  const formData = new FormData();
+                  formData.append('file', courseImageFile);
+                  try {
+                    const res = await postData('uploadLogo', formData);
+                    if (res && res.url) {
+                      setCourseImage(res.url);
+                      setCourseImageFile(null);
+                    }
+                  } catch (e) {
+                    console.error(e);
+                  }
+                }}
+              >
+                Сохранить
+              </Button>
+            )}
+            {courseImage && <img src={courseImage} alt="course" style={{ height: 40 }} />}
+          </Stack>
           <FormControl>
             <InputLabel id="access-label">Права доступа</InputLabel>
             <Select labelId="access-label" value={accessType} label="Права доступа" onChange={(e) => setAccessType(e.target.value as any)}>
@@ -169,6 +218,19 @@ const CourseFormDialog: React.FC<CourseFormDialogProps> = ({ open, onClose, onSa
                     onChange={(e) => handleLessonChange(modIndex, lesIndex, 'title', e.target.value)}
                     fullWidth
                   />
+                  <Button variant="outlined" component="label" size="small">
+                    Картинка
+                    <input
+                      type="file"
+                      hidden
+                      accept="image/*"
+                      onChange={(e) => {
+                        const f = e.target.files?.[0];
+                        if (f) handleLessonImageSelect(modIndex, lesIndex, f);
+                      }}
+                    />
+                  </Button>
+                  {les.image && <img src={les.image} alt="lesson" style={{ height: 30 }} />}
                   <IconButton onClick={() => removeLesson(modIndex, lesIndex)}>
                     <DeleteIcon />
                   </IconButton>

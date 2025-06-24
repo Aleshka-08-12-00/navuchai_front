@@ -119,7 +119,7 @@ const CoursesPage = () => {
                   </div>
                 </div>
                 <Button
-                  className="mt-auto w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                  className="mt-auto w-full bg-green-600 hover:bg-green-700 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
                   onClick={() => navigate(`/courses/${course.id}/modules`)}
                 >
                   <Play className="h-4 w-4 mr-2" />

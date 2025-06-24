@@ -68,7 +68,7 @@ const ModulesPage = () => {
                     <span className="text-gray-800">{lesson.title}</span>
                     <Button
                       size="sm"
-                      className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+                      className="bg-green-600 hover:bg-green-700 text-white"
                       onClick={() => navigate(`/courses/${courseId}/modules/${m.id}/lessons/${lesson.id}`)}
                     >
                       <Play className="h-4 w-4 mr-1" /> Начать
