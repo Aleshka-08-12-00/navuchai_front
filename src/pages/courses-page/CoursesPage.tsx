@@ -1,10 +1,33 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { BookOpen, Clock, Users, Star, ArrowLeft, Play } from 'lucide-react';
 import { Button } from '../../components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
-import { getCourses } from '../../api';
+import {
+  getCourses,
+  postCourse,
+  postModule,
+  postLesson
+} from '../../api';
+import { Context } from '../..';
+import {
+  Card as MuiCard,
+  CardContent as MuiCardContent,
+  Typography,
+  Chip,
+  Box,
+  Stack,
+  Button as MuiButton
+} from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import CourseFormDialog, { CourseFormData } from '../../components/CourseFormDialog';
 
 interface Course {
   id: number;
@@ -21,18 +44,44 @@ interface Course {
 const CoursesPage = () => {
   const [courses, setCourses] = useState<Course[]>([]);
   const navigate = useNavigate();
+  const { authStore } = useContext(Context);
+  const { roleCode } = authStore;
+  const [openCourseDialog, setOpenCourseDialog] = useState(false);
+
+  const loadCourses = async () => {
+    try {
+      const data = await getCourses();
+      setCourses(data);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        const data = await getCourses();
-        setCourses(data);
-      } catch (e) {
-        console.error(e);
-      }
-    };
-    load();
+    loadCourses();
   }, []);
+
+  const saveCourse = async (data: CourseFormData) => {
+    try {
+      const res = await postCourse({ title: data.title, description: data.description });
+      const id = res?.id;
+      if (id) {
+        for (const mod of data.modules) {
+          const m = await postModule(id, { title: mod.title, description: mod.description });
+          const modId = m?.id;
+          if (modId) {
+            for (const les of mod.lessons) {
+              await postLesson(modId, { title: les.title, content: les.content, video: les.video });
+            }
+          }
+        }
+      }
+      setOpenCourseDialog(false);
+      await loadCourses();
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const categories = ['Все'];
   const levels = ['Все уровни'];
@@ -40,20 +89,47 @@ const CoursesPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
       <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center mb-8">
-          <Link to="/">
-            <Button variant="ghost" size="sm" className="mr-4 hover:bg-white/50">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Назад
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              Курсы
-            </h1>
-            <p className="text-gray-600 mt-2">Выберите курс и начните обучение</p>
-          </div>
-        </div>
+        <Box sx={{ maxWidth: 1400, mx: 'auto' }}>
+          <MuiCard sx={{ mb: 3, background: '#667eea', color: 'white', borderRadius: 3, boxShadow: '0 8px 32px rgba(0,0,0,0.1)' }}>
+            <MuiCardContent sx={{ p: 4 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Link to="/">
+                    <Button variant="ghost" size="sm" className="hover:bg-white/50">
+                      <ArrowLeft className="h-4 w-4 mr-2" /> Назад
+                    </Button>
+                  </Link>
+                  <Box>
+                    <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>Курсы</Typography>
+                    <Chip label={`${courses.length} курсов`} sx={{ background: 'rgba(255,255,255,0.2)', color: 'white', fontWeight: 600 }} />
+                  </Box>
+                </Box>
+                {roleCode === 'admin' && (
+                  <Stack direction="row" spacing={2}>
+                    <MuiButton
+                      variant="contained"
+                      sx={{
+                        textTransform: 'none',
+                        background: 'linear-gradient(45deg, #4caf50, #45a049)',
+                        fontWeight: 600,
+                        boxShadow: '0 4px 15px rgba(76, 175, 80, 0.3)',
+                        '&:hover': {
+                          background: 'linear-gradient(45deg, #45a049, #4caf50)',
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 6px 20px rgba(76, 175, 80, 0.4)'
+                        }
+                      }}
+                      startIcon={<AddIcon />}
+                      onClick={() => setOpenCourseDialog(true)}
+                    >
+                      Новый курс
+                    </MuiButton>
+                  </Stack>
+                )}
+              </Box>
+            </MuiCardContent>
+          </MuiCard>
+        </Box>
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 mb-8 shadow-lg">
           <div className="grid md:grid-cols-2 gap-6">
             <div>
@@ -129,6 +205,11 @@ const CoursesPage = () => {
             </Card>
           ))}
         </div>
+        <CourseFormDialog
+          open={openCourseDialog}
+          onClose={() => setOpenCourseDialog(false)}
+          onSave={saveCourse}
+        />
       </div>
     </div>
   );
