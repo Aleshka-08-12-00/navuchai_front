@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 interface Lesson {
   id: number;
   title: string;
+  image?: string;
 }
 
 const LessonsPage = () => {
@@ -38,11 +39,12 @@ const LessonsPage = () => {
           {lessons.map((lesson) => (
             <Card key={lesson.id} className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
               <CardHeader>
+                {lesson.image && <img src={lesson.image} alt={lesson.title} className="w-full h-48 object-cover rounded-t" />}
                 <CardTitle className="text-xl font-semibold text-gray-800">{lesson.title}</CardTitle>
               </CardHeader>
               <CardContent>
                 <Button
-                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+                  className="w-full bg-green-600 hover:bg-green-700 text-white"
                   onClick={() => navigate(`/courses/${courseId}/modules/${moduleId}/lessons/${lesson.id}`)}
                 >
                   <Play className="h-4 w-4 mr-2" /> Начать урок

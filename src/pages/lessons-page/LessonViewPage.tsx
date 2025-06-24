@@ -11,6 +11,7 @@ interface Lesson {
   title: string;
   content: string;
   video?: string;
+  image?: string;
 }
 
 const LessonViewPage = () => {
@@ -54,6 +55,7 @@ const LessonViewPage = () => {
           <ArrowLeft className="h-4 w-4 mr-2" /> К урокам
         </Button>
         <h1 className="text-3xl font-bold text-gray-800 mb-6">{lesson.title}</h1>
+        {lesson.image && <img src={lesson.image} alt={lesson.title} className="mb-4 w-full max-h-96 object-cover" />}
         {lesson.video && <VideoPlayer videoUrl={lesson.video} title={lesson.title} />}
         <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg mt-6">
           <CardHeader>
