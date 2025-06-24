@@ -191,13 +191,22 @@ const TestQuestionListPage = observer(() => {
                         </Typography>
                     </Stack>
                 </Paper>
-                <Button 
-                color="success" 
-                variant="outlined"
-                style={{textTransform: 'none', marginBottom: 15}}
-                 onClick={() => navigate(`/main-page/new-test/${id}`)}>
-                + Добавить вопрос  
-                </Button>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 }}>
+                  <Button 
+                    color="success" 
+                    variant="outlined"
+                    style={{textTransform: 'none'}}
+                    onClick={() => navigate(`/main-page/new-test/${id}`)}>
+                    + Добавить вопрос  
+                  </Button>
+                  <Button 
+                    color='secondary' 
+                    variant="outlined"
+                    style={{ textTransform: 'none' }}
+                    onClick={() => navigate(`/main-page/new-test/${id}`)}>
+                    Редактировть тест 
+                  </Button>
+                </div>
 
                 <Grid container spacing={2}>
                     <Grid item xs={12} sm={12} md={12} lg={12} style={{ cursor: 'pointer' }} >

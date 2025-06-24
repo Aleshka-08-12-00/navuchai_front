@@ -34,14 +34,16 @@ export default class RespondentsStore {
             const currentUrl = window.location.href;
             const updatedUrl = currentUrl.replace('/new', `/${result.id}`);
             window.history.replaceState(null, '', updatedUrl); // Меняем URL в браузере без перезагрузки
-            this.getUserGroupsById(result.id);
+
+            this.getUserGroupsById(result.id, true);
+            this.getRespondentLists(true)
         }
     }
 
     deleteUserGroupsById = async (id: string | number) => {
         const result = await deleteData('deleteUserGroupsById', {}, id);
         if (result) {
-            this.getRespondentLists()
+            this.getRespondentLists(true)
         }
     }
 
@@ -73,6 +75,10 @@ export default class RespondentsStore {
         this.respondentListInfo = value;
     }
 
+    clearRespondentListInfo = () => {
+        this.respondentListInfo = null
+    }
+
     setUsers = (value: IUsers[]) => {
         this.usersArray = value
     }
@@ -83,7 +89,7 @@ export default class RespondentsStore {
             if (this.onAlert) {
                 this.onAlert('Данные изменены', 'success');
             }
-            this.getUserGroupsById(id);
+            this.getUserGroupsById(id, true);
         }
     }
 
@@ -98,7 +104,7 @@ export default class RespondentsStore {
             });
 
             if (response) {
-                this.getUserGroupsById(String(group_id));
+                this.getUserGroupsById(String(group_id), true);
             }
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
