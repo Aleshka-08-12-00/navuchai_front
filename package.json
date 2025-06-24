@@ -82,7 +82,12 @@
     "vite-jsconfig-paths": "^2.0.1",
     "web-vitals": "^3.5.2",
     "xlsx": "^0.18.5",
-    "yup": "^1.4.0"
+    "yup": "^1.4.0",
+    "lucide-react": "^0.462.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.5.2",
+    "@radix-ui/react-slot": "^1.1.0"
   },
   "eslintConfig": {
     "extends": [
@@ -129,6 +134,10 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "prettier": "^3.2.5",
     "react-error-overlay": "6.0.11",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "tailwindcss": "^3.4.11",
+    "postcss": "^8.4.47",
+    "autoprefixer": "^10.4.20",
+    "tailwindcss-animate": "^1.0.7"
   }
 }
