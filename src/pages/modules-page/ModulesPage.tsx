@@ -1,9 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Play } from 'lucide-react';
-import { getModules, getLessons } from 'api';
+import { getModules, getLessons, postModule, postLesson } from 'api';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+import { Context } from '../..';
+import {
+  Card as MuiCard,
+  CardContent as MuiCardContent,
+  Typography,
+  Box,
+  Chip,
+  Stack,
+  Button as MuiButton
+} from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
 
 interface Lesson {
   id: number;
@@ -20,37 +31,95 @@ const ModulesPage = () => {
   const { courseId } = useParams();
   const [modules, setModules] = useState<Module[]>([]);
   const navigate = useNavigate();
+  const { authStore } = useContext(Context);
+  const { roleCode } = authStore;
+
+  const loadModules = async () => {
+    if (!courseId) return;
+    try {
+      const m = await getModules(Number(courseId));
+      const withLessons = await Promise.all(
+        m.map(async (mod: any) => {
+          try {
+            const lessons = await getLessons(mod.id);
+            return { ...mod, lessons };
+          } catch (e) {
+            console.error(e);
+            return { ...mod, lessons: [] };
+          }
+        })
+      );
+      setModules(withLessons);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   useEffect(() => {
-    if (!courseId) return;
-    (async () => {
-      try {
-        const m = await getModules(Number(courseId));
-        const withLessons = await Promise.all(
-          m.map(async (mod: any) => {
-            try {
-              const lessons = await getLessons(mod.id);
-              return { ...mod, lessons };
-            } catch (e) {
-              console.error(e);
-              return { ...mod, lessons: [] };
-            }
-          })
-        );
-        setModules(withLessons);
-      } catch (e) {
-        console.error(e);
-      }
-    })();
+    loadModules();
   }, [courseId]);
+
+  const handleAddModule = async () => {
+    const title = window.prompt('Название модуля');
+    if (!title || !courseId) return;
+    try {
+      await postModule(Number(courseId), { title });
+      await loadModules();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleAddLesson = async (moduleId: number) => {
+    const title = window.prompt('Название урока');
+    if (!title) return;
+    try {
+      await postLesson(moduleId, { title });
+      await loadModules();
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
       <div className="container mx-auto px-4 py-8">
-        <Button variant="ghost" size="sm" className="mb-4 hover:bg-white/50" onClick={() => navigate(-1)}>
-          <ArrowLeft className="h-4 w-4 mr-2" /> Назад
-        </Button>
-        <h1 className="text-3xl font-bold text-gray-800 mb-6">Модули курса</h1>
+        <Box sx={{ maxWidth: 1400, mx: 'auto' }}>
+          <MuiCard sx={{ mb: 3, background: '#667eea', color: 'white', borderRadius: 3, boxShadow: '0 8px 32px rgba(0,0,0,0.1)' }}>
+            <MuiCardContent sx={{ p: 4 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Button variant="ghost" size="sm" className="hover:bg-white/50" onClick={() => navigate(-1)}>
+                    <ArrowLeft className="h-4 w-4 mr-2" /> Назад
+                  </Button>
+                  <Typography variant="h4" sx={{ fontWeight: 700 }}>Модули курса</Typography>
+                </Box>
+                {roleCode === 'admin' && (
+                  <Stack direction="row" spacing={2}>
+                    <MuiButton
+                      variant="contained"
+                      sx={{
+                        textTransform: 'none',
+                        background: 'linear-gradient(45deg, #4caf50, #45a049)',
+                        fontWeight: 600,
+                        boxShadow: '0 4px 15px rgba(76, 175, 80, 0.3)',
+                        '&:hover': {
+                          background: 'linear-gradient(45deg, #45a049, #4caf50)',
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 6px 20px rgba(76, 175, 80, 0.4)'
+                        }
+                      }}
+                      startIcon={<AddIcon />}
+                      onClick={handleAddModule}
+                    >
+                      Новый модуль
+                    </MuiButton>
+                  </Stack>
+                )}
+              </Box>
+            </MuiCardContent>
+          </MuiCard>
+        </Box>
         <div className="space-y-4">
           {modules.map((m) => (
             <Card key={m.id} className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
@@ -71,10 +140,15 @@ const ModulesPage = () => {
                       className="bg-green-600 hover:bg-green-700 text-white"
                       onClick={() => navigate(`/courses/${courseId}/modules/${m.id}/lessons/${lesson.id}`)}
                     >
-                      <Play className="h-4 w-4 mr-1" /> Начать
-                    </Button>
-                  </div>
+                    <Play className="h-4 w-4 mr-1" /> Начать
+                  </Button>
+                </div>
                 ))}
+                {roleCode === 'admin' && (
+                  <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white" onClick={() => handleAddLesson(m.id)}>
+                    <AddIcon className="h-4 w-4 mr-1" /> Добавить урок
+                  </Button>
+                )}
               </CardContent>
             </Card>
           ))}
