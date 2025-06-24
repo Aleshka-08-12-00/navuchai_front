@@ -12,6 +12,7 @@ import Box from '@mui/material/Box';
 
 
 import Transitions from 'components/@extended/Transitions';
+import Profile from './Profile';
 
 // assets
 import MoreOutlined from '@ant-design/icons/MoreOutlined';
@@ -89,7 +90,7 @@ export default function MobileSection() {
               <ClickAwayListener onClickAway={handleClose}>
                 <AppBar color="inherit">
                   <Toolbar>
-               
+                    <Profile />
                   </Toolbar>
                 </AppBar>
               </ClickAwayListener>

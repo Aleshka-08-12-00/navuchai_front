@@ -81,6 +81,7 @@ class AuthStore {
 
   logout = () => {
     localStorage.removeItem('tokenNavuchai');
+    localStorage.removeItem('refreshTokenNavuchai');
     this.setAuth(false);
     this.userId = null;
     window.location.reload();
