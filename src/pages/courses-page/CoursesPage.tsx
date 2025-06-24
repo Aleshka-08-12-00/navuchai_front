@@ -82,7 +82,7 @@ const CoursesPage = () => {
           {courses.map((course, index) => (
             <Card
               key={course.id}
-              className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 animate-fade-in overflow-hidden"
+              className="flex flex-col bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 animate-fade-in overflow-hidden"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               <div className="relative">
@@ -97,7 +97,7 @@ const CoursesPage = () => {
                 <CardTitle className="text-xl font-semibold text-gray-800 line-clamp-2">{course.title}</CardTitle>
                 <CardDescription className="text-gray-600 line-clamp-2">{course.description}</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex flex-col flex-grow">
                 <div className="flex items-center justify-between mb-4 text-sm text-gray-600">
                   <div className="flex items-center">
                     <Clock className="h-4 w-4 mr-1" />
@@ -119,7 +119,7 @@ const CoursesPage = () => {
                   </div>
                 </div>
                 <Button
-                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                  className="mt-auto w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
                   onClick={() => navigate(`/courses/${course.id}/modules`)}
                 >
                   <Play className="h-4 w-4 mr-2" />
