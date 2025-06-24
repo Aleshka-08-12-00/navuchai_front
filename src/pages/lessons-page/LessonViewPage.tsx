@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Stack, Typography } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
 import { getLessons } from '../../api';
 import VideoPlayer from '../../components/VideoPlayer';
+import { Button } from '../../components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 
 interface Lesson {
   id: number;
@@ -11,30 +13,21 @@ interface Lesson {
   video?: string;
 }
 
-interface LessonViewPageProps {
-  courseId?: number;
-  moduleId?: number;
-  lessonId?: number;
-  onLessonChange?: (courseId: number, moduleId: number, lessonId: number) => void;
-  onLessonComplete?: (lessonId: number, courseId: number) => void;
-}
-
-const LessonViewPage: React.FC<LessonViewPageProps> = ({
-  courseId,
-  moduleId,
-  lessonId,
-  onLessonChange,
-  onLessonComplete
-}) => {
+const LessonViewPage = () => {
+  const { lessonId, moduleId, courseId } = useParams();
+  const navigate = useNavigate();
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [lessons, setLessons] = useState<Lesson[]>([]);
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (!moduleId) return;
     (async () => {
-      const allLessons = await getLessons(Number(moduleId));
-      setLessons(allLessons);
+      try {
+        const all = await getLessons(Number(moduleId));
+        setLessons(all);
+      } catch (e) {
+        console.error(e);
+      }
     })();
   }, [moduleId]);
 
@@ -43,79 +36,55 @@ const LessonViewPage: React.FC<LessonViewPageProps> = ({
     const current = lessons.find((l) => l.id === Number(lessonId));
     if (current) {
       setLesson(current);
-      console.log('Текущий урок:', current);
-      console.log('URL видео:', current.video);
-      
-      // Тестируем доступность YouTube
-      const testIframe = document.createElement('iframe');
-      testIframe.src = 'https://www.youtube.com/embed/dQw4w9WgXcQ';
-      testIframe.style.display = 'none';
-      document.body.appendChild(testIframe);
-      
-      setTimeout(() => {
-        document.body.removeChild(testIframe);
-        console.log('Тест iframe завершен');
-      }, 1000);
     }
   }, [lessonId, lessons]);
 
   if (!lesson) {
-    return (
-      <div>
-        <Typography variant="h6" color="text.secondary">
-          Выберите урок для просмотра
-        </Typography>
-      </div>
-    );
+    return null;
   }
 
   const index = lessons.findIndex((l) => l.id === lesson.id);
   const prevLesson = lessons[index - 1];
   const nextLesson = lessons[index + 1];
 
-  const handlePrevLesson = () => {
-    if (prevLesson && courseId && moduleId && onLessonChange) {
-      onLessonChange(courseId, moduleId, prevLesson.id);
-    }
-  };
-
-  const handleNextLesson = () => {
-    if (nextLesson && courseId && moduleId && onLessonChange) {
-      onLessonChange(courseId, moduleId, nextLesson.id);
-    }
-  };
-
-  const handleComplete = () => {
-    if (lesson && onLessonComplete && courseId) {
-      onLessonComplete(lesson.id, courseId);
-    }
-  };
-
   return (
-    <div>
-      <Button variant="outlined" sx={{ mb: 2 }} onClick={() => navigate(-1)}>Назад</Button>
-      <Typography variant="h4" sx={{ mb: 2 }}>
-        {lesson.title}
-      </Typography>
-      {lesson.video && (
-        <VideoPlayer videoUrl={lesson.video} title={lesson.title} />
-      )}
-      <div dangerouslySetInnerHTML={{ __html: lesson.content }} />
-      <Button variant="outlined" sx={{ mt: 2 }} onClick={handleComplete}>Отметить как пройдено</Button>
-      <Stack direction="row" justifyContent="space-between" sx={{ mt: 3 }}>
-        <Button
-          disabled={!prevLesson}
-          onClick={handlePrevLesson}
-        >
-          Предыдущий
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
+      <div className="container mx-auto px-4 py-8">
+        <Button variant="ghost" size="sm" className="mb-4 hover:bg-white/50" onClick={() => navigate(-1)}>
+          <ArrowLeft className="h-4 w-4 mr-2" /> К урокам
         </Button>
-        <Button
-          disabled={!nextLesson}
-          onClick={handleNextLesson}
-        >
-          Следующий
-        </Button>
-      </Stack>
+        <h1 className="text-3xl font-bold text-gray-800 mb-6">{lesson.title}</h1>
+        {lesson.video && <VideoPlayer videoUrl={lesson.video} title={lesson.title} />}
+        <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg mt-6">
+          <CardHeader>
+            <CardTitle className="text-xl font-semibold text-gray-800">Материалы урока</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div dangerouslySetInnerHTML={{ __html: lesson.content }} />
+          </CardContent>
+        </Card>
+        <div className="flex justify-between mt-6">
+          <Button
+            variant="outline"
+            disabled={!prevLesson}
+            onClick={() => prevLesson && navigate(`/courses/${courseId}/modules/${moduleId}/lessons/${prevLesson.id}`)}
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" /> Предыдущий
+          </Button>
+          <Button
+            variant="outline"
+            disabled={!nextLesson}
+            onClick={() => nextLesson && navigate(`/courses/${courseId}/modules/${moduleId}/lessons/${nextLesson.id}`)}
+          >
+            Следующий <ArrowRight className="h-4 w-4 ml-2" />
+          </Button>
+        </div>
+        <div className="mt-6 text-right">
+          <Button variant="default" onClick={() => navigate(-1)}>
+            <CheckCircle className="h-4 w-4 mr-2" /> Завершить урок
+          </Button>
+        </div>
+      </div>
     </div>
   );
 };
