@@ -71,9 +71,10 @@ const CourseFormDialog: React.FC<CourseFormDialogProps> = ({ open, onClose, onSa
       setAccessId(course.accessId || '');
       setModules(course.modules.length ? course.modules : [emptyModule()]);
       if (course.image) {
-        setCourseImage(course.image);
+        const img = typeof course.image === 'string' ? course.image : (course.image as any).path;
+        setCourseImage(img || '');
       } else if (course.imageId) {
-        setCourseImage(`${import.meta.env.VITE_REACT_APP_API_URL}/api/files/${course.imageId}`);
+        setCourseImage('');
       } else {
         setCourseImage('');
       }
