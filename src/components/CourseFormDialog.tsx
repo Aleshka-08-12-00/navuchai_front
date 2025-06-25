@@ -70,7 +70,13 @@ const CourseFormDialog: React.FC<CourseFormDialogProps> = ({ open, onClose, onSa
       setAccessType(course.accessType);
       setAccessId(course.accessId || '');
       setModules(course.modules.length ? course.modules : [emptyModule()]);
-      setCourseImage(course.image || '');
+      if (course.image) {
+        setCourseImage(course.image);
+      } else if (course.imageId) {
+        setCourseImage(`${import.meta.env.VITE_REACT_APP_API_URL}/api/files/${course.imageId}`);
+      } else {
+        setCourseImage('');
+      }
       setCourseImageId(course.imageId || null);
     } else if (open) {
       setTitle('');
@@ -249,12 +255,6 @@ const CourseFormDialog: React.FC<CourseFormDialogProps> = ({ open, onClose, onSa
                       <DeleteIcon />
                     </IconButton>
                   </Stack>
-                  <TextField
-                    label="Ссылка на видео"
-                    value={les.video}
-                    onChange={(e) => handleLessonChange(modIndex, lesIndex, 'video', e.target.value)}
-                    fullWidth
-                  />
                   <TextField
                     label="Содержание"
                     multiline
