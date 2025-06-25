@@ -33,7 +33,7 @@ interface Course {
   id: number;
   title: string;
   description: string;
-  image?: string;
+  image?: { path?: string } | string | null;
   img_id?: number;
   duration?: string;
   students?: number;
@@ -52,7 +52,14 @@ const CoursesPage = () => {
   const loadCourses = async () => {
     try {
       const data = await getCourses();
-      setCourses(data);
+      const formatted = data.map((c: any) => ({
+        ...c,
+        image:
+          typeof c.image === 'string'
+            ? c.image
+            : c.image?.path || null
+      }));
+      setCourses(formatted);
     } catch (e) {
       console.error(e);
     }
@@ -177,9 +184,9 @@ const CoursesPage = () => {
               <div className="relative">
                 <img
                   src={
-                    course.img_id
-                      ? `${import.meta.env.VITE_REACT_APP_API_URL}/api/files/${course.img_id}`
-                      : course.image || 'https://via.placeholder.com/400x200'
+                    typeof course.image === 'string'
+                      ? course.image
+                      : course.image?.path || 'https://via.placeholder.com/400x200'
                   }
                   alt={course.title}
                   className="w-full h-48 object-cover"
