@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import JoditEditor from 'jodit-react';
 import { postData } from '../api';
 
 interface LessonForm {
@@ -257,13 +258,12 @@ const CourseFormDialog: React.FC<CourseFormDialogProps> = ({ open, onClose, onSa
                     </IconButton>
                   </Stack>
                   <TextField
-                    label="Содержание"
-                    multiline
-                    minRows={3}
-                    value={les.content}
-                    onChange={(e) => handleLessonChange(modIndex, lesIndex, 'content', e.target.value)}
+                    label="Ссылка на видео"
+                    value={les.video}
+                    onChange={(e) => handleLessonChange(modIndex, lesIndex, 'video', e.target.value)}
                     fullWidth
                   />
+                  <JoditEditor value={les.content || ''} onBlur={(val) => handleLessonChange(modIndex, lesIndex, 'content', val)} />
                 </Stack>
               ))}
               <Button startIcon={<AddIcon />} onClick={() => addLesson(modIndex)}>
