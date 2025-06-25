@@ -773,7 +773,6 @@ const CoursesPage = () => {
           <DialogContent dividers>
             <Stack spacing={2}>
               <TextField label="Название" value={lessonTitle} onChange={(e) => setLessonTitle(e.target.value)} />
-              <TextField label="Ссылка на видео" value={lessonVideo} onChange={(e) => setLessonVideo(e.target.value)} />
               <JoditEditor ref={editor} value={lessonContent} onBlur={setLessonContent} />
             </Stack>
           </DialogContent>

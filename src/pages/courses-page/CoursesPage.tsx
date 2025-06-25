@@ -34,6 +34,7 @@ interface Course {
   title: string;
   description: string;
   image?: string;
+  img_id?: number;
   duration?: string;
   students?: number;
   rating?: number;
@@ -174,7 +175,15 @@ const CoursesPage = () => {
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               <div className="relative">
-                <img src={course.image || 'https://via.placeholder.com/400x200'} alt={course.title} className="w-full h-48 object-cover" />
+                <img
+                  src={
+                    course.img_id
+                      ? `${import.meta.env.VITE_REACT_APP_API_URL}/api/files/${course.img_id}`
+                      : course.image || 'https://via.placeholder.com/400x200'
+                  }
+                  alt={course.title}
+                  className="w-full h-48 object-cover"
+                />
                 {course.category && (
                   <div className="absolute top-4 left-4">
                     <Badge className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">{course.category}</Badge>
