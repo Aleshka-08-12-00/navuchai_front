@@ -68,6 +68,7 @@ const CoursesPage = () => {
         description: data.description,
         accessType: data.accessType,
         accessId: data.accessId,
+        img_id: data.imageId,
         image: data.image
       });
       const id = res?.id;
