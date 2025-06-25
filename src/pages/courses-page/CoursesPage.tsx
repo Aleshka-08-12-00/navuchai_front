@@ -368,7 +368,9 @@ const CoursesPage = () => {
               )}
               <Button
                 className="mt-auto w-full bg-green-600 hover:bg-green-700 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-                onClick={() => navigate(`/courses/${course.id}/modules`)}
+                onClick={() =>
+                  navigate(`/courses/${course.id}/modules`, { state: { course } })
+                }
               >
                   <Play className="h-4 w-4 mr-2" />
                   Начать курс
