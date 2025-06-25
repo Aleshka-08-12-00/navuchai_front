@@ -14,7 +14,15 @@ import {
   getCourses,
   postCourse,
   postModule,
-  postLesson
+  postLesson,
+  putCourse,
+  deleteCourse,
+  putModule,
+  putLesson,
+  getModules,
+  getLessons,
+  getUserCourses,
+  getCourseProgress
 } from '../../api';
 import { Context } from '../..';
 import {
@@ -24,8 +32,13 @@ import {
   Chip,
   Box,
   Stack,
-  Button as MuiButton
+  Button as MuiButton,
+  IconButton,
+  Menu,
+  MenuItem,
+  LinearProgress
 } from '@mui/material';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import AddIcon from '@mui/icons-material/Add';
 import CourseFormDialog, { CourseFormData } from '../../components/CourseFormDialog';
 
@@ -40,6 +53,8 @@ interface Course {
   rating?: number;
   lessons?: number;
   category?: string;
+  progress?: number;
+  enrolled?: boolean;
 }
 
 const CoursesPage = () => {
@@ -48,17 +63,43 @@ const CoursesPage = () => {
   const { authStore } = useContext(Context);
   const { roleCode } = authStore;
   const [openCourseDialog, setOpenCourseDialog] = useState(false);
+  const [editingCourseId, setEditingCourseId] = useState<number | null>(null);
+  const [courseFormData, setCourseFormData] = useState<CourseFormData | undefined>(undefined);
+  const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
+  const [menuCourseId, setMenuCourseId] = useState<number | null>(null);
 
   const loadCourses = async () => {
     try {
       const data = await getCourses();
-      const formatted = data.map((c: any) => ({
-        ...c,
-        image:
-          typeof c.image === 'string'
-            ? c.image
-            : c.image?.path || null
-      }));
+      let userCourses: number[] = [];
+      if (authStore.userId) {
+        try {
+          const ucs = await getUserCourses(authStore.userId);
+          userCourses = ucs.map((u: any) => u.course_id);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+      const formatted = await Promise.all(
+        data.map(async (c: any) => {
+          let progress = 0;
+          if (userCourses.includes(c.id)) {
+            try {
+              const p = await getCourseProgress(c.id);
+              progress = p.percent;
+            } catch (e) {
+              console.error(e);
+            }
+          }
+          return {
+            ...c,
+            image:
+              typeof c.image === 'string' ? c.image : c.image?.path || null,
+            progress,
+            enrolled: userCourses.includes(c.id)
+          };
+        })
+      );
       setCourses(formatted);
     } catch (e) {
       console.error(e);
@@ -69,34 +110,122 @@ const CoursesPage = () => {
     loadCourses();
   }, []);
 
+  const handleMenuOpen = (e: React.MouseEvent<HTMLElement>, id: number) => {
+    setMenuAnchor(e.currentTarget);
+    setMenuCourseId(id);
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchor(null);
+    setMenuCourseId(null);
+  };
+
+  const handleAddCourse = () => {
+    setEditingCourseId(null);
+    setCourseFormData(undefined);
+    setOpenCourseDialog(true);
+  };
+
+  const handleEditCourse = async (courseId: number) => {
+    const course = courses.find((c) => c.id === courseId);
+    if (!course) return;
+    try {
+      const modulesData = await getModules(courseId);
+      const modulesWithLessons = await Promise.all(
+        modulesData.map(async (m: any) => {
+          const lessonsData = await getLessons(m.id);
+          return { ...m, lessons: lessonsData };
+        })
+      );
+      const formData: CourseFormData = {
+        title: course.title,
+        description: course.description || '',
+        accessType: 'public',
+        modules: modulesWithLessons.map((m: any) => ({
+          id: m.id,
+          title: m.title,
+          description: m.description || '',
+          lessons:
+            m.lessons?.map((l: any) => ({
+              id: l.id,
+              title: l.title,
+              content: l.content || '',
+              video: l.video || '',
+              image: l.image || ''
+            })) || []
+        }))
+      };
+      setEditingCourseId(courseId);
+      setCourseFormData(formData);
+      setOpenCourseDialog(true);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleDeleteCourse = async (id: number) => {
+    if (!window.confirm('Удалить курс?')) return;
+    try {
+      await deleteCourse(id);
+      await loadCourses();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const saveCourse = async (data: CourseFormData) => {
     try {
-      const res = await postCourse({
-        title: data.title,
-        description: data.description,
-        accessType: data.accessType,
-        accessId: data.accessId,
-        img_id: data.imageId,
-        image: data.image
-      });
-      const id = res?.id;
+      let id = editingCourseId;
+      if (editingCourseId) {
+        await putCourse(editingCourseId, {
+          title: data.title,
+          description: data.description,
+          img_id: data.imageId
+        });
+      } else {
+        const res = await postCourse({
+          title: data.title,
+          description: data.description,
+          accessType: data.accessType,
+          accessId: data.accessId,
+          img_id: data.imageId,
+          image: data.image
+        });
+        id = res?.id;
+      }
       if (id) {
         for (const mod of data.modules) {
-          const m = await postModule(id, { title: mod.title, description: mod.description });
-          const modId = m?.id;
+          let modId = mod.id;
+          if (modId) {
+            await putModule(modId, { title: mod.title, description: mod.description });
+          } else {
+            const m = await postModule(id, { title: mod.title, description: mod.description });
+            modId = m?.id;
+          }
           if (modId) {
             for (const les of mod.lessons) {
-              await postLesson(modId, {
-                title: les.title,
-                content: les.content,
-                video: les.video,
-                image: les.image
-              });
+              if (les.id) {
+                await putLesson(les.id, {
+                  title: les.title,
+                  content: les.content,
+                  video: les.video,
+                  image: les.image
+                });
+              } else {
+                await postLesson(modId, {
+                  title: les.title,
+                  content: les.content,
+                  video: les.video,
+                  image: les.image
+                });
+              }
             }
           }
         }
       }
       setOpenCourseDialog(false);
+      setEditingCourseId(null);
+      setCourseFormData(undefined);
       await loadCourses();
     } catch (e) {
       console.error(e);
@@ -140,7 +269,7 @@ const CoursesPage = () => {
                         }
                       }}
                       startIcon={<AddIcon />}
-                      onClick={() => setOpenCourseDialog(true)}
+                      onClick={handleAddCourse}
                     >
                       Новый курс
                     </MuiButton>
@@ -197,7 +326,16 @@ const CoursesPage = () => {
                   </div>
                 )}
               </div>
-              <CardHeader>
+              <CardHeader className="relative">
+                {roleCode === 'admin' && (
+                  <IconButton
+                    size="small"
+                    className="absolute right-2 top-2"
+                    onClick={(e) => handleMenuOpen(e, course.id)}
+                  >
+                    <MoreVertIcon fontSize="small" />
+                  </IconButton>
+                )}
                 <CardTitle className="text-xl font-semibold text-gray-800 line-clamp-2">{course.title}</CardTitle>
                 <CardDescription className="text-gray-600 line-clamp-2">{course.description}</CardDescription>
               </CardHeader>
@@ -217,15 +355,21 @@ const CoursesPage = () => {
                     <Users className="h-4 w-4 mr-1" />
                     {course.students ?? 0} студентов
                   </div>
-                  <div className="flex items-center text-yellow-600">
-                    <Star className="h-4 w-4 mr-1 fill-current" />
-                    {course.rating ?? 0}
-                  </div>
+                <div className="flex items-center text-yellow-600">
+                  <Star className="h-4 w-4 mr-1 fill-current" />
+                  {course.rating ?? 0}
                 </div>
-                <Button
-                  className="mt-auto w-full bg-green-600 hover:bg-green-700 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-                  onClick={() => navigate(`/courses/${course.id}/modules`)}
-                >
+              </div>
+              {roleCode !== 'admin' && course.enrolled && (
+                <div className="mb-4">
+                  <LinearProgress variant="determinate" value={course.progress ?? 0} />
+                  <div className="text-xs text-gray-600 mt-1">{course.progress ?? 0}% пройдено</div>
+                </div>
+              )}
+              <Button
+                className="mt-auto w-full bg-green-600 hover:bg-green-700 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                onClick={() => navigate(`/courses/${course.id}/modules`)}
+              >
                   <Play className="h-4 w-4 mr-2" />
                   Начать курс
                 </Button>
@@ -233,10 +377,15 @@ const CoursesPage = () => {
             </Card>
           ))}
         </div>
+        <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={handleMenuClose}>
+          <MenuItem onClick={() => { if(menuCourseId) handleEditCourse(menuCourseId); handleMenuClose(); }}>Редактировать</MenuItem>
+          <MenuItem onClick={() => { if(menuCourseId) handleDeleteCourse(menuCourseId); handleMenuClose(); }}>Удалить</MenuItem>
+        </Menu>
         <CourseFormDialog
           open={openCourseDialog}
           onClose={() => setOpenCourseDialog(false)}
           onSave={saveCourse}
+          course={courseFormData}
         />
       </div>
     </div>
