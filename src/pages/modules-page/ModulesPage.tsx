@@ -1,11 +1,28 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { ArrowLeft, Play } from 'lucide-react';
-import { getModules, getLessons, postModule, postLesson, putLesson, getCourse } from 'api';
+import {
+  getModules,
+  getLessons,
+  postModule,
+  postLesson,
+  putLesson,
+  getCourse,
+  getModuleProgress
+} from 'api';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Context } from '../..';
-import { Card as MuiCard, CardContent as MuiCardContent, Typography, Box, Chip, Stack, Button as MuiButton } from '@mui/material';
+import {
+  Card as MuiCard,
+  CardContent as MuiCardContent,
+  Typography,
+  Box,
+  Chip,
+  Stack,
+  Button as MuiButton,
+  LinearProgress
+} from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import LessonFormDialog, { LessonFormData } from '../../components/LessonFormDialog';
 
@@ -15,12 +32,15 @@ interface Lesson {
   content?: string;
   video?: string;
   image?: string;
+  completed?: boolean;
 }
 
 interface Module {
   id: number;
   title: string;
   lessons: Lesson[];
+  progress?: number;
+  completedLessons?: any[];
 }
 
 interface Course {
@@ -52,11 +72,25 @@ const ModulesPage = () => {
         modulesArray.map(async (mod: any) => {
           try {
             const lessonsData = await getLessons(mod.id);
-            const lessonsArray = Array.isArray(lessonsData) ? lessonsData : lessonsData.lessons || lessonsData.items || [];
-            return { ...mod, lessons: lessonsArray };
+            const lessonsArray = Array.isArray(lessonsData)
+              ? lessonsData
+              : lessonsData.lessons || lessonsData.items || [];
+            let progress = 0;
+            let completedLessons: any[] = [];
+            if (roleCode !== 'admin') {
+              try {
+                const p = await getModuleProgress(mod.id);
+                progress = p?.percent ?? 0;
+                completedLessons =
+                  p?.lessons || p?.completedLessons || p?.completed_lessons || [];
+              } catch (e) {
+                console.error(e);
+              }
+            }
+            return { ...mod, lessons: lessonsArray, progress, completedLessons };
           } catch (e) {
             console.error(e);
-            return { ...mod, lessons: [] };
+            return { ...mod, lessons: [], progress: 0, completedLessons: [] };
           }
         })
       );
@@ -188,9 +222,29 @@ const ModulesPage = () => {
                   <CardTitle className="text-xl font-semibold text-gray-800">
                     Модуль {m.id}: {m.title}
                   </CardTitle>
+                  {roleCode !== 'admin' && (
+                    <div className="mt-2">
+                      <LinearProgress variant="determinate" value={m.progress ?? 0} />
+                      <div className="text-xs text-gray-600 mt-1">{m.progress ?? 0}% пройдено</div>
+                    </div>
+                  )}
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  {m.lessons.map((lesson) => (
+                  {m.lessons.map((lesson) => {
+                    const completed = Array.isArray(m.completedLessons)
+                      ? m.completedLessons.some((cl: any) => {
+                          if (typeof cl === 'number') return cl === lesson.id;
+                          if (typeof cl === 'object' && cl) {
+                            if ('lesson_id' in cl) return cl.lesson_id === lesson.id;
+                            if ('id' in cl && ('completed' in cl || 'done' in cl)) {
+                              return cl.id === lesson.id && (cl.completed ?? cl.done ?? true);
+                            }
+                            if ('id' in cl) return cl.id === lesson.id;
+                          }
+                          return false;
+                        })
+                      : !!(lesson as any).completed;
+                    return (
                     <div
                       key={lesson.id}
                       className="flex items-center justify-between p-3 bg-white rounded-lg hover:bg-purple-50 transition-colors"
@@ -207,10 +261,11 @@ const ModulesPage = () => {
                         className="bg-green-600 hover:bg-green-700 text-white"
                         onClick={() => navigate(`/courses/${courseId}/modules/${m.id}/lessons/${lesson.id}`)}
                       >
-                        <Play className="h-4 w-4 mr-1" /> Начать
+                        <Play className="h-4 w-4 mr-1" /> {completed ? 'Повторить' : 'Начать'}
                       </Button>
                     </div>
-                  ))}
+                  );
+                  })}
                   {roleCode === 'admin' && (
                     <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white" onClick={() => handleAddLesson(m.id)}>
                       <AddIcon className="h-4 w-4 mr-1" /> Добавить урок
