@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { ArrowLeft, Play } from 'lucide-react';
-import { getModules, getLessons, postModule, postLesson } from 'api';
+import { getModules, getLessons, postModule, postLesson, getCourse } from 'api';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Context } from '../..';
@@ -27,9 +27,18 @@ interface Module {
   lessons: Lesson[];
 }
 
+interface Course {
+  id: number;
+  title: string;
+  description?: string;
+  image?: { path?: string } | string | null;
+}
+
 const ModulesPage = () => {
   const { courseId } = useParams();
   const [modules, setModules] = useState<Module[]>([]);
+  const [course, setCourse] = useState<Course | null>(null);
+  const location = useLocation();
   const navigate = useNavigate();
   const { authStore } = useContext(Context);
   const { roleCode } = authStore;
@@ -38,11 +47,17 @@ const ModulesPage = () => {
     if (!courseId) return;
     try {
       const m = await getModules(Number(courseId));
+      const modulesArray = Array.isArray(m)
+        ? m
+        : (m.modules || m.items || []);
       const withLessons = await Promise.all(
-        m.map(async (mod: any) => {
+        modulesArray.map(async (mod: any) => {
           try {
-            const lessons = await getLessons(mod.id);
-            return { ...mod, lessons };
+            const lessonsData = await getLessons(mod.id);
+            const lessonsArray = Array.isArray(lessonsData)
+              ? lessonsData
+              : lessonsData.lessons || lessonsData.items || [];
+            return { ...mod, lessons: lessonsArray };
           } catch (e) {
             console.error(e);
             return { ...mod, lessons: [] };
@@ -55,7 +70,24 @@ const ModulesPage = () => {
     }
   };
 
+  const loadCourse = async () => {
+    if (!courseId) return;
+    try {
+      const c = await getCourse(Number(courseId));
+      const image =
+        typeof c.image === 'string' ? c.image : c.image?.path || null;
+      setCourse({ ...c, image });
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   useEffect(() => {
+    if (location.state && (location.state as any).course) {
+      setCourse((location.state as any).course);
+    } else {
+      loadCourse();
+    }
     loadModules();
   }, [courseId]);
 
@@ -87,12 +119,21 @@ const ModulesPage = () => {
         <Box sx={{ maxWidth: 1400, mx: 'auto' }}>
           <MuiCard sx={{ mb: 3, background: '#667eea', color: 'white', borderRadius: 3, boxShadow: '0 8px 32px rgba(0,0,0,0.1)' }}>
             <MuiCardContent sx={{ p: 4 }}>
+              {course?.image && (
+                <img
+                  src={course.image as string}
+                  alt={course.title}
+                  style={{ width: '100%', maxHeight: 200, objectFit: 'cover', marginBottom: 16 }}
+                />
+              )}
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                   <Button variant="ghost" size="sm" className="hover:bg-white/50" onClick={() => navigate(-1)}>
                     <ArrowLeft className="h-4 w-4 mr-2" /> Назад
                   </Button>
-                  <Typography variant="h4" sx={{ fontWeight: 700 }}>Модули курса</Typography>
+                  <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                    {course?.title || 'Модули курса'}
+                  </Typography>
                 </Box>
                 {roleCode === 'admin' && (
                   <Stack direction="row" spacing={2}>
@@ -121,6 +162,9 @@ const ModulesPage = () => {
           </MuiCard>
         </Box>
         <div className="space-y-4">
+          {modules.length === 0 && (
+            <Typography className="text-gray-600">Модули не найдены</Typography>
+          )}
           {modules.map((m) => (
             <Card key={m.id} className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
               <CardHeader>
