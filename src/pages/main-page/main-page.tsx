@@ -538,7 +538,7 @@ const MainPage = observer(() => {
                           cursor: roleCode === 'user' ? 'default' : 'pointer',
                           '&:hover': { color: roleCode === 'user' ? 'inherit' : 'primary.main' }
                         }}
-                        onClick={() => roleCode !== 'user' && navigate(`/main-page/test/${item.id}`)}
+                        onClick={() => roleCode !== 'user' && navigate(`/main-page/new-test/${item.id}`)}
                       >
                         {item.title}
                       </Typography>
@@ -552,7 +552,7 @@ const MainPage = observer(() => {
                           cursor: roleCode === 'user' ? 'default' : 'pointer',
                           lineHeight: 1.6
                         }}
-                        onClick={() => roleCode !== 'user' && navigate(`/main-page/test/${item.id}`)}
+                        onClick={() => roleCode !== 'user' && navigate(`/main-page/new-test/${item.id}`)}
                       >
                         {item.description}
                       </Typography>
