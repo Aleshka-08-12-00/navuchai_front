@@ -44,35 +44,41 @@ function QuestionsTestTable() {
       isTimeExceeded: item.is_time_exceeded,
     })) ?? [];
 
-    console.log(questions);
+  console.log('3333333333333333');
+  console.log(questions);
 
   // Утилита для нормализации ответа в массив строк (универсально для одиночных и множественных)
   function stripHtml(html: string): string {
-  const tmp = document.createElement("DIV");
-  tmp.innerHTML = html;
-  return tmp.textContent || tmp.innerText || "";
-}
+    const tmp = document.createElement("DIV");
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || "";
+  }
 
-// Восстановленная функция для нормализации ответов (для сравнения)
-function normalizeAnswers(ans: any): string[] {
-  if (!ans) return [];
-  if (Array.isArray(ans)) return ans.map(a => stripHtml(String(a).trim()));
-  if (typeof ans === "string") return ans.split(",").map(a => stripHtml(a.trim()));
-  return [stripHtml(String(ans).trim())];
-}
+  // Восстановленная функция для нормализации ответов (для сравнения)
+  function normalizeAnswers(ans: any): string[] {
+    if (!ans) return [];
+    if (Array.isArray(ans)) return ans.map(a => stripHtml(String(a).trim()));
+    if (typeof ans === "string") return ans.split(",").map(a => stripHtml(a.trim()));
+    return [stripHtml(String(ans).trim())];
+  }
 
-// Универсальная функция для извлечения ключа ответа из HTML (текст + src картинок)
-function extractAnswerKey(html: string): string[] {
-  const tmp = document.createElement("DIV");
-  tmp.innerHTML = html;
-  // Извлекаем все src из img
-  const imgs = Array.from(tmp.getElementsByTagName("img")).map(img => img.src);
-  // Извлекаем текст
-  const text = tmp.textContent?.trim() || "";
-  if (imgs.length && text) return [text, ...imgs];
-  if (imgs.length) return imgs;
-  return [text];
-}
+  // Универсальная функция для извлечения ключа ответа из HTML (текст + src картинок)
+  function extractAnswerKey(html: string): string[] {
+    const tmp = document.createElement("DIV");
+    tmp.innerHTML = html;
+    // Извлекаем все src из img
+    const imgs = Array.from(tmp.getElementsByTagName("img")).map(img => img.src);
+    // Извлекаем текст
+    const text = tmp.textContent?.trim() || "";
+    if (imgs.length && text) return [text, ...imgs];
+    if (imgs.length) return imgs;
+    return [text];
+  }
+
+  // Функция для нормализации ключа ответа (без HTML, пробелов, регистра)
+  function normalizeAnswerKey(html: string): string {
+    return stripHtml(html).trim().toLowerCase();
+  }
 
   const [openRows, setOpenRows] = React.useState<Record<number, boolean>>({});
 
@@ -120,17 +126,16 @@ function extractAnswerKey(html: string): string[] {
             </TableRow>
           ) : (
             questions.map((q, index) => {
-              // Получаем массивы ключей для правильных и пользовательских ответов
-              const correctAnswerKeys = Array.isArray(q.correctAnswer)
-                ? q.correctAnswer.flatMap(extractAnswerKey)
-                : typeof q.correctAnswer === "string"
-                  ? q.correctAnswer.split(",").flatMap(a => extractAnswerKey(a.trim()))
-                  : extractAnswerKey(String(q.correctAnswer));
-              const userAnswerKeys = Array.isArray(q.userAnswer)
-                ? q.userAnswer.flatMap(extractAnswerKey)
-                : typeof q.userAnswer === "string"
-                  ? q.userAnswer.split(",").flatMap(a => extractAnswerKey(a.trim()))
-                  : extractAnswerKey(String(q.userAnswer));
+              // Для single_choice и true_false сравниваем как одну строку, для остальных — как массив
+              let correctAnswerKeys: string[];
+              let userAnswerKeys: string[];
+              if (q.questionType === "SINGLE_CHOICE" || q.questionType === "single_choice" || q.questionType === "true_false") {
+                correctAnswerKeys = extractAnswerKey(q.correctAnswer).map(key => key.trim().toLowerCase());
+                userAnswerKeys = extractAnswerKey(q.userAnswer).map(key => key.trim().toLowerCase());
+              } else {
+                correctAnswerKeys = normalizeAnswers(q.correctAnswer).map(normalizeAnswerKey);
+                userAnswerKeys = normalizeAnswers(q.userAnswer).map(normalizeAnswerKey);
+              }
 
               // Определяем цвет полоски-статуса
               let statusColor = q.isCorrect ? '#4caf50' : q.isTimeExceeded ? '#f44336' : '#ff9800';
@@ -154,6 +159,8 @@ function extractAnswerKey(html: string): string[] {
                         sx={{
                           transition: 'background 0.2s, box-shadow 0.2s',
                           borderRadius: '50%',
+                          ml: 2,
+                          mr: 1,
                           boxShadow: openRows[q.id] ? 2 : 0,
                           background: openRows[q.id] ? 'rgba(33,150,243,0.08)' : 'transparent',
                           '&:hover': {
@@ -195,8 +202,16 @@ function extractAnswerKey(html: string): string[] {
                       }}
                     />
                     {/* Вопрос + аватар с номером */}
-                    <TableCell sx={{ zIndex: 2, background: 'transparent', border: 'none', p: 0, display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Avatar sx={{
+                    <TableCell sx={{
+                      zIndex: 2,
+                      background: 'transparent',
+                      border: 'none',
+                      p: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1,
+                    }}>
+                      {/* <Avatar sx={{
                         bgcolor: openRows[q.id] ? '#1565c0' : '#1976d2',
                         color: '#fff',
                         width: 32,
@@ -208,7 +223,8 @@ function extractAnswerKey(html: string): string[] {
                         mr: 1.2
                       }}>
                         {index + 1}
-                      </Avatar>
+                      </Avatar> */}
+                      №  {index + 1}
                       <Typography variant="subtitle1" sx={{ fontWeight: 500, ml: 0, fontSize: 15, textAlign: 'left' }}>
                         <span dangerouslySetInnerHTML={{ __html: q.text }} />
                       </Typography>
@@ -254,9 +270,9 @@ function extractAnswerKey(html: string): string[] {
                           <Table size="small" aria-label="options">
                             <TableBody>
                               {q.options.map((opt: string, i: number) => {
-                                const optKeys = extractAnswerKey(opt);
-                                const isCorrect = optKeys.some(key => correctAnswerKeys.includes(key));
-                                const isUser = optKeys.some(key => userAnswerKeys.includes(key));
+                                const optKeyArr = extractAnswerKey(opt).map(key => key.trim().toLowerCase());
+                                const isCorrect = optKeyArr.some(key => correctAnswerKeys.includes(key));
+                                const isUser = optKeyArr.some(key => userAnswerKeys.includes(key));
                                 return (
                                   <TableRow
                                     key={i}
@@ -264,8 +280,8 @@ function extractAnswerKey(html: string): string[] {
                                       backgroundColor: isCorrect
                                         ? "rgba(76, 175, 80, 0.10)"
                                         : isUser
-                                        ? "rgba(244, 67, 54, 0.08)"
-                                        : "inherit",
+                                          ? "rgba(244, 67, 54, 0.08)"
+                                          : "inherit",
                                       transition: 'background 0.2s',
                                       borderRadius: 2,
                                       boxShadow: isCorrect || isUser ? 2 : 0,
@@ -285,68 +301,7 @@ function extractAnswerKey(html: string): string[] {
                             </TableBody>
                           </Table>
                         )}
-                        {/* <Divider sx={{ my: 2 }} /> */}
-                        {/* <Box display="flex" flexDirection={{ xs: 'column', sm: 'row' }} gap={2} alignItems={{ sm: 'center' }}>
-                          <Box
-                            sx={{
-                              background: q.isCorrect ? 'linear-gradient(90deg, #e8f5e9 0%, #c8e6c9 100%)' : 'linear-gradient(90deg, #ffebee 0%, #ffcdd2 100%)',
-                              borderRadius: 3,
-                              p: 2,
-                              display: 'flex',
-                              alignItems: 'center',
-                              minWidth: 220,
-                              gap: 1.5,
-                              boxShadow: 2,
-                              transition: 'box-shadow 0.3s',
-                            }}
-                          >
-                            {q.isCorrect ? (
-                              <CheckCircleIcon color="success" />
-                            ) : (
-                              <CancelIcon color="error" />
-                            )}
-                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                              Ваш ответ: {q.userAnswer ? <span dangerouslySetInnerHTML={{ __html: q.userAnswer }} /> : "-"}
-                            </Typography>
-                          </Box>
-                          <Box
-                            sx={{
-                              background: 'linear-gradient(90deg, #e3f2fd 0%, #bbdefb 100%)',
-                              borderRadius: 3,
-                              p: 2,
-                              display: 'flex',
-                              alignItems: 'center',
-                              minWidth: 220,
-                              gap: 1.5,
-                              boxShadow: 2,
-                              transition: 'box-shadow 0.3s',
-                            }}
-                          >
-                            <CheckCircleIcon color="primary" />
-                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                              Правильный ответ: {q.correctAnswer ? <span dangerouslySetInnerHTML={{ __html: q.correctAnswer }} /> : "-"}
-                            </Typography>
-                          </Box>
-                          {q.isTimeExceeded && (
-                            <Box
-                              sx={{
-                                background: 'linear-gradient(90deg, #ffebee 0%, #ffcdd2 100%)',
-                                borderRadius: 3,
-                                p: 2,
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 1.5,
-                                boxShadow: 2,
-                                transition: 'box-shadow 0.3s',
-                              }}
-                            >
-                              <ErrorOutlineIcon color="error" />
-                              <Typography variant="body2" color="error" sx={{ fontWeight: 500 }}>
-                                Превышено время на вопрос
-                              </Typography>
-                            </Box>
-                          )}
-                        </Box> */}
+
                       </Collapse>
                     </TableCell>
                   </TableRow>

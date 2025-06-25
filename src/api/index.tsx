@@ -230,3 +230,6 @@ export const getModuleProgress = (moduleId: number) => fetchData('moduleProgress
 export const getModuleTests = (moduleId: number) => fetchData('moduleTests', {}, moduleId);
 export const postModuleTest = (moduleId: number, d: any) => postData('moduleTests', d, moduleId);
 export const completeLesson = (lessonId: number) => postData('lessonComplete', {}, lessonId);
+
+export const getTestImportTemplate = () => fetchData('getTestImportTemplate');
+export const postTestImportExcel = (formData: FormData) => postData('postTestImportExcel', formData);

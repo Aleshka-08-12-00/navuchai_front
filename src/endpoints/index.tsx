@@ -104,6 +104,10 @@ const endpoints = {
   moduleTests: (moduleId: string | number) => `api/modules/${moduleId}/tests`,
 
   lessonComplete: (lessonId: string | number) => `api/lessons/${lessonId}/complete`,
+
+  // Импорт/экспорт вопросов через Excel
+  getTestImportTemplate: 'api/test-import/template',
+  postTestImportExcel: 'api/test-import/excel',
 };
 
 export default endpoints;
