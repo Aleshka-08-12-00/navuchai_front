@@ -38,6 +38,7 @@ export interface CourseFormData {
   description?: string;
   accessType: 'public' | 'group' | 'user';
   accessId?: string;
+  imageId?: number;
   image?: string;
   modules: ModuleForm[];
 }
@@ -60,6 +61,7 @@ const CourseFormDialog: React.FC<CourseFormDialogProps> = ({ open, onClose, onSa
   const [modules, setModules] = useState<ModuleForm[]>([emptyModule()]);
   const [courseImage, setCourseImage] = useState<string>('');
   const [courseImageFile, setCourseImageFile] = useState<File | null>(null);
+  const [courseImageId, setCourseImageId] = useState<number | null>(null);
 
   useEffect(() => {
     if (course) {
@@ -69,6 +71,7 @@ const CourseFormDialog: React.FC<CourseFormDialogProps> = ({ open, onClose, onSa
       setAccessId(course.accessId || '');
       setModules(course.modules.length ? course.modules : [emptyModule()]);
       setCourseImage(course.image || '');
+      setCourseImageId(course.imageId || null);
     } else if (open) {
       setTitle('');
       setDescription('');
@@ -76,6 +79,7 @@ const CourseFormDialog: React.FC<CourseFormDialogProps> = ({ open, onClose, onSa
       setAccessId('');
       setModules([emptyModule()]);
       setCourseImage('');
+      setCourseImageId(null);
     }
   }, [course, open]);
 
@@ -127,7 +131,15 @@ const CourseFormDialog: React.FC<CourseFormDialogProps> = ({ open, onClose, onSa
   };
 
   const handleSave = () => {
-    onSave({ title, description, accessType, accessId, image: courseImage, modules });
+    onSave({
+      title,
+      description,
+      accessType,
+      accessId,
+      image: courseImage,
+      imageId: courseImageId ?? undefined,
+      modules
+    });
   };
 
   return (
@@ -161,6 +173,7 @@ const CourseFormDialog: React.FC<CourseFormDialogProps> = ({ open, onClose, onSa
                     const res = await postData('uploadLogo', formData);
                     if (res && res.url) {
                       setCourseImage(res.url);
+                      if (res.id) setCourseImageId(res.id);
                       setCourseImageFile(null);
                     }
                   } catch (e) {
