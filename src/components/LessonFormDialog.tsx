@@ -10,6 +10,7 @@ export interface LessonFormData {
   content?: string;
   video?: string;
   image?: string;
+  imageId?: number;
 }
 
 interface LessonFormDialogProps {
@@ -24,6 +25,7 @@ const LessonFormDialog: React.FC<LessonFormDialogProps> = ({ open, onClose, onSa
   const [content, setContent] = useState('');
   const [video, setVideo] = useState('');
   const [image, setImage] = useState<string>('');
+  const [imageId, setImageId] = useState<number | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const editor = useRef<any>(null);
 
@@ -33,11 +35,13 @@ const LessonFormDialog: React.FC<LessonFormDialogProps> = ({ open, onClose, onSa
       setContent(lesson.content || '');
       setVideo(lesson.video || '');
       setImage(lesson.image || '');
+      setImageId(lesson.imageId ?? null);
     } else if (open) {
       setTitle('');
       setContent('');
       setVideo('');
       setImage('');
+      setImageId(null);
       setImageFile(null);
     }
   }, [lesson, open]);
@@ -50,6 +54,7 @@ const LessonFormDialog: React.FC<LessonFormDialogProps> = ({ open, onClose, onSa
       const res = await postData('uploadLogo', formData);
       if (res && res.url) {
         setImage(res.url);
+        if (res.id) setImageId(res.id);
         setImageFile(null);
       }
     } catch (e) {
@@ -58,7 +63,7 @@ const LessonFormDialog: React.FC<LessonFormDialogProps> = ({ open, onClose, onSa
   };
 
   const handleSave = () => {
-    onSave({ id: lesson?.id, title, content, video, image });
+    onSave({ id: lesson?.id, title, content, video, image, imageId: imageId ?? undefined });
   };
 
   return (

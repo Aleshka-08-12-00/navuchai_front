@@ -8,7 +8,8 @@ import {
   postLesson,
   putLesson,
   getCourse,
-  getModuleProgress
+  getModuleProgress,
+  getCourseProgress
 } from 'api';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
@@ -18,7 +19,6 @@ import {
   CardContent as MuiCardContent,
   Typography,
   Box,
-  Chip,
   Stack,
   Button as MuiButton,
   LinearProgress
@@ -32,6 +32,7 @@ interface Lesson {
   content?: string;
   video?: string;
   image?: string;
+  imageId?: number;
   completed?: boolean;
 }
 
@@ -54,6 +55,7 @@ const ModulesPage = () => {
   const { courseId } = useParams();
   const [modules, setModules] = useState<Module[]>([]);
   const [course, setCourse] = useState<Course | null>(null);
+  const [courseProgress, setCourseProgress] = useState<number>(0);
   const location = useLocation();
   const navigate = useNavigate();
   const { authStore } = useContext(Context);
@@ -72,9 +74,14 @@ const ModulesPage = () => {
         modulesArray.map(async (mod: any) => {
           try {
             const lessonsData = await getLessons(mod.id);
-            const lessonsArray = Array.isArray(lessonsData)
+            const lessonsArrayRaw = Array.isArray(lessonsData)
               ? lessonsData
               : lessonsData.lessons || lessonsData.items || [];
+            const lessonsArray = lessonsArrayRaw.map((l: any) => ({
+              ...l,
+              imageId: l.img_id || null,
+              image: typeof l.image === 'string' ? l.image : l.image?.path
+            }));
             let progress = 0;
             let completedLessons: any[] = [];
             if (roleCode !== 'admin') {
@@ -100,6 +107,16 @@ const ModulesPage = () => {
     }
   };
 
+  const loadCourseProgress = async () => {
+    if (!courseId) return;
+    try {
+      const p = await getCourseProgress(Number(courseId));
+      setCourseProgress(p?.percent ?? 0);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const loadCourse = async () => {
     if (!courseId) return;
     try {
@@ -118,6 +135,7 @@ const ModulesPage = () => {
       loadCourse();
     }
     loadModules();
+    loadCourseProgress();
   }, [courseId]);
 
   const handleAddModule = async () => {
@@ -126,6 +144,7 @@ const ModulesPage = () => {
     try {
       await postModule(Number(courseId), { title });
       await loadModules();
+      await loadCourseProgress();
     } catch (e) {
       console.error(e);
     }
@@ -144,7 +163,8 @@ const ModulesPage = () => {
       title: lesson.title,
       content: (lesson as any).content || '',
       video: (lesson as any).video || '',
-      image: (lesson as any).image
+      image: (lesson as any).image,
+      imageId: (lesson as any).img_id || lesson.imageId
     });
     setOpenLessonDialog(true);
   };
@@ -152,14 +172,21 @@ const ModulesPage = () => {
   const saveLesson = async (data: LessonFormData) => {
     if (!currentModuleId) return;
     try {
+      const payload = {
+        title: data.title,
+        content: data.content,
+        video: data.video,
+        imgId: data.imageId
+      };
       if (data.id) {
-        await putLesson(data.id, { title: data.title, content: data.content, video: data.video, image: data.image });
+        await putLesson(data.id, payload);
       } else {
-        await postLesson(currentModuleId, { title: data.title, content: data.content, video: data.video, image: data.image });
+      await postLesson(currentModuleId, payload);
       }
       setOpenLessonDialog(false);
       setEditingLesson(undefined);
       await loadModules();
+      await loadCourseProgress();
     } catch (e) {
       console.error(e);
     }
@@ -211,6 +238,14 @@ const ModulesPage = () => {
                     </Stack>
                   )}
                 </Box>
+                {roleCode !== 'admin' && (
+                  <Box sx={{ mt: 2 }}>
+                    <LinearProgress variant="determinate" value={courseProgress} />
+                    <Typography variant="body2" sx={{ mt: 0.5 }}>
+                      {courseProgress}% пройдено
+                    </Typography>
+                  </Box>
+                )}
               </MuiCardContent>
             </MuiCard>
           </Box>
