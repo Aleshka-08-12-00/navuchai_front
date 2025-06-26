@@ -40,7 +40,8 @@ const CourseEditorPage = () => {
                 title: l.title,
                 content: l.content || '',
                 video: l.video || '',
-                image: l.image || ''
+                image: l.image || '',
+                imageId: l.img_id || null
               })) || []
           }))
         };
@@ -81,10 +82,16 @@ const CourseEditorPage = () => {
           if (modId) {
             const validLessons = (mod.lessons || []).filter((l) => l.title.trim());
             for (const les of validLessons) {
+              const payload = {
+                title: les.title,
+                content: les.content,
+                video: les.video,
+                imgId: les.imageId
+              };
               if (les.id) {
-                await putLesson(les.id, { title: les.title, content: les.content, video: les.video, image: les.image });
+                await putLesson(les.id, payload);
               } else {
-                await postLesson(modId, { title: les.title, content: les.content, video: les.video, image: les.image });
+                await postLesson(modId, payload);
               }
             }
           }

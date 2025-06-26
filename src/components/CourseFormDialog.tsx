@@ -26,6 +26,7 @@ interface LessonForm {
   content?: string;
   video?: string;
   image?: string;
+  imageId?: number;
 }
 
 interface ModuleForm {
