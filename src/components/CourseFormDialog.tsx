@@ -31,7 +31,6 @@ interface LessonForm {
 interface ModuleForm {
   id?: number;
   title: string;
-  description?: string;
   lessons: LessonForm[];
 }
 
@@ -53,7 +52,7 @@ interface CourseFormDialogProps {
 }
 
 const emptyLesson = (): LessonForm => ({ title: '', content: '', video: '' });
-const emptyModule = (): ModuleForm => ({ title: '', description: '', lessons: [emptyLesson()] });
+const emptyModule = (): ModuleForm => ({ title: '', lessons: [] });
 
 const CourseFormDialog: React.FC<CourseFormDialogProps> = ({ open, onClose, onSave, course }) => {
   const [title, setTitle] = useState('');
@@ -75,7 +74,11 @@ const CourseFormDialog: React.FC<CourseFormDialogProps> = ({ open, onClose, onSa
       setDescription(course.description || '');
       setAccessType(course.accessType);
       setAccessId(course.accessId || '');
-      setModules(course.modules.length ? course.modules : [emptyModule()]);
+      setModules(
+        course.modules.length
+          ? course.modules.map((m) => ({ id: m.id, title: m.title, lessons: m.lessons || [] }))
+          : [emptyModule()]
+      );
       if (course.image) {
         const img = typeof course.image === 'string' ? course.image : (course.image as any).path;
         setCourseImage(img || '');
@@ -96,10 +99,12 @@ const CourseFormDialog: React.FC<CourseFormDialogProps> = ({ open, onClose, onSa
     }
   }, [course, open]);
 
-  const handleModuleChange = (index: number, field: keyof ModuleForm, value: string) => {
+  const handleModuleTitleChange = (index: number, value: string) => {
     setModules((prev) => {
       const updated = [...prev];
-      (updated[index] as any)[field] = value;
+      if (updated[index]) {
+        updated[index].title = value;
+      }
       return updated;
     });
   };
@@ -233,20 +238,13 @@ const CourseFormDialog: React.FC<CourseFormDialogProps> = ({ open, onClose, onSa
                   <TextField
                     label="Название модуля"
                     value={mod.title}
-                    onChange={(e) => handleModuleChange(modIndex, 'title', e.target.value)}
+                    onChange={(e) => handleModuleTitleChange(modIndex, e.target.value)}
                     fullWidth
                   />
                   <IconButton onClick={() => removeModule(modIndex)}>
                     <DeleteIcon />
                   </IconButton>
                 </Stack>
-                <TextField
-                  label="Описание"
-                  multiline
-                  minRows={2}
-                  value={mod.description}
-                  onChange={(e) => handleModuleChange(modIndex, 'description', e.target.value)}
-                />
                 <Typography variant="subtitle1">Уроки</Typography>
                 {mod.lessons.map((les, lesIndex) => (
                   <Stack key={lesIndex} direction="row" spacing={1} alignItems="center">
