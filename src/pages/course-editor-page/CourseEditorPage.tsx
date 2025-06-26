@@ -34,7 +34,6 @@ const CourseEditorPage = () => {
           modules: modulesWithLessons.map((m: any) => ({
             id: m.id,
             title: m.title,
-            description: m.description || '',
             lessons:
               m.lessons?.map((l: any) => ({
                 id: l.id,
@@ -70,16 +69,18 @@ const CourseEditorPage = () => {
         id = res?.id;
       }
       if (id) {
-        for (const mod of data.modules) {
+        const validModules = data.modules.filter((m) => m.title.trim());
+        for (const mod of validModules) {
           let modId = mod.id;
           if (modId) {
-            await putModule(modId, { title: mod.title, description: mod.description });
+            await putModule(modId, { title: mod.title });
           } else {
-            const m = await postModule(id, { title: mod.title, description: mod.description });
+            const m = await postModule(id, { title: mod.title });
             modId = m?.id;
           }
           if (modId) {
-            for (const les of mod.lessons) {
+            const validLessons = (mod.lessons || []).filter((l) => l.title.trim());
+            for (const les of validLessons) {
               if (les.id) {
                 await putLesson(les.id, { title: les.title, content: les.content, video: les.video, image: les.image });
               } else {
