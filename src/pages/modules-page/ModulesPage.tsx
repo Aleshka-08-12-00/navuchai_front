@@ -220,7 +220,7 @@ const ModulesPage = () => {
               <Card key={m.id} className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
                 <CardHeader>
                   <CardTitle className="text-xl font-semibold text-gray-800">
-                    Модуль {m.id}: {m.title}
+                    {m.title}
                   </CardTitle>
                   {roleCode !== 'admin' && (
                     <div className="mt-2">
