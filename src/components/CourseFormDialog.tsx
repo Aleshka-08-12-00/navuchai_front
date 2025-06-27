@@ -16,18 +16,22 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import LessonFormDialog, { LessonFormData } from './LessonFormDialog';
+import { postData } from '../api';
 
 interface LessonForm {
   id?: number;
   title: string;
   content?: string;
   video?: string;
+  image?: string;
+  imageId?: number;
 }
 
 interface ModuleForm {
   id?: number;
   title: string;
-  description?: string;
   lessons: LessonForm[];
 }
 
@@ -36,6 +40,8 @@ export interface CourseFormData {
   description?: string;
   accessType: 'public' | 'group' | 'user';
   accessId?: string;
+  imageId?: number;
+  image?: string;
   modules: ModuleForm[];
 }
 
@@ -47,7 +53,7 @@ interface CourseFormDialogProps {
 }
 
 const emptyLesson = (): LessonForm => ({ title: '', content: '', video: '' });
-const emptyModule = (): ModuleForm => ({ title: '', description: '', lessons: [emptyLesson()] });
+const emptyModule = (): ModuleForm => ({ title: '', lessons: [] });
 
 const CourseFormDialog: React.FC<CourseFormDialogProps> = ({ open, onClose, onSave, course }) => {
   const [title, setTitle] = useState('');
@@ -55,6 +61,13 @@ const CourseFormDialog: React.FC<CourseFormDialogProps> = ({ open, onClose, onSa
   const [accessType, setAccessType] = useState<'public' | 'group' | 'user'>('public');
   const [accessId, setAccessId] = useState('');
   const [modules, setModules] = useState<ModuleForm[]>([emptyModule()]);
+  const [courseImage, setCourseImage] = useState<string>('');
+  const [courseImageFile, setCourseImageFile] = useState<File | null>(null);
+  const [courseImageId, setCourseImageId] = useState<number | null>(null);
+  const [openLessonDialog, setOpenLessonDialog] = useState(false);
+  const [currentModuleIndex, setCurrentModuleIndex] = useState<number | null>(null);
+  const [editingLessonIndex, setEditingLessonIndex] = useState<number | null>(null);
+  const [editingLesson, setEditingLesson] = useState<LessonFormData | undefined>(undefined);
 
   useEffect(() => {
     if (course) {
@@ -62,28 +75,37 @@ const CourseFormDialog: React.FC<CourseFormDialogProps> = ({ open, onClose, onSa
       setDescription(course.description || '');
       setAccessType(course.accessType);
       setAccessId(course.accessId || '');
-      setModules(course.modules.length ? course.modules : [emptyModule()]);
+      setModules(
+        course.modules.length
+          ? course.modules.map((m) => ({ id: m.id, title: m.title, lessons: m.lessons || [] }))
+          : [emptyModule()]
+      );
+      if (course.image) {
+        const img = typeof course.image === 'string' ? course.image : (course.image as any).path;
+        setCourseImage(img || '');
+      } else if (course.imageId) {
+        setCourseImage('');
+      } else {
+        setCourseImage('');
+      }
+      setCourseImageId(course.imageId || null);
     } else if (open) {
       setTitle('');
       setDescription('');
       setAccessType('public');
       setAccessId('');
       setModules([emptyModule()]);
+      setCourseImage('');
+      setCourseImageId(null);
     }
   }, [course, open]);
 
-  const handleModuleChange = (index: number, field: keyof ModuleForm, value: string) => {
+  const handleModuleTitleChange = (index: number, value: string) => {
     setModules((prev) => {
       const updated = [...prev];
-      (updated[index] as any)[field] = value;
-      return updated;
-    });
-  };
-
-  const handleLessonChange = (moduleIndex: number, lessonIndex: number, field: keyof LessonForm, value: string) => {
-    setModules((prev) => {
-      const updated = [...prev];
-      (updated[moduleIndex].lessons[lessonIndex] as any)[field] = value;
+      if (updated[index]) {
+        updated[index].title = value;
+      }
       return updated;
     });
   };
@@ -92,12 +114,20 @@ const CourseFormDialog: React.FC<CourseFormDialogProps> = ({ open, onClose, onSa
   const removeModule = (index: number) => setModules((prev) => prev.filter((_, i) => i !== index));
 
   const addLesson = (moduleIndex: number) => {
-    setModules((prev) => {
-      const updated = [...prev];
-      updated[moduleIndex].lessons.push(emptyLesson());
-      return updated;
-    });
+    setCurrentModuleIndex(moduleIndex);
+    setEditingLessonIndex(null);
+    setEditingLesson(undefined);
+    setOpenLessonDialog(true);
   };
+
+  const editLesson = (moduleIndex: number, lessonIndex: number) => {
+    const l = modules[moduleIndex].lessons[lessonIndex];
+    setCurrentModuleIndex(moduleIndex);
+    setEditingLessonIndex(lessonIndex);
+    setEditingLesson(l);
+    setOpenLessonDialog(true);
+  };
+
   const removeLesson = (moduleIndex: number, lessonIndex: number) => {
     setModules((prev) => {
       const updated = [...prev];
@@ -106,91 +136,147 @@ const CourseFormDialog: React.FC<CourseFormDialogProps> = ({ open, onClose, onSa
     });
   };
 
+  const saveLesson = (data: LessonFormData) => {
+    if (currentModuleIndex === null) return;
+    setModules((prev) => {
+      const updated = [...prev];
+      const lessons = [...updated[currentModuleIndex].lessons];
+      if (editingLessonIndex !== null) {
+        lessons[editingLessonIndex] = { ...lessons[editingLessonIndex], ...data };
+      } else {
+        lessons.push(data as LessonForm);
+      }
+      updated[currentModuleIndex] = { ...updated[currentModuleIndex], lessons };
+      return updated;
+    });
+    setOpenLessonDialog(false);
+    setEditingLesson(undefined);
+    setEditingLessonIndex(null);
+    setCurrentModuleIndex(null);
+  };
+
   const handleSave = () => {
-    onSave({ title, description, accessType, accessId, modules });
+    onSave({
+      title,
+      description,
+      accessType,
+      accessId,
+      image: courseImage,
+      imageId: courseImageId ?? undefined,
+      modules
+    });
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>{course ? 'Редактировать курс' : 'Новый курс'}</DialogTitle>
-      <DialogContent dividers>
-        <Stack spacing={2} sx={{ mt: 1 }}>
-          <TextField fullWidth label="Название" value={title} onChange={(e) => setTitle(e.target.value)} />
-          <TextField
-            fullWidth
-            label="Описание"
-            multiline
-            minRows={3}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-          <FormControl>
-            <InputLabel id="access-label">Права доступа</InputLabel>
-            <Select labelId="access-label" value={accessType} label="Права доступа" onChange={(e) => setAccessType(e.target.value as any)}>
-              <MenuItem value="public">Общий</MenuItem>
-              <MenuItem value="group">Для группы</MenuItem>
-              <MenuItem value="user">Для пользователя</MenuItem>
-            </Select>
-          </FormControl>
-          {(accessType === 'group' || accessType === 'user') && (
+    <>
+      <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+        <DialogTitle>{course ? 'Редактировать курс' : 'Новый курс'}</DialogTitle>
+        <DialogContent dividers>
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            <TextField fullWidth label="Название" value={title} onChange={(e) => setTitle(e.target.value)} />
             <TextField
-              label={accessType === 'group' ? 'ID группы' : 'ID пользователя'}
-              value={accessId}
-              onChange={(e) => setAccessId(e.target.value)}
+              fullWidth
+              label="Описание"
+              multiline
+              minRows={3}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
             />
-          )}
-          <Typography variant="h6">Модули и уроки</Typography>
-          {modules.map((mod, modIndex) => (
-            <Stack key={modIndex} spacing={1} sx={{ border: '1px solid #ccc', p: 2, borderRadius: 1 }}>
-              <Stack direction="row" alignItems="center" spacing={1}>
-                <TextField
-                  label="Название модуля"
-                  value={mod.title}
-                  onChange={(e) => handleModuleChange(modIndex, 'title', e.target.value)}
-                  fullWidth
-                />
-                <IconButton onClick={() => removeModule(modIndex)}>
-                  <DeleteIcon />
-                </IconButton>
-              </Stack>
+            <Stack direction="row" spacing={2} alignItems="center">
+              <Button variant="outlined" component="label">
+                Загрузить изображение
+                <input type="file" hidden accept="image/*" onChange={(e) => setCourseImageFile(e.target.files?.[0] || null)} />
+              </Button>
+              {courseImageFile && (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={async () => {
+                    if (!courseImageFile) return;
+                    const formData = new FormData();
+                    formData.append('file', courseImageFile);
+                    try {
+                      const res = await postData('uploadLogo', formData);
+                      if (res && res.url) {
+                        setCourseImage(res.url);
+                        if (res.id) setCourseImageId(res.id);
+                        setCourseImageFile(null);
+                      }
+                    } catch (e) {
+                      console.error(e);
+                    }
+                  }}
+                >
+                  Сохранить
+                </Button>
+              )}
+              {courseImage && <img src={courseImage} alt="course" style={{ height: 40 }} />}
+            </Stack>
+            <FormControl>
+              <InputLabel id="access-label">Права доступа</InputLabel>
+              <Select
+                labelId="access-label"
+                value={accessType}
+                label="Права доступа"
+                onChange={(e) => setAccessType(e.target.value as any)}
+              >
+                <MenuItem value="public">Общий</MenuItem>
+                <MenuItem value="group">Для группы</MenuItem>
+                <MenuItem value="user">Для пользователя</MenuItem>
+              </Select>
+            </FormControl>
+            {(accessType === 'group' || accessType === 'user') && (
               <TextField
-                label="Описание"
-                multiline
-                minRows={2}
-                value={mod.description}
-                onChange={(e) => handleModuleChange(modIndex, 'description', e.target.value)}
+                label={accessType === 'group' ? 'ID группы' : 'ID пользователя'}
+                value={accessId}
+                onChange={(e) => setAccessId(e.target.value)}
               />
-              <Typography variant="subtitle1">Уроки</Typography>
-              {mod.lessons.map((les, lesIndex) => (
-                <Stack key={lesIndex} direction="row" spacing={1} alignItems="center">
+            )}
+            <Typography variant="h6">Модули и уроки</Typography>
+            {modules.map((mod, modIndex) => (
+              <Stack key={modIndex} spacing={1} sx={{ border: '1px solid #ccc', p: 2, borderRadius: 1 }}>
+                <Stack direction="row" alignItems="center" spacing={1}>
                   <TextField
-                    label="Название"
-                    value={les.title}
-                    onChange={(e) => handleLessonChange(modIndex, lesIndex, 'title', e.target.value)}
+                    label="Название модуля"
+                    value={mod.title}
+                    onChange={(e) => handleModuleTitleChange(modIndex, e.target.value)}
                     fullWidth
                   />
-                  <IconButton onClick={() => removeLesson(modIndex, lesIndex)}>
+                  <IconButton onClick={() => removeModule(modIndex)}>
                     <DeleteIcon />
                   </IconButton>
                 </Stack>
-              ))}
-              <Button startIcon={<AddIcon />} onClick={() => addLesson(modIndex)}>
-                Добавить урок
-              </Button>
-            </Stack>
-          ))}
-          <Button startIcon={<AddIcon />} onClick={addModule}>
-            Добавить модуль
+                <Typography variant="subtitle1">Уроки</Typography>
+                {mod.lessons.map((les, lesIndex) => (
+                  <Stack key={lesIndex} direction="row" spacing={1} alignItems="center">
+                    <Typography sx={{ flexGrow: 1 }}>{les.title || `Урок ${lesIndex + 1}`}</Typography>
+                    <IconButton onClick={() => editLesson(modIndex, lesIndex)}>
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton onClick={() => removeLesson(modIndex, lesIndex)}>
+                      <DeleteIcon />
+                    </IconButton>
+                  </Stack>
+                ))}
+                <Button startIcon={<AddIcon />} onClick={() => addLesson(modIndex)}>
+                  Добавить урок
+                </Button>
+              </Stack>
+            ))}
+            <Button startIcon={<AddIcon />} onClick={addModule}>
+              Добавить модуль
+            </Button>
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onClose}>Отмена</Button>
+          <Button onClick={handleSave} variant="contained" color="success">
+            Сохранить
           </Button>
-        </Stack>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Отмена</Button>
-        <Button onClick={handleSave} variant="contained" color="success">
-          Сохранить
-        </Button>
-      </DialogActions>
-    </Dialog>
+        </DialogActions>
+      </Dialog>
+      <LessonFormDialog open={openLessonDialog} onClose={() => setOpenLessonDialog(false)} onSave={saveLesson} lesson={editingLesson} />
+    </>
   );
 };
 

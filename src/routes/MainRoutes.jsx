@@ -1,4 +1,3 @@
-
 import Dashboard from 'layout/Dashboard';
 import MainPage from 'pages/main-page/main-page';
 import ResultsPage from 'pages/results-page/results-page';
@@ -11,11 +10,11 @@ import CoursesPage from 'pages/courses-page/CoursesPage';
 import ModulesPage from 'pages/modules-page/ModulesPage';
 import LessonsPage from 'pages/lessons-page/LessonsPage';
 import LessonViewPage from 'pages/lessons-page/LessonViewPage';
+import CourseEditorPage from 'pages/course-editor-page/CourseEditorPage';
 import TestUserResult from 'components/testUserResult/TestUserResult';
 import CreateRespondentsPage from 'pages/respondents-page/create-respondents-list';
 import AdminPage from 'pages/admin-page/AdminPage';
 import CourseAccessAdminPage from 'pages/course-access-admin/CourseAccessAdminPage';
-
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -23,7 +22,6 @@ const MainRoutes = {
   path: '/',
   element: <Dashboard />,
   children: [
-  
     {
       path: '/',
       children: [
@@ -57,7 +55,7 @@ const MainRoutes = {
         },
         {
           path: '/results',
-          element: <ResultsPage />,
+          element: <ResultsPage />
         },
         {
           path: '/results/:resultId',
@@ -76,7 +74,7 @@ const MainRoutes = {
           element: <SettingsPage />
         },
         {
-          path: '/start_test/:testId',  // динамический параметр testId
+          path: '/start_test/:testId', // динамический параметр testId
           element: <TestPage />
         },
         {
@@ -92,6 +90,14 @@ const MainRoutes = {
           element: <CoursesPage />
         },
         {
+          path: '/courses/new',
+          element: <CourseEditorPage />
+        },
+        {
+          path: '/courses/:courseId/edit',
+          element: <CourseEditorPage />
+        },
+        {
           path: '/courses/:courseId/modules',
           element: <ModulesPage />
         },
@@ -102,9 +108,9 @@ const MainRoutes = {
         {
           path: '/courses/:courseId/modules/:moduleId/lessons/:lessonId',
           element: <LessonViewPage />
-        },
+        }
       ]
-    },
+    }
   ]
 };
 
