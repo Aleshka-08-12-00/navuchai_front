@@ -52,13 +52,7 @@ const TestDuration: React.FC<TestDurationProps> = ({
                 opacity: 0.18,
                 zIndex: 0
             }}>
-                {/* <svg width="160" height="160" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="80" cy="80" r="80" fill="#818cf8" />
-                </svg> */}
             </Box>
-            {/* <RadioGroup value={selectedOption} onChange={handleOptionChange} sx={{ mb: 2, zIndex: 1, position: 'relative' }}>
-                <FormControlLabel value="complete" control={<Radio />} label={<Typography variant="subtitle1">Время на выполнение теста</Typography>} />
-            </RadioGroup> */}
             <Fade in={selectedOption === 'complete'} timeout={600}>
                 <Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 3, justifyContent: 'center', zIndex: 1, position: 'relative' }}>

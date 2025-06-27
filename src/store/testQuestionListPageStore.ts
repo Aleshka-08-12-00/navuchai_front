@@ -39,7 +39,7 @@ export default class testQuestionSPageStore {
 
     deleteQuestionById = async (id: number, testId: number) => {
         try {
-            const response = await fetch(`https://navuchaiback.sellwin.by/api/questions/${id}/remove-from-test/${testId}`, {
+            const response = await fetch(`https://navuchaiback.sellwin.by/api/questions/${id}/remove-from-test/${testId}/`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('tokenNavuchai')}`,

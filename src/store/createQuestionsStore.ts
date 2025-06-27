@@ -17,7 +17,7 @@ export default class CreateQuestionsStore {
         try {
             const result = await postData('postQuestions', data);
             if (result?.id) {
-                const response = await fetch(`https://navuchaiback.sellwin.by/api/questions/${result.id}/add-to-test/${testId}`, {
+                const response = await fetch(`https://navuchaiback.sellwin.by/api/questions/${result.id}/add-to-test/${testId}/`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('tokenNavuchai')}`,
