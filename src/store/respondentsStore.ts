@@ -95,7 +95,7 @@ export default class RespondentsStore {
 
     postUsersIntoList = async (group_id: number, user_id: number) => {
         try {
-            const response = await fetch(`http://172.16.0.97:8012/api/user-groups/${group_id}/members/${user_id}`, {
+            const response = await fetch(`https://navuchaiback.sellwin.by/api/user-groups/${group_id}/members/${user_id}`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('tokenNavuchai')}`,
@@ -120,7 +120,7 @@ export default class RespondentsStore {
 
     deleteUsersFromList = async (group_id: number, user_id: number) => {
         try {
-            const response = await fetch(`http://172.16.0.97:8012/api/user-groups/${group_id}/members/${user_id}`, {
+            const response = await fetch(`https://navuchaiback.sellwin.by/api/user-groups/${group_id}/members/${user_id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('tokenNavuchai')}`,
