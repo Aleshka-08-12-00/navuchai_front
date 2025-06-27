@@ -78,6 +78,13 @@ const CourseEditorPage = () => {
           } else {
             const m = await postModule(id, { title: mod.title });
             modId = m?.id;
+            if (!modId) {
+              const modules = await getModules(id);
+              const newModule = modules
+                .filter((mm: any) => mm.title === mod.title)
+                .sort((a: any, b: any) => (b.order || 0) - (a.order || 0))[0];
+              modId = newModule?.id;
+            }
           }
           if (modId) {
             const validLessons = (mod.lessons || []).filter((l) => l.title.trim());
@@ -91,6 +98,7 @@ const CourseEditorPage = () => {
               if (les.id) {
                 await putLesson(les.id, payload);
               } else {
+                console.log("lesson123");
                 await postLesson(modId, payload);
               }
             }
