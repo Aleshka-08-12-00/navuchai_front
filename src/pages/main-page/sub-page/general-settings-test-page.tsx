@@ -6,9 +6,7 @@ import {
     FormControl,
     FormControlLabel,
     FormLabel,
-    IconButton,
     Input,
-    InputAdornment,
     InputLabel,
     MenuItem,
     Radio,
@@ -20,15 +18,14 @@ import {
     Alert,
     Snackbar
 } from '@mui/material';
-import { minWidth, Stack } from '@mui/system';
 import { Context } from '../../..';
 import MainCard from '../../../components/MainCard';
 import AddIcon from '@mui/icons-material/Add';
 import InfoIcon from '@mui/icons-material/Info';
 import DriveFolderUploadIcon from '@mui/icons-material/DriveFolderUpload';
-import { ILocales, ITestCategories } from '../../../interface/interfaceStore';
+import { ITestCategories } from '../../../interface/interfaceStore';
 import DialogPopup from '../../../components/DialogPopup';
-import { postData } from '../../../api';
+import { postData, getTestImportTemplate, postTestImportExcel } from '../../../api';
 import DialogCreateCategoryPopup from '../../../components/DialogCreateCategoryPopup';
 
 const GeneralSettingsTestPage = observer(() => {
@@ -40,7 +37,6 @@ const GeneralSettingsTestPage = observer(() => {
         getTestCategories,
         testCategories,
         createNewTest,
-        locales,
         getLocales,
         postTestCategories,
         getTestById,
@@ -299,6 +295,68 @@ const GeneralSettingsTestPage = observer(() => {
                     <Typography variant="h5"  >
                         {id ? 'Редактирование настроек' : 'Начальные настройки'}
                     </Typography>
+                    {/* Кнопки для Excel, если нет id теста */}
+                    {!id && (
+                        <div style={{ display: 'flex', gap: 16, marginBottom: 16 }}>
+                            <Button
+                                variant="outlined"
+                                color="primary"
+                                onClick={async () => {
+                                    try {
+                                        const response = await getTestImportTemplate();
+                                        // Создаем ссылку для скачивания файла
+                                        const blob = new Blob([response], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                                        const url = window.URL.createObjectURL(blob);
+                                        const a = document.createElement('a');
+                                        a.href = url;
+                                        a.download = 'template.xlsx';
+                                        document.body.appendChild(a);
+                                        a.click();
+                                        a.remove();
+                                        window.URL.revokeObjectURL(url);
+                                    } catch (error) {
+                                        showAlert('Ошибка при скачивании шаблона', 'error');
+                                    }
+                                }}
+                            >
+                                Скачать Excel
+                            </Button>
+                            <input
+                                id="excel-upload-input"
+                                type="file"
+                                accept=".xlsx,.xls"
+                                style={{ display: 'none' }}
+                                onChange={async (e) => {
+                                    const file = e.target.files?.[0];
+                                    if (!file) return;
+                                    const formData = new FormData();
+                                    formData.append('file', file);
+                                    try {
+                                        const response = await postTestImportExcel(formData);
+                                        if (response.success && response.test_id) {
+                                            showAlert('Вопросы успешно импортированы', 'success');
+                                            setTimeout(() => {
+                                                window.location.replace(`/main-page/new-test/${response.test_id}`);
+                                            }, 1000);
+                                        } else {
+                                            showAlert(response.message || 'Ошибка при импорте', 'error');
+                                        }
+                                    } catch (error) {
+                                        showAlert('Ошибка при загрузке Excel', 'error');
+                                    }
+                                }}
+                            />
+                            <Button
+                                variant="outlined"
+                                color="success"
+                                startIcon={<DriveFolderUploadIcon />}
+                                style={{textTransform: 'none'}}
+                                onClick={() => document.getElementById('excel-upload-input')?.click()}
+                            >
+                                Загрузить Excel с вопросами
+                            </Button>
+                        </div>
+                    )}
                     <FormControl sx={{ m: 1, minWidth: '80%' }} variant="standard">
                         <InputLabel htmlFor="standard-adornment-amount">Название теста</InputLabel>
                         <Input
@@ -448,14 +506,6 @@ const GeneralSettingsTestPage = observer(() => {
             >
                 {id ? 'Обновить' : 'Сохранить'}
             </Button>
-            {/* <Button
-                variant='contained'
-                color='inherit'
-                style={{ textTransform: 'none', marginTop: 10, marginLeft: 15 }}
-                onClick={() => clickClose()}
-            >
-                выйти
-            </Button> */}
             <DialogPopup
                 title='Подтверждение'
                 mainText={id ? 'Обновить Ваши изменения?' : 'Сохранить Ваши изменения?'}

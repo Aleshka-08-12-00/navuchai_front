@@ -15,6 +15,7 @@ import TimeSettingsPage from "./sub-page/time-settings-page/time-settings-page";
 import TestSetsPage from "./sub-page/test-sets-page/test-sets-page";
 import TestAccessPage from "./sub-page/test-access-page/test-access-page";
 import { useParams } from "react-router-dom";
+import TestQuestionListPage from "../test-question-list-page/test-question-list-page";
 
 
 
@@ -44,7 +45,7 @@ const ContentPage = observer(({ testId }: any) => {
           {idSettingsNumber === '55' && <TestStartPage />}
           {idSettingsNumber === '56' && <GradingSummaryPage />}
           {idSettingsNumber === '57' && <TimeSettingsPage />}
-          {idSettingsNumber === '58' && <RecordingComponent />}
+          {idSettingsNumber === '58' && <TestQuestionListPage />}
 
         </Grid>
       </Grid>

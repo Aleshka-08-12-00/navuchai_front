@@ -28,11 +28,8 @@ import { Grid } from "@mui/material";
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import SearchIcon from '@mui/icons-material/Search';
-import MainCard from "../../components/MainCard";
 
 import { faEllipsisV } from '@fortawesome/free-solid-svg-icons/faEllipsisV';
-import DonutLargeIcon from '@mui/icons-material/DonutLarge';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import CategoryIcon from '@mui/icons-material/Category';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import PeopleIcon from '@mui/icons-material/People';
@@ -43,9 +40,6 @@ import { Context } from "../..";
 import { useNavigate } from "react-router";
 import { Menu } from '@mui/material';
 import { InterfaceTests } from "../../interface/interfaceStore";
-import moment from "moment";
-import { node } from "prop-types";
-import { gold } from "@ant-design/colors";
 
 
 type FontAwesomeSvgIconProps = {
@@ -286,26 +280,26 @@ const MainPage = observer(() => {
         minHeight: '100vh',
         // p: 3
       }}>
-        <Box sx={{ maxWidth: 1400, mx: 'auto' }}>
+        <Box sx={{ maxWidth: 1400, mx: 'auto', px: { xs: 1, sm: 2, md: 0 } }}>
           {/* Header Section */}
           <Card sx={{
             mb: 3,
-            // background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
             background: ' #667eea',
             color: 'white',
             borderRadius: 3,
             boxShadow: '0 8px 32px rgba(0,0,0,0.1)'
           }}>
-            <CardContent sx={{ p: 4 }}>
+            <CardContent sx={{ p: { xs: 2, sm: 4 } }}>
               <Box sx={{
                 display: 'flex',
-                alignItems: 'center',
+                alignItems: { xs: 'stretch', sm: 'center' },
+                flexDirection: { xs: 'column', sm: 'row' },
                 justifyContent: 'space-between',
                 flexWrap: 'wrap',
                 gap: 2
               }}>
                 <Box>
-                  <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
+                  <Typography variant="h4" sx={{ fontWeight: 700, mb: 1, fontSize: { xs: 22, sm: 28 } }}>
                     Мои тесты
                   </Typography>
                   <Chip
@@ -313,12 +307,13 @@ const MainPage = observer(() => {
                     sx={{
                       background: 'rgba(255,255,255,0.2)',
                       color: 'white',
-                      fontWeight: 600
+                      fontWeight: 600,
+                      fontSize: { xs: 12, sm: 14 }
                     }}
                   />
                 </Box>
-                <Box sx={roleCode !== 'admin' ? { display: 'none' } : {}}>
-                  <Stack direction="row" spacing={2}>
+                <Box sx={roleCode === 'user' ? { display: 'none' } : { width: { xs: '100%', sm: 'auto' } }}>
+                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ width: { xs: '100%', sm: 'auto' } }}>
                     <Button
                       color="inherit"
                       sx={{
@@ -329,7 +324,9 @@ const MainPage = observer(() => {
                         fontWeight: 600,
                         '&:hover': {
                           background: 'rgba(255,255,255,0.3)',
-                        }
+                        },
+                        width: { xs: '100%', sm: 'auto' },
+                        fontSize: { xs: 13, sm: 16 }
                       }}
                       variant="contained"
                       startIcon={<AutoFixHighIcon />}
@@ -349,7 +346,9 @@ const MainPage = observer(() => {
                           background: 'linear-gradient(45deg, #45a049, #4caf50)',
                           transform: 'translateY(-2px)',
                           boxShadow: '0 6px 20px rgba(76, 175, 80, 0.4)',
-                        }
+                        },
+                        width: { xs: '100%', sm: 'auto' },
+                        fontSize: { xs: 13, sm: 16 }
                       }}
                       size="large"
                       startIcon={<AddBoxIcon />}
@@ -371,19 +370,20 @@ const MainPage = observer(() => {
             background: 'rgba(255,255,255,0.9)',
             backdropFilter: 'blur(10px)'
           }}>
-            <CardContent sx={{ p: 3 }}>
+            <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
               <Box sx={{
                 display: 'flex',
-                alignItems: 'center',
+                alignItems: { xs: 'stretch', sm: 'center' },
+                flexDirection: { xs: 'column', sm: 'row' },
                 gap: 3,
                 flexWrap: 'wrap'
               }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: { xs: '100%', sm: 'auto' }, mb: { xs: 2, sm: 0 } }}>
                   <CategoryIcon color="primary" />
-                  <Typography variant="body1" color="textSecondary" sx={{ fontWeight: 600 }}>
+                  <Typography variant="body1" color="textSecondary" sx={{ fontWeight: 600, fontSize: { xs: 13, sm: 16 } }}>
                     Категория
                   </Typography>
-                  <FormControl size="small" sx={{ minWidth: 180 }}>
+                  <FormControl size="small" sx={{ minWidth: { xs: 120, sm: 180 }, width: { xs: '100%', sm: 'auto' } }}>
                     <Select
                       value={category}
                       onChange={handleCategoryChange}
@@ -400,12 +400,12 @@ const MainPage = observer(() => {
                   </FormControl>
                 </Box>
 
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: { xs: '100%', sm: 'auto' }, mb: { xs: 2, sm: 0 } }}>
                   <TrendingUpIcon color="primary" />
-                  <Typography variant="body1" color="textSecondary" sx={{ fontWeight: 600 }}>
+                  <Typography variant="body1" color="textSecondary" sx={{ fontWeight: 600, fontSize: { xs: 13, sm: 16 } }}>
                     Статус
                   </Typography>
-                  <FormControl size="small" sx={{ minWidth: 140 }}>
+                  <FormControl size="small" sx={{ minWidth: { xs: 100, sm: 140 }, width: { xs: '100%', sm: 'auto' } }}>
                     <Select
                       value={status}
                       onChange={handleStatusChange}
@@ -422,7 +422,7 @@ const MainPage = observer(() => {
                   </FormControl>
                 </Box>
 
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, ml: 'auto' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: { xs: '100%', sm: 'auto' }, ml: { xs: 0, sm: 'auto' } }}>
                   <SearchIcon color="primary" />
                   <TextField
                     size="small"
@@ -431,7 +431,8 @@ const MainPage = observer(() => {
                     value={search}
                     onChange={handleSearchChange}
                     sx={{
-                      minWidth: 250,
+                      maxWidth: '100%',
+                      minWidth: 0,
                       '& .MuiOutlinedInput-root': {
                         borderRadius: 2,
                         background: 'rgba(255,255,255,0.8)'
@@ -537,7 +538,7 @@ const MainPage = observer(() => {
                           cursor: roleCode === 'user' ? 'default' : 'pointer',
                           '&:hover': { color: roleCode === 'user' ? 'inherit' : 'primary.main' }
                         }}
-                        onClick={() => roleCode !== 'user' && navigate(`/main-page/test/${item.id}`)}
+                        onClick={() => roleCode !== 'user' && navigate(`/main-page/new-test/${item.id}`)}
                       >
                         {item.title}
                       </Typography>
@@ -551,26 +552,10 @@ const MainPage = observer(() => {
                           cursor: roleCode === 'user' ? 'default' : 'pointer',
                           lineHeight: 1.6
                         }}
-                        onClick={() => roleCode !== 'user' && navigate(`/main-page/test/${item.id}`)}
+                        onClick={() => roleCode !== 'user' && navigate(`/main-page/new-test/${item.id}`)}
                       >
                         {item.description}
                       </Typography>
-
-                      {/* Access Time */}
-                      {/* <Box sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 1,
-                        mb: 3,
-                        p: 2,
-                        background: 'rgba(0,0,0,0.02)',
-                        borderRadius: 2
-                      }}>
-                        <AccessTimeIcon color="action" fontSize="small" />
-                        <Typography variant="body2" color="textSecondary">
-                          Доступен с: {moment(item.access_timestamp).format('HH:mm DD.MM.YYYY')}
-                        </Typography>
-                      </Box> */}
 
                       {/* Progress Section */}
                       <Box sx={{ mb: 3 }}>
@@ -624,20 +609,6 @@ const MainPage = observer(() => {
                             <Typography style={{ color: getStatusColor(item.access_status_color) }} variant="body2" color="textSecondary">
                               {item.access_status_name}
                             </Typography>
-                            {/* <Chip
-                              label={item.access_status_name}
-                              size="small"
-                              sx={{
-                                background: getStatusColor(item.access_status_color),
-                                color: 'white',
-                                fontWeight: 600,
-                                fontSize: '0.75rem',
-                                height: 24,
-                                '& .MuiChip-label': {
-                                  px: 1
-                                }
-                              }}
-                            /> */}
                           </Box>}
 
                           <Typography variant="body2" color="textSecondary">
@@ -693,15 +664,15 @@ const MainPage = observer(() => {
           {filteredTests.length === 0 && (
             <Card sx={{
               textAlign: 'center',
-              p: 8,
+              p: { xs: 4, sm: 8 },
               borderRadius: 3,
               background: 'rgba(255,255,255,0.9)',
               backdropFilter: 'blur(10px)'
             }}>
-              <Typography variant="h5" color="textSecondary" sx={{ mb: 2 }}>
+              <Typography variant="h5" color="textSecondary" sx={{ mb: 2, fontSize: { xs: 18, sm: 22 } }}>
                 Тесты не найдены
               </Typography>
-              <Typography variant="body1" color="textSecondary">
+              <Typography variant="body1" color="textSecondary" sx={{ fontSize: { xs: 14, sm: 16 } }}>
                 Попробуйте изменить параметры фильтрации
               </Typography>
             </Card>

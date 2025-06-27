@@ -4,8 +4,9 @@ import AddBoxIcon from '@mui/icons-material/AddBox';
 import MainCard from "../../components/MainCard";
 import React, { useState } from "react";
 import { Context } from "../..";
-import { useParams } from "react-router";
+import { useParams, useNavigate } from "react-router";
 import RespondentListMembers from "./components/RespondentListMembers";
+import { Snackbar, Alert } from "@mui/material";
 
 interface Participant {
     id: number;
@@ -15,6 +16,7 @@ interface Participant {
 
 const CreateRespondentsPage = observer(() => {
     const { id } = useParams<{ id: string }>();
+    const navigate = useNavigate();
     const { respondentsStore } = React.useContext(Context);
 
     const {
@@ -25,7 +27,18 @@ const CreateRespondentsPage = observer(() => {
         postUsersIntoList,
         putUserGroupsById,
         postUserGroups,
+        clearRespondentListInfo
     } = respondentsStore
+
+    const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
+    const [participants, setParticipants] = useState<Participant[]>([]);
+    const [selectedUserId, setSelectedUserId] = useState<number | ''>('');
+
+    // --- ALERT STATE ---
+    const [alertOpen, setAlertOpen] = useState(false);
+    const [alertMessage, setAlertMessage] = useState('');
+    const [alertSeverity, setAlertSeverity] = useState<'success' | 'error'>('success');
 
     React.useEffect(() => {
         getUsers()
@@ -35,24 +48,31 @@ const CreateRespondentsPage = observer(() => {
         if (id !== 'new'){
             getUserGroupsById(String(id))
         }else if (id === 'new'){
-
+            clearRespondentListInfo()
             setTitle('')
             setDescription('')
+            setParticipants([])
         }
     }, [id]);
 
-    const [title, setTitle] = useState('');
-    const [description, setDescription] = useState('');
-    const [participants, setParticipants] = useState<Participant[]>([]);
-    const [selectedUserId, setSelectedUserId] = useState<number | ''>('');
+  
+
+    const showAlert = (message: string, severity: 'success' | 'error') => {
+        setAlertMessage(message);
+        setAlertSeverity(severity);
+        setAlertOpen(true);
+    };
+    const handleCloseAlert = () => {
+        setAlertOpen(false);
+    };
 
     React.useEffect(() => {
-        if (respondentListInfo) {
+        if (respondentListInfo && id !== 'new') {
             const list = respondentListInfo;
             setTitle(list.name);
             setDescription(list.description);
         }
-    }, [respondentListInfo]);
+    }, [respondentListInfo, id]);
 
     const handleAddParticipant = async () => {
         if (!selectedUserId || !respondentListInfo?.id) return;
@@ -92,14 +112,22 @@ const CreateRespondentsPage = observer(() => {
 
             if (id === 'new') {
                 await postUserGroups(data);
+                setTimeout(() => {
+                    if (respondentsStore.respondentListInfo?.id) {
+                        navigate(`/respondents/${respondentsStore.respondentListInfo.id}`);
+                    }
+                }, 500);
+                showAlert('Список успешно создан', 'success');
             } else if (id !== 'new') {
                 await putUserGroupsById(data, String(id));
+                showAlert('Список успешно сохранён', 'success');
             } else {
                 console.error('Invalid ID');
                 return;
             }
         } catch (error) {
             console.error('Failed to save respondent list:', error);
+            showAlert('Ошибка при сохранении списка', 'error');
         }
     };
 
@@ -161,7 +189,7 @@ const CreateRespondentsPage = observer(() => {
                                     </Select>
                                 </FormControl>
                                 <IconButton
-                                    color="primary"
+                                    color='success'
                                     onClick={handleAddParticipant}
                                     disabled={!selectedUserId}
                                 >
@@ -185,9 +213,19 @@ const CreateRespondentsPage = observer(() => {
                 onClick={handleSave}
                 disabled={!title.trim() || !description.trim()}
             >
-                сохранить
+                {id === 'new' ? 'создать' : 'сохранить'}
             </Button>
 
+            <Snackbar 
+                open={alertOpen} 
+                autoHideDuration={6000} 
+                onClose={handleCloseAlert}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert onClose={handleCloseAlert} severity={alertSeverity} sx={{ width: '100%' }}>
+                    {alertMessage}
+                </Alert>
+            </Snackbar>
         </>
     )
 });

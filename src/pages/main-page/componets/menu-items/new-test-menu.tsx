@@ -6,6 +6,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import StickyNote2Icon from '@mui/icons-material/StickyNote2';
 import ManageHistoryIcon from '@mui/icons-material/ManageHistory';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 
 
 // icons
@@ -17,7 +18,8 @@ const icons = {
   HomeIcon,
   StickyNote2Icon,
   ManageHistoryIcon,
-  EmojiEventsIcon
+  EmojiEventsIcon,
+  VisibilityIcon
 };
 
 // ==============================|| MENU ITEMS - DASHBOARD ||============================== //
@@ -47,6 +49,17 @@ const newTestMenu = {
       code: 'anyCode',
       disabled: false
     },
+     {
+      id: '58',
+      title: 'Просмотр вопросов',
+      type: 'item',
+      // url: '/main-page/test/:id/question/:questionId',
+      icon: icons.VisibilityIcon,
+      breadcrumbs: true,
+      code: 'anyCode',
+      disabled: false
+    },
+
     {
       id: '53',
       title: 'Подача теста',

@@ -4,13 +4,22 @@ import { Grid } from "@mui/material";
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import MainCard from "../../components/MainCard";
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import LibraryAddIcon from '@mui/icons-material/LibraryAdd';
 import { useNavigate } from "react-router";
 import React, { useState } from "react";
 import { Context } from "../..";
 import { IRespondentLists } from "../../interface/interfaceStore";
 import moment from 'moment'
+import SettingsIcon from '@mui/icons-material/Settings';
+import PeopleIcon from '@mui/icons-material/People';
 
+// Функция для склонения слова "участник"
+function pluralizeParticipants(count: number) {
+    const mod10 = count % 10;
+    const mod100 = count % 100;
+    if (mod10 === 1 && mod100 !== 11) return 'участник';
+    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return 'участника';
+    return 'участников';
+}
 
 const RespondentsPage = observer(() => {
 
@@ -99,6 +108,7 @@ const RespondentsPage = observer(() => {
                     </Typography>
                     <span>
                       <IconButton 
+                        color='error'
                         aria-label="delete" 
                         onClick={(e) => handleDeleteClick(e, item.id)}
                       >
@@ -115,6 +125,23 @@ const RespondentsPage = observer(() => {
                     <Typography variant="h6" color="textSecondary" >
                       ({item.description})
                     </Typography>
+                  </Stack>
+                  <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mt: 2 }}>
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                      <PeopleIcon color="action" fontSize="small"  />
+                      <Typography variant="h6" color="textSecondary">
+                        {item.members?.length ?? 0} {pluralizeParticipants(item.members?.length ?? 0)}
+                      </Typography>
+                    </Stack>
+                    <Button
+                      color='inherit'
+                      variant="outlined"
+                      startIcon={<SettingsIcon />} 
+                      onClick={(e) => { e.stopPropagation(); navigate(`/respondents/${item.id}`); }}
+                      size="small"
+                    >
+                      Управление
+                    </Button>
                   </Stack>
                 </div>
               </MainCard>

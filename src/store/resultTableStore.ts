@@ -51,14 +51,17 @@ export default class ResultTableStore {
     if (this.testNamesMap.has(testId)) return;
 
     try {
-      await settingsNewTestStore.getTestById(testId);
-      const test = settingsNewTestStore.testMainInfo;
-      const name = test?.title ?? "Неизвестно";
-
+      const test = await fetchData("getTestsById", {}, testId);
+      let name = "Неизвестно";
+      if (test && typeof test === "object" && Object.keys(test).length > 0) {
+        name = test.title ?? "Неизвестно";
+      } else {
+        name = "Тест не найден";
+      }
       runInAction(() => {
         this.testNamesMap.set(testId, name);
       });
-    } catch {
+    } catch (e) {
       runInAction(() => {
         this.testNamesMap.set(testId, "Неизвестно");
       });
@@ -89,7 +92,7 @@ export default class ResultTableStore {
     }
   };
 
-  setResultsArray = (value: ITestResultCreateResponse[]) => {
+  setResultsArray = async (value: ITestResultCreateResponse[]) => {
     runInAction(() => {
       this.resultsArray = value;
     });
@@ -97,13 +100,14 @@ export default class ResultTableStore {
     const uniqueTestIds = Array.from(new Set(value.map((res) => res.test_id)));
     const uniqueUserIds = Array.from(new Set(value.map((res) => res.user_id)));
 
-    Promise.all([
+    await Promise.all([
       ...uniqueTestIds.map((id) => this.fetchAndStoreTestName(id)),
       ...uniqueUserIds.map((id) => userStore.getUserById(id)),
     ]);
   };
 
   getFormattedUserResults(): IUserTestResultRow[] {
+    console.log(this.resultsArray)
     return this.resultsArray.map((res) => ({
       key: res.id,
       test_name: this.testNamesMap.get(res.test_id) ?? "—",

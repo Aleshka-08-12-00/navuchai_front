@@ -16,14 +16,11 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 
 // project import
-import Avatar from 'components/@extended/Avatar';
 import MainCard from 'components/MainCard';
 import Transitions from 'components/@extended/Transitions';
 
 // assets
 import LogoutOutlined from '@ant-design/icons/LogoutOutlined';
-import { jwtDecode } from 'jwt-js-decode';
-import { Base64 } from 'js-base64';
 import { observer } from 'mobx-react-lite';
 import { Context } from 'index';
 
@@ -76,9 +73,8 @@ const Profile = observer(() => {
         onClick={handleToggle}
       >
         <Stack direction="row" spacing={1.25} alignItems="center" sx={{ p: 0.5 }}>
-          {/* <Avatar alt="profile user" src={info.payload.img} size="sm" /> */}
           <Typography variant="subtitle1" sx={{ textTransform: 'capitalize' }}>
-            {/* {Base64.decode(info.payload.fio)} */}
+            {authStore.name}
           </Typography>
         </Stack>
       </ButtonBase>
@@ -109,14 +105,14 @@ const Profile = observer(() => {
                     <Grid container justifyContent="space-between" alignItems="center">
                       <Grid item>
                         <Stack direction="row" spacing={1.25} alignItems="center">
-                          {/* <Avatar alt="profile user" src={info.payload.img} sx={{ width: 52, height: 52 }} /> */}
                           <Stack>
-                            {/* <Typography variant="h6"> {Base64.decode(info.payload.fio)}</Typography> */}
+                            <Typography variant="h6">{authStore.name}</Typography>
+                            <Typography variant="body2" color="text.secondary">{authStore.roleName}</Typography>
                           </Stack>
                         </Stack>
                       </Grid>
                       <Grid item>
-                        <Tooltip title="Logout">
+                        <Tooltip title="Выйти">
                           <IconButton onClick={() => logout()} size="large" sx={{ color: 'text.primary' }}>
                             <LogoutOutlined />
                           </IconButton>

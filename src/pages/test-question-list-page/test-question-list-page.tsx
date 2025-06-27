@@ -51,7 +51,7 @@ const TestQuestionListPage = observer(() => {
     // Состояние для поиска и выбора
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedQuestions, setSelectedQuestions] = useState<Set<number>>(new Set());
-    
+
     // Состояние для диалогового окна удаления
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [alertOpen, setAlertOpen] = useState(false);
@@ -64,7 +64,7 @@ const TestQuestionListPage = observer(() => {
         authStore.authMe()
     }, [id]);
 
-  
+
     // Фильтрация вопросов по поисковому запросу
     const filteredQuestions = useMemo(() => {
         if (!searchQuery.trim()) {
@@ -142,6 +142,9 @@ const TestQuestionListPage = observer(() => {
 
     return (
         <>
+            <Typography variant="h6" color="textSecondary" >
+                Просмотр вопросов
+            </Typography>
             <Box sx={{ flexGrow: 1 }}>
                 {/* Блок управления */}
                 <Paper sx={{ p: 2, mb: 2 }}>
@@ -180,7 +183,7 @@ const TestQuestionListPage = observer(() => {
                                 color="error"
                                 onClick={handleDeleteSelected}
                                 size="small"
-                                style={{textTransform: 'none'}}
+                                style={{ textTransform: 'none' }}
                             >
                                 Удалить выбранные ({selectedQuestions.size})
                             </Button>
@@ -189,15 +192,31 @@ const TestQuestionListPage = observer(() => {
                         <Typography variant="body2" color="text.secondary">
                             Найдено: {filteredQuestions.length} из {questionArray.length}
                         </Typography>
+                        {/* <Button
+                        color="success"
+                        variant="outlined"
+                        style={{ textTransform: 'none' }}
+                        onClick={() => navigate(`/main-page/new-test/${id}`)}>
+                        + Добавить вопрос
+                    </Button> */}
                     </Stack>
                 </Paper>
-                <Button 
-                color="success" 
-                variant="outlined"
-                style={{textTransform: 'none', marginBottom: 15}}
-                 onClick={() => navigate(`/main-page/new-test/${id}`)}>
-                + Добавить вопрос  
-                </Button>
+                {/* <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 }}>
+                    <Button
+                        color="success"
+                        variant="outlined"
+                        style={{ textTransform: 'none' }}
+                        onClick={() => navigate(`/main-page/new-test/${id}`)}>
+                        + Добавить вопрос
+                    </Button>
+                    <Button
+                        color='secondary'
+                        variant="outlined"
+                        style={{ textTransform: 'none' }}
+                        onClick={() => navigate(`/main-page/new-test/${id}`)}>
+                        Редактировть тест
+                    </Button>
+                </div> */}
 
                 <Grid container spacing={2}>
                     <Grid item xs={12} sm={12} md={12} lg={12} style={{ cursor: 'pointer' }} >
@@ -237,7 +256,7 @@ const TestQuestionListPage = observer(() => {
                             }
 
                             return null;
-                        }): 'В данном тесте нет вопросов'}
+                        }) : 'В данном тесте нет вопросов'}
                     </Grid>
                 </Grid>
             </Box>
@@ -267,16 +286,16 @@ const TestQuestionListPage = observer(() => {
                     </Typography>
                 </DialogContent>
                 <DialogActions sx={{ p: 3, pt: 1 }}>
-                    <Button 
-                        onClick={handleCancelDelete} 
-                        variant='outlined' 
+                    <Button
+                        onClick={handleCancelDelete}
+                        variant='outlined'
                         color='inherit'
                     >
                         Отмена
                     </Button>
-                    <Button 
-                        onClick={handleConfirmDelete} 
-                        color="error" 
+                    <Button
+                        onClick={handleConfirmDelete}
+                        color="error"
                         variant='outlined'
                     >
                         Удалить
@@ -285,16 +304,16 @@ const TestQuestionListPage = observer(() => {
             </Dialog>
 
             {/* Уведомления */}
-            <Snackbar 
-                open={alertOpen} 
-                autoHideDuration={6000} 
+            <Snackbar
+                open={alertOpen}
+                autoHideDuration={6000}
                 onClose={handleCloseAlert}
                 anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
             >
-                <Alert 
-                    onClose={handleCloseAlert} 
-                    severity={alertSeverity} 
-                    sx={{ 
+                <Alert
+                    onClose={handleCloseAlert}
+                    severity={alertSeverity}
+                    sx={{
                         width: '100%',
                         borderRadius: 2,
                         boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
