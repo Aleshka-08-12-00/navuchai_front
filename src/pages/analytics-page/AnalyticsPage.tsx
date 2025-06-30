@@ -101,7 +101,7 @@ const AnalyticsPage = observer(() => {
                                     },
                                 }}
                             >
-                                <DownloadForOfflineOutlined sx={{ fontSize: 48, mb: 1, mt: 1, color: 'black' }} />
+                                <DownloadForOfflineOutlined sx={{ fontSize: 26, mb: 1, mt: 1, color: 'black' }} />
                                 <MuiTypography variant="h6" sx={{ fontWeight: 700, textAlign: 'center', mb: 1 }}>
                                     {loadingType === item.type ? 'Загрузка...' : item.name}
                                 </MuiTypography>
