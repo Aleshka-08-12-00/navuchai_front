@@ -1,6 +1,6 @@
 const endpoints = {
   //Тесты
-  getTests: 'api/tests/my',
+  getTests: 'api/tests/my/',
   postTests: 'api/tests/',
   getTestsById: (id: string | number | null): string => `api/tests/${id}/`,
   putTestsById: (id: string | number | null): string => `api/tests/${id}/`,
