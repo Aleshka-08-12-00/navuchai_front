@@ -64,7 +64,7 @@ const AnalyticsPage = observer(() => {
             <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <MuiTypography variant="h5">Аналитика по тестам</MuiTypography>
             </Box>
-            <MainCard>
+            <div>
                 {loadingViews ? (
                     <Box sx={{ p: 4, textAlign: 'center' }}>
                         <MuiTypography variant="body1">Загрузка видов аналитики...</MuiTypography>
@@ -75,7 +75,6 @@ const AnalyticsPage = observer(() => {
                             display: 'grid',
                             gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: '1fr 1fr 1fr 1fr' },
                             gap: 3,
-                            p: 2,
                             justifyItems: 'center',
                         }}
                     >
@@ -141,7 +140,7 @@ const AnalyticsPage = observer(() => {
                         </Alert>
                     </Snackbar>
                 )}
-            </MainCard>
+            </div>
         </div>
     )
 })
