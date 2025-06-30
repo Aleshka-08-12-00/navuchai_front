@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Play } from 'lucide-react';
-import { getLessons, postLesson } from 'api';
+import { getLessons, postLesson, completeLesson } from 'api';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Context } from '../..';
@@ -19,6 +19,7 @@ interface Lesson {
   id: number;
   title: string;
   image?: string;
+  completed?: boolean;
 }
 
 const LessonsPage = () => {
@@ -103,9 +104,16 @@ const LessonsPage = () => {
               <CardContent>
                 <Button
                   className="w-full bg-green-600 hover:bg-green-700 text-white"
-                  onClick={() => navigate(`/courses/${courseId}/modules/${moduleId}/lessons/${lesson.id}`)}
+                  onClick={async () => {
+                    try {
+                      await completeLesson(lesson.id);
+                    } catch (e) {
+                      console.error(e);
+                    }
+                    navigate(`/courses/${courseId}/modules/${moduleId}/lessons/${lesson.id}`);
+                  }}
                 >
-                  <Play className="h-4 w-4 mr-2" /> Начать урок
+                  <Play className="h-4 w-4 mr-2" /> {lesson.completed ? 'Повторить' : 'Начать'}
                 </Button>
               </CardContent>
             </Card>

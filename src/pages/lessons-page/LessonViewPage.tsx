@@ -51,7 +51,12 @@ const LessonViewPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
       <div className="container mx-auto px-4 py-8">
-        <Button variant="ghost" size="sm" className="mb-4 hover:bg-white/50" onClick={() => navigate(-1)}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="mb-4 hover:bg-white/50"
+          onClick={() => navigate(`/courses/${courseId}/modules/${moduleId}`)}
+        >
           <ArrowLeft className="h-4 w-4 mr-2" /> К урокам
         </Button>
         <h1 className="text-3xl font-bold text-gray-800 mb-6">{lesson.title}</h1>
