@@ -5,6 +5,7 @@ import BarChartIcon from '@mui/icons-material/BarChart';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import QueryStatsIcon from '@mui/icons-material/QueryStats';
 
 
 // icons
@@ -15,7 +16,8 @@ const icons = {
   BarChartIcon,
   SettingsIcon,
   LibraryBooksIcon,
-  AdminPanelSettingsIcon
+  AdminPanelSettingsIcon,
+  QueryStatsIcon
 };
 
 // ==============================|| MENU ITEMS - DASHBOARD ||============================== //
@@ -54,6 +56,16 @@ const dashboard = {
       breadcrumbs: true,
       code: 'anyCode',
       allowedRoles: ['admin', 'user', 'moderator']
+    },
+    {
+      id: '8',
+      title: 'Аналитика по тестам',
+      type: 'item',
+      url: '/analytics',
+      icon: icons.QueryStatsIcon,
+      breadcrumbs: true,
+      code: 'anyCode',
+      allowedRoles: ['admin', 'moderator']
     },
     {
       id: '4',

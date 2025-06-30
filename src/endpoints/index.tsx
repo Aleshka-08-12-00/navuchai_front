@@ -78,6 +78,11 @@ const endpoints = {
   //Роли пользователей
   getRoles: 'api/roles/',
 
+  //Аналитика
+  getAnalytics: (view_name: string | number | null): string => `api/results/excel/${view_name}/`,
+  getAnalyticsViews: 'api/analytics_views/',
+
+
   /* КУРСЫ */
   courses: 'api/courses/',                                   // GET list, POST create
   courseById: (id: string | number) => `api/courses/${id}/`,          // GET/PUT/DELETE
