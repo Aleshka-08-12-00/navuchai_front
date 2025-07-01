@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { useNavigate, useParams, useLocation, Link } from 'react-router-dom';
 import { ArrowLeft, Play } from 'lucide-react';
 import {
   getModules,
@@ -209,9 +209,11 @@ const ModulesPage = () => {
                 )}
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <Button variant="ghost" size="sm" className="hover:bg-white/50" onClick={() => navigate(-1)}>
-                      <ArrowLeft className="h-4 w-4 mr-2" /> Назад
-                    </Button>
+                    <Link to="/courses">
+                      <Button variant="ghost" size="sm" className="hover:bg-white/50">
+                        <ArrowLeft className="h-4 w-4 mr-2" /> Назад
+                      </Button>
+                    </Link>
                     <Typography variant="h4" sx={{ fontWeight: 700 }}>
                       {course?.title || 'Модули курса'}
                     </Typography>
