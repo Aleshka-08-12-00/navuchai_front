@@ -12,14 +12,13 @@ import {
   MenuItem,
   Select,
   Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper
+  TextField,
+  IconButton
 } from '@mui/material';
+import { Search as SearchIcon } from '@mui/icons-material';
+import MainCard from '../../components/MainCard';
+import { Table } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
 import { getCourses, enrollCourseAdmin, getUserCourses } from 'api';
 import { Context } from '../..';
 import { observer } from 'mobx-react-lite';
@@ -33,6 +32,7 @@ const CourseAccessAdminPage = observer(() => {
   const [userCourses, setUserCourses] = useState<{ user: any; courses: any[] }[]>([]);
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
   const [selectedUser, setSelectedUser] = useState<any | null>(null);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     (async () => {
@@ -59,6 +59,32 @@ const CourseAccessAdminPage = observer(() => {
     })();
   }, []);
 
+  const filteredUsers = userCourses.filter((uc) => {
+    const searchLower = search.toLowerCase();
+    return uc.user.name.toLowerCase().includes(searchLower) || uc.user.email.toLowerCase().includes(searchLower);
+  });
+
+  const columns: ColumnsType<{ user: any; courses: any[] }> = [
+    {
+      title: 'Пользователь',
+      dataIndex: 'user',
+      key: 'user',
+      render: (u) => u.name
+    },
+    {
+      title: 'Email',
+      dataIndex: 'user',
+      key: 'email',
+      render: (u) => u.email
+    },
+    {
+      title: 'Курсы',
+      dataIndex: 'courses',
+      key: 'courses',
+      render: (courses: any[]) => (courses.length > 0 ? courses.map((c) => c.title).join(', ') : 'Нет')
+    }
+  ];
+
   const handleGrant = async () => {
     try {
       if (userId && courseId) {
@@ -69,9 +95,7 @@ const CourseAccessAdminPage = observer(() => {
             uc.user.id === Number(userId)
               ? {
                   user: uc.user,
-                  courses: courses.filter((c) =>
-                    ucs.some((x: any) => x.course_id === c.id)
-                  )
+                  courses: courses.filter((c) => ucs.some((x: any) => x.course_id === c.id))
                 }
               : uc
           )
@@ -104,9 +128,7 @@ const CourseAccessAdminPage = observer(() => {
           uc.user.id === selectedUser.id
             ? {
                 user: uc.user,
-                courses: courses.filter((c) =>
-                  ucs.some((x: any) => x.course_id === c.id)
-                )
+                courses: courses.filter((c) => ucs.some((x: any) => x.course_id === c.id))
               }
             : uc
         )
@@ -120,74 +142,75 @@ const CourseAccessAdminPage = observer(() => {
 
   return (
     <Box>
-      <Typography variant="h4" sx={{ mb: 2 }}>Доступ к курсам</Typography>
-      <Button variant="contained" onClick={() => setOpen(true)}>Выдать доступ</Button>
+      <Typography variant="h4" sx={{ mb: 2 }}>
+        Доступ к курсам
+      </Typography>
+      <Button variant="contained" onClick={() => setOpen(true)}>
+        Выдать доступ
+      </Button>
       <Dialog open={open} onClose={() => setOpen(false)}>
         <DialogTitle>Выдать доступ пользователю</DialogTitle>
         <DialogContent>
           <FormControl fullWidth sx={{ mt: 2 }}>
             <InputLabel id="user-label">Пользователь</InputLabel>
-            <Select labelId="user-label" value={userId} label="Пользователь" onChange={e => setUserId(Number(e.target.value))}>
-              {adminStore.userArray.map(u => (
-                <MenuItem key={u.id} value={u.id}>{u.name}</MenuItem>
+            <Select labelId="user-label" value={userId} label="Пользователь" onChange={(e) => setUserId(Number(e.target.value))}>
+              {adminStore.userArray.map((u) => (
+                <MenuItem key={u.id} value={u.id}>
+                  {u.name}
+                </MenuItem>
               ))}
             </Select>
           </FormControl>
           <FormControl fullWidth sx={{ mt: 2 }}>
             <InputLabel id="course-label">Курс</InputLabel>
-            <Select labelId="course-label" value={courseId} label="Курс" onChange={e => setCourseId(Number(e.target.value))}>
-              {courses.map(c => (
-                <MenuItem key={c.id} value={c.id}>{c.title}</MenuItem>
+            <Select labelId="course-label" value={courseId} label="Курс" onChange={(e) => setCourseId(Number(e.target.value))}>
+              {courses.map((c) => (
+                <MenuItem key={c.id} value={c.id}>
+                  {c.title}
+                </MenuItem>
               ))}
             </Select>
           </FormControl>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpen(false)}>Отмена</Button>
-          <Button onClick={handleGrant} variant="contained" disabled={!userId || !courseId}>Выдать</Button>
+          <Button onClick={handleGrant} variant="contained" disabled={!userId || !courseId}>
+            Выдать
+          </Button>
         </DialogActions>
       </Dialog>
 
-      <TableContainer component={Paper} sx={{ mt: 3 }}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Пользователь</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Курсы</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {userCourses.map((uc) => (
-              <TableRow
-                key={uc.user.id}
-                hover
-                sx={{ cursor: 'pointer' }}
-                onClick={(e) => handleRowClick(e, uc.user)}
-              >
-                <TableCell>{uc.user.name}</TableCell>
-                <TableCell>{uc.user.email}</TableCell>
-                <TableCell>
-                  {uc.courses.length > 0
-                    ? uc.courses.map((c) => c.title).join(', ')
-                    : 'Нет'}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <Menu
-        anchorEl={menuAnchor}
-        open={Boolean(menuAnchor)}
-        onClose={handleCloseMenu}
-      >
+      <MainCard sx={{ mt: 3 }}>
+        <Box sx={{ mb: 2, display: 'flex', justifyContent: 'flex-end' }}>
+          <TextField
+            size="small"
+            variant="outlined"
+            placeholder="Поиск по имени или email..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            sx={{ minWidth: 250, background: '#fff', borderRadius: 1 }}
+            InputProps={{
+              endAdornment: (
+                <IconButton size="small">
+                  <SearchIcon />
+                </IconButton>
+              )
+            }}
+          />
+        </Box>
+        <Table
+          columns={columns}
+          dataSource={filteredUsers}
+          rowKey={(record) => record.user.id}
+          pagination={{ pageSize: 10, showSizeChanger: true }}
+          onRow={(record) => ({
+            onClick: (e) => handleRowClick(e as any, record.user)
+          })}
+        />
+      </MainCard>
+      <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={handleCloseMenu}>
         {courses.map((c) => {
-          const hasCourse =
-            selectedUser &&
-            userCourses
-              .find((uc) => uc.user.id === selectedUser.id)?.courses
-              .some((sc) => sc.id === c.id);
+          const hasCourse = selectedUser && userCourses.find((uc) => uc.user.id === selectedUser.id)?.courses.some((sc) => sc.id === c.id);
           return (
             <MenuItem
               key={c.id}

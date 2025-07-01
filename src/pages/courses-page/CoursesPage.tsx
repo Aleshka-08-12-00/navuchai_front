@@ -1,6 +1,6 @@
 import { useEffect, useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { BookOpen, Clock, Users, Star, ArrowLeft, Play } from 'lucide-react';
+import { BookOpen, Clock, Users, Star, Play } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
@@ -15,12 +15,14 @@ import {
   Stack,
   Button as MuiButton,
   IconButton,
+  TextField,
   Menu,
   MenuItem,
   LinearProgress
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import AddIcon from '@mui/icons-material/Add';
+import SearchIcon from '@mui/icons-material/Search';
 
 interface Course {
   id: number;
@@ -44,6 +46,7 @@ const CoursesPage = () => {
   const { roleCode } = authStore;
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
   const [menuCourseId, setMenuCourseId] = useState<number | null>(null);
+  const [search, setSearch] = useState('');
 
   const loadCourses = async () => {
     try {
@@ -148,8 +151,7 @@ const CoursesPage = () => {
     }
   };
 
-  const categories = ['Все'];
-  const levels = ['Все уровни'];
+  const filteredCourses = courses.filter((c) => c.title.toLowerCase().includes(search.toLowerCase()));
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
@@ -159,11 +161,6 @@ const CoursesPage = () => {
             <MuiCardContent sx={{ p: 4 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Link to="/">
-                    <Button variant="ghost" size="sm" className="hover:bg-white/50">
-                      <ArrowLeft className="h-4 w-4 mr-2" /> Назад
-                    </Button>
-                  </Link>
                   <Box>
                     <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
                       Курсы
@@ -201,31 +198,26 @@ const CoursesPage = () => {
           </MuiCard>
         </Box>
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 mb-8 shadow-lg">
-          <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="font-semibold text-gray-800 mb-3">Категории</h3>
-              <div className="flex flex-wrap gap-2">
-                {categories.map((c) => (
-                  <Badge key={c} variant="secondary" className="cursor-pointer hover:bg-purple-100 transition-colors">
-                    {c}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-            <div>
-              <h3 className="font-semibold text-gray-800 mb-3">Уровень сложности</h3>
-              <div className="flex flex-wrap gap-2">
-                {levels.map((l) => (
-                  <Badge key={l} variant="outline" className="cursor-pointer hover:bg-purple-50 transition-colors">
-                    {l}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          </div>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <TextField
+              size="small"
+              variant="outlined"
+              placeholder="Поиск по названию..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              sx={{ minWidth: 250, background: '#fff', borderRadius: 1 }}
+              InputProps={{
+                endAdornment: (
+                  <IconButton size="small">
+                    <SearchIcon />
+                  </IconButton>
+                )
+              }}
+            />
+          </Box>
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {courses.map((course, index) => (
+          {filteredCourses.map((course, index) => (
             <Card
               key={course.id}
               className="flex flex-col bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 animate-fade-in overflow-hidden"
