@@ -169,15 +169,15 @@ const CoursesPage = () => {
     : sortedCourses;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen">
+      <div className="container mx-auto">
         <Box sx={{ maxWidth: 1400, mx: 'auto' }}>
           <MuiCard sx={{ mb: 3, background: '#667eea', color: 'white', borderRadius: 3, boxShadow: '0 8px 32px rgba(0,0,0,0.1)' }}>
-            <MuiCardContent sx={{ p: 4 }}>
+            <MuiCardContent >
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                   <Box>
-                    <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
+                    <Typography variant="h3" sx={{ fontWeight: 700, mb: 1 }}>
                       Курсы
                     </Typography>
                     <Chip
