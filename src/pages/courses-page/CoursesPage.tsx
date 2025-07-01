@@ -41,6 +41,7 @@ interface Course {
 
 const CoursesPage = () => {
   const [courses, setCourses] = useState<Course[]>([]);
+  const [currentCourse, setCurrentCourse] = useState<Course | null>(null);
   const navigate = useNavigate();
   const { authStore } = useContext(Context);
   const { roleCode } = authStore;
@@ -50,7 +51,7 @@ const CoursesPage = () => {
 
   const loadCourses = async () => {
     try {
-      const data = await getCourses();
+      const { courses: data, current } = await getCourses();
       let userCourses: number[] = [];
       if (authStore.userId) {
         try {
@@ -80,6 +81,10 @@ const CoursesPage = () => {
         })
       );
       setCourses(formatted);
+      const last = current?.course
+        ? formatted.find((c: any) => c.id === current.course.id) || null
+        : null;
+      setCurrentCourse(last);
     } catch (e) {
       console.error(e);
     }
@@ -159,6 +164,9 @@ const CoursesPage = () => {
     const bAccess = roleCode === 'admin' || b.enrolled;
     return aAccess === bAccess ? 0 : aAccess ? -1 : 1;
   });
+  const displayCourses = currentCourse
+    ? [currentCourse, ...sortedCourses.filter((c) => c.id !== currentCourse.id)]
+    : sortedCourses;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
@@ -224,7 +232,7 @@ const CoursesPage = () => {
           </Box>
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sortedCourses.map((course, index) => {
+          {displayCourses.map((course, index) => {
             const hasAccess = roleCode === 'admin' || course.enrolled;
             return (
             <Card
@@ -241,6 +249,11 @@ const CoursesPage = () => {
                 {course.category && (
                   <div className="absolute top-4 left-4">
                     <Badge className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">{course.category}</Badge>
+                  </div>
+                )}
+                {currentCourse && course.id === currentCourse.id && (
+                  <div className="absolute top-4 right-4">
+                    <Badge className="bg-green-600 text-white">Продолжить</Badge>
                   </div>
                 )}
               </div>
