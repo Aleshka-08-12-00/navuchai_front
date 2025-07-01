@@ -1,5 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, Select, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  FormControl,
+  InputLabel,
+  Menu,
+  MenuItem,
+  Select,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper
+} from '@mui/material';
 import { getCourses, enrollCourseAdmin, getUserCourses } from 'api';
 import { Context } from '../..';
 import { observer } from 'mobx-react-lite';
@@ -11,6 +31,8 @@ const CourseAccessAdminPage = observer(() => {
   const [courseId, setCourseId] = useState<number | ''>('');
   const [open, setOpen] = useState(false);
   const [userCourses, setUserCourses] = useState<{ user: any; courses: any[] }[]>([]);
+  const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
+  const [selectedUser, setSelectedUser] = useState<any | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -41,11 +63,58 @@ const CourseAccessAdminPage = observer(() => {
     try {
       if (userId && courseId) {
         await enrollCourseAdmin(Number(courseId), Number(userId));
+        const ucs = await getUserCourses(Number(userId));
+        setUserCourses((prev) =>
+          prev.map((uc) =>
+            uc.user.id === Number(userId)
+              ? {
+                  user: uc.user,
+                  courses: courses.filter((c) =>
+                    ucs.some((x: any) => x.course_id === c.id)
+                  )
+                }
+              : uc
+          )
+        );
       }
     } catch (e) {
       console.error(e);
     } finally {
       setOpen(false);
+    }
+  };
+
+  const handleRowClick = (event: React.MouseEvent<HTMLElement>, user: any) => {
+    setSelectedUser(user);
+    setMenuAnchor(event.currentTarget);
+  };
+
+  const handleCloseMenu = () => {
+    setMenuAnchor(null);
+    setSelectedUser(null);
+  };
+
+  const handleGrantCourse = async (courseIdParam: number) => {
+    if (!selectedUser) return;
+    try {
+      await enrollCourseAdmin(courseIdParam, selectedUser.id);
+      const ucs = await getUserCourses(selectedUser.id);
+      setUserCourses((prev) =>
+        prev.map((uc) =>
+          uc.user.id === selectedUser.id
+            ? {
+                user: uc.user,
+                courses: courses.filter((c) =>
+                  ucs.some((x: any) => x.course_id === c.id)
+                )
+              }
+            : uc
+        )
+      );
+    } catch (e) {
+      console.error(e);
+    } finally {
+      handleCloseMenu();
     }
   };
 
@@ -90,15 +159,51 @@ const CourseAccessAdminPage = observer(() => {
           </TableHead>
           <TableBody>
             {userCourses.map((uc) => (
-              <TableRow key={uc.user.id}>
+              <TableRow
+                key={uc.user.id}
+                hover
+                sx={{ cursor: 'pointer' }}
+                onClick={(e) => handleRowClick(e, uc.user)}
+              >
                 <TableCell>{uc.user.name}</TableCell>
                 <TableCell>{uc.user.email}</TableCell>
-                <TableCell>{uc.courses.length > 0 ? uc.courses.map(c => c.title).join(', ') : 'Нет'}</TableCell>
+                <TableCell>
+                  {uc.courses.length > 0
+                    ? uc.courses.map((c) => c.title).join(', ')
+                    : 'Нет'}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
+      <Menu
+        anchorEl={menuAnchor}
+        open={Boolean(menuAnchor)}
+        onClose={handleCloseMenu}
+      >
+        {courses.map((c) => {
+          const hasCourse =
+            selectedUser &&
+            userCourses
+              .find((uc) => uc.user.id === selectedUser.id)?.courses
+              .some((sc) => sc.id === c.id);
+          return (
+            <MenuItem
+              key={c.id}
+              onClick={() => handleGrantCourse(c.id)}
+              disabled={hasCourse}
+              selected={hasCourse}
+              sx={{
+                fontWeight: hasCourse ? 600 : 'normal',
+                opacity: hasCourse ? 0.6 : 1
+              }}
+            >
+              {c.title}
+            </MenuItem>
+          );
+        })
+      </Menu>
     </Box>
   );
 });
