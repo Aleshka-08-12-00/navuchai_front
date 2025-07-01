@@ -202,7 +202,7 @@ const CourseAccessAdminPage = observer(() => {
               {c.title}
             </MenuItem>
           );
-        })
+        })}
       </Menu>
     </Box>
   );
