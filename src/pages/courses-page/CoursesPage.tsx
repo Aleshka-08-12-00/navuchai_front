@@ -151,7 +151,14 @@ const CoursesPage = () => {
     }
   };
 
-  const filteredCourses = courses.filter((c) => c.title.toLowerCase().includes(search.toLowerCase()));
+  const filteredCourses = courses.filter((c) =>
+    c.title.toLowerCase().includes(search.toLowerCase())
+  );
+  const sortedCourses = [...filteredCourses].sort((a, b) => {
+    const aAccess = roleCode === 'admin' || a.enrolled;
+    const bAccess = roleCode === 'admin' || b.enrolled;
+    return aAccess === bAccess ? 0 : aAccess ? -1 : 1;
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
@@ -217,10 +224,12 @@ const CoursesPage = () => {
           </Box>
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredCourses.map((course, index) => (
+          {sortedCourses.map((course, index) => {
+            const hasAccess = roleCode === 'admin' || course.enrolled;
+            return (
             <Card
               key={course.id}
-              className="flex flex-col bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 animate-fade-in overflow-hidden"
+              className={`flex flex-col bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 animate-fade-in overflow-hidden ${hasAccess ? '' : 'opacity-60'}`}
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               <div className="relative">
