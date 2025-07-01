@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { useNavigate, useParams, useLocation, Link } from 'react-router-dom';
 import { ArrowLeft, Play } from 'lucide-react';
 import {
   getModules,
@@ -9,7 +9,8 @@ import {
   putLesson,
   getCourse,
   getModuleProgress,
-  getCourseProgress
+  getCourseProgress,
+  
 } from 'api';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
@@ -208,9 +209,11 @@ const ModulesPage = () => {
                 )}
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <Button variant="ghost" size="sm" className="hover:bg-white/50" onClick={() => navigate(-1)}>
-                      <ArrowLeft className="h-4 w-4 mr-2" /> Назад
-                    </Button>
+                    <Link to="/courses">
+                      <Button variant="ghost" size="sm" className="hover:bg-white/50">
+                        <ArrowLeft className="h-4 w-4 mr-2" /> Назад
+                      </Button>
+                    </Link>
                     <Typography variant="h4" sx={{ fontWeight: 700 }}>
                       {course?.title || 'Модули курса'}
                     </Typography>
@@ -257,12 +260,7 @@ const ModulesPage = () => {
                   <CardTitle className="text-xl font-semibold text-gray-800">
                     {m.title}
                   </CardTitle>
-                  {roleCode !== 'admin' && (
-                    <div className="mt-2">
-                      <LinearProgress variant="determinate" value={m.progress ?? 0} />
-                      <div className="text-xs text-gray-600 mt-1">{m.progress ?? 0}% пройдено</div>
-                    </div>
-                  )}
+
                 </CardHeader>
                 <CardContent className="space-y-2">
                   {m.lessons.map((lesson) => {
@@ -294,7 +292,11 @@ const ModulesPage = () => {
                       <Button
                         size="sm"
                         className="bg-green-600 hover:bg-green-700 text-white"
-                        onClick={() => navigate(`/courses/${courseId}/modules/${m.id}/lessons/${lesson.id}`)}
+                        onClick={() =>
+                          navigate(
+                            `/courses/${courseId}/modules/${m.id}/lessons/${lesson.id}`
+                          )
+                        }
                       >
                         <Play className="h-4 w-4 mr-1" /> {completed ? 'Повторить' : 'Начать'}
                       </Button>

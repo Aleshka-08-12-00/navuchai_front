@@ -19,6 +19,7 @@ interface Lesson {
   id: number;
   title: string;
   image?: string;
+  completed?: boolean;
 }
 
 const LessonsPage = () => {
@@ -103,9 +104,13 @@ const LessonsPage = () => {
               <CardContent>
                 <Button
                   className="w-full bg-green-600 hover:bg-green-700 text-white"
-                  onClick={() => navigate(`/courses/${courseId}/modules/${moduleId}/lessons/${lesson.id}`)}
+                  onClick={() =>
+                    navigate(
+                      `/courses/${courseId}/modules/${moduleId}/lessons/${lesson.id}`
+                    )
+                  }
                 >
-                  <Play className="h-4 w-4 mr-2" /> Начать урок
+                  <Play className="h-4 w-4 mr-2" /> {lesson.completed ? 'Повторить' : 'Начать'}
                 </Button>
               </CardContent>
             </Card>

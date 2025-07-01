@@ -1,6 +1,6 @@
 import { useEffect, useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { BookOpen, Clock, Users, Star, ArrowLeft, Play } from 'lucide-react';
+import { BookOpen, Clock, Users, Star, Play } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
@@ -15,12 +15,14 @@ import {
   Stack,
   Button as MuiButton,
   IconButton,
+  TextField,
   Menu,
   MenuItem,
   LinearProgress
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import AddIcon from '@mui/icons-material/Add';
+import SearchIcon from '@mui/icons-material/Search';
 
 interface Course {
   id: number;
@@ -39,15 +41,17 @@ interface Course {
 
 const CoursesPage = () => {
   const [courses, setCourses] = useState<Course[]>([]);
+  const [currentCourse, setCurrentCourse] = useState<Course | null>(null);
   const navigate = useNavigate();
   const { authStore } = useContext(Context);
   const { roleCode } = authStore;
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
   const [menuCourseId, setMenuCourseId] = useState<number | null>(null);
+  const [search, setSearch] = useState('');
 
   const loadCourses = async () => {
     try {
-      const data = await getCourses();
+      const { courses: data, current } = await getCourses();
       let userCourses: number[] = [];
       if (authStore.userId) {
         try {
@@ -77,6 +81,10 @@ const CoursesPage = () => {
         })
       );
       setCourses(formatted);
+      const last = current?.course
+        ? formatted.find((c: any) => c.id === current.course.id) || null
+        : null;
+      setCurrentCourse(last);
     } catch (e) {
       console.error(e);
     }
@@ -148,8 +156,17 @@ const CoursesPage = () => {
     }
   };
 
-  const categories = ['Все'];
-  const levels = ['Все уровни'];
+  const filteredCourses = courses.filter((c) =>
+    c.title.toLowerCase().includes(search.toLowerCase())
+  );
+  const sortedCourses = [...filteredCourses].sort((a, b) => {
+    const aAccess = roleCode === 'admin' || a.enrolled;
+    const bAccess = roleCode === 'admin' || b.enrolled;
+    return aAccess === bAccess ? 0 : aAccess ? -1 : 1;
+  });
+  const displayCourses = currentCourse
+    ? [currentCourse, ...sortedCourses.filter((c) => c.id !== currentCourse.id)]
+    : sortedCourses;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
@@ -159,11 +176,6 @@ const CoursesPage = () => {
             <MuiCardContent sx={{ p: 4 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Link to="/">
-                    <Button variant="ghost" size="sm" className="hover:bg-white/50">
-                      <ArrowLeft className="h-4 w-4 mr-2" /> Назад
-                    </Button>
-                  </Link>
                   <Box>
                     <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
                       Курсы
@@ -201,34 +213,31 @@ const CoursesPage = () => {
           </MuiCard>
         </Box>
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 mb-8 shadow-lg">
-          <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="font-semibold text-gray-800 mb-3">Категории</h3>
-              <div className="flex flex-wrap gap-2">
-                {categories.map((c) => (
-                  <Badge key={c} variant="secondary" className="cursor-pointer hover:bg-purple-100 transition-colors">
-                    {c}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-            <div>
-              <h3 className="font-semibold text-gray-800 mb-3">Уровень сложности</h3>
-              <div className="flex flex-wrap gap-2">
-                {levels.map((l) => (
-                  <Badge key={l} variant="outline" className="cursor-pointer hover:bg-purple-50 transition-colors">
-                    {l}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          </div>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <TextField
+              size="small"
+              variant="outlined"
+              placeholder="Поиск по названию..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              sx={{ minWidth: 250, background: '#fff', borderRadius: 1 }}
+              InputProps={{
+                endAdornment: (
+                  <IconButton size="small">
+                    <SearchIcon />
+                  </IconButton>
+                )
+              }}
+            />
+          </Box>
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {courses.map((course, index) => (
+          {displayCourses.map((course, index) => {
+            const hasAccess = roleCode === 'admin' || course.enrolled;
+            return (
             <Card
               key={course.id}
-              className="flex flex-col bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 animate-fade-in overflow-hidden"
+              className={`flex flex-col bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 animate-fade-in overflow-hidden ${hasAccess ? '' : 'opacity-60'}`}
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               <div className="relative">
@@ -240,6 +249,11 @@ const CoursesPage = () => {
                 {course.category && (
                   <div className="absolute top-4 left-4">
                     <Badge className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">{course.category}</Badge>
+                  </div>
+                )}
+                {currentCourse && course.id === currentCourse.id && (
+                  <div className="absolute top-4 right-4">
+                    <Badge className="bg-green-600 text-white">Продолжить</Badge>
                   </div>
                 )}
               </div>
@@ -288,7 +302,8 @@ const CoursesPage = () => {
                 </Button>
               </CardContent>
             </Card>
-          ))}
+          );
+        })}
         </div>
         <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={handleMenuClose}>
           <MenuItem
