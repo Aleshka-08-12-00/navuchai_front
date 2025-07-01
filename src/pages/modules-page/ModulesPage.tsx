@@ -260,12 +260,7 @@ const ModulesPage = () => {
                   <CardTitle className="text-xl font-semibold text-gray-800">
                     {m.title}
                   </CardTitle>
-                  {roleCode !== 'admin' && (
-                    <div className="mt-2">
-                      <LinearProgress variant="determinate" value={m.progress ?? 0} />
-                      <div className="text-xs text-gray-600 mt-1">{m.progress ?? 0}% пройдено</div>
-                    </div>
-                  )}
+
                 </CardHeader>
                 <CardContent className="space-y-2">
                   {m.lessons.map((lesson) => {
