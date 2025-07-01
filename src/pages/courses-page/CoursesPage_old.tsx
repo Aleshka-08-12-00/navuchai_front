@@ -124,7 +124,7 @@ const CoursesPage = () => {
 
   const loadCourses = async () => {
     try {
-      const data = await getCourses();
+      const { courses: data } = await getCourses();
       let userCourses: number[] = [];
       if (userId) {
         try {

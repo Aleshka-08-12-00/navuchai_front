@@ -38,7 +38,7 @@ const CourseAccessAdminPage = observer(() => {
     (async () => {
       try {
         await adminStore.getUsers();
-        const c = await getCourses();
+        const { courses: c } = await getCourses();
         setCourses(c);
         const list = await Promise.all(
           adminStore.userArray.map(async (u) => {
