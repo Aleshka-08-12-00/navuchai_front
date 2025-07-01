@@ -61,7 +61,7 @@ export default class MainPageStore {
     deleteTestById = async (id: number) => {
         const result = await deleteData('deleteTestsById', {}, id);
         if (result)
-            this.getTests()
+            this.getTests(true)
     }
 
     putTestById = async (id: number) => {

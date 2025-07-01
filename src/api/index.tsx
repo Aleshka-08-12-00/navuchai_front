@@ -113,6 +113,8 @@ const fetchData = async (
 ): Promise<any> => {
   const url = buildUrl(endpointKey, params, dynamicParams);
   try {
+    console.log(url)
+    console.log(localStorage.getItem('tokenNavuchai'))
     const response: AxiosResponse = await axios.get(url, {
       headers: {
         'Content-Type': 'application/json',
