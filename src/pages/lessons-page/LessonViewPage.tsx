@@ -1,10 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
-import { getLessons, completeLesson } from '../../api';
+import {
+  getLessons,
+  getLesson,
+  getModuleProgress,
+  getCourseProgress
+} from '../../api';
 import VideoPlayer from '../../components/VideoPlayer';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+import { LinearProgress, Typography, Box } from '@mui/material';
 
 interface Lesson {
   id: number;
@@ -12,6 +18,7 @@ interface Lesson {
   content: string;
   video?: string;
   image?: string;
+  completed?: boolean;
 }
 
 const LessonViewPage = () => {
@@ -19,12 +26,31 @@ const LessonViewPage = () => {
   const navigate = useNavigate();
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [moduleProgress, setModuleProgress] = useState<number>(0);
+  const [courseProgress, setCourseProgress] = useState<number>(0);
 
   useEffect(() => {
     if (!lessonId) return;
     (async () => {
       try {
-        await completeLesson(Number(lessonId));
+        const l = await getLesson(Number(lessonId));
+        setLesson({ ...l, completed: l.completed ?? true });
+        if (moduleId) {
+          try {
+            const mp = await getModuleProgress(Number(moduleId));
+            setModuleProgress(mp?.percent ?? 0);
+          } catch (e) {
+            console.error(e);
+          }
+        }
+        if (courseId) {
+          try {
+            const cp = await getCourseProgress(Number(courseId));
+            setCourseProgress(cp?.percent ?? 0);
+          } catch (e) {
+            console.error(e);
+          }
+        }
       } catch (e) {
         console.error(e);
       }
@@ -47,7 +73,7 @@ const LessonViewPage = () => {
     if (!lessonId) return;
     const current = lessons.find((l) => l.id === Number(lessonId));
     if (current) {
-      setLesson(current);
+      setLesson((prev) => ({ ...prev, ...current }));
     }
   }, [lessonId, lessons]);
 
@@ -72,6 +98,30 @@ const LessonViewPage = () => {
         >
           <ArrowLeft className="h-4 w-4 mr-2" /> К урокам
         </Button>
+        {(courseId || moduleId) && (
+          <Box sx={{ maxWidth: 600, mb: 4 }}>
+            {typeof courseId !== 'undefined' && (
+              <>
+                <LinearProgress variant="determinate" value={courseProgress} />
+                <Typography variant="body2" sx={{ mt: 0.5 }}>
+                  {courseProgress}% курса пройдено
+                </Typography>
+              </>
+            )}
+            {typeof moduleId !== 'undefined' && (
+              <>
+                <LinearProgress
+                  variant="determinate"
+                  value={moduleProgress}
+                  sx={{ mt: 2 }}
+                />
+                <Typography variant="body2" sx={{ mt: 0.5 }}>
+                  {moduleProgress}% модуля пройдено
+                </Typography>
+              </>
+            )}
+          </Box>
+        )}
         <h1 className="text-3xl font-bold text-gray-800 mb-6">{lesson.title}</h1>
         {lesson.image && <img src={lesson.image} alt={lesson.title} className="mb-4 w-full max-h-96 object-cover" />}
         {lesson.video && <VideoPlayer videoUrl={lesson.video} title={lesson.title} />}
@@ -100,9 +150,15 @@ const LessonViewPage = () => {
           </Button>
         </div>
         <div className="mt-6 text-right">
-          <Button variant="default" onClick={() => navigate(-1)}>
-            <CheckCircle className="h-4 w-4 mr-2" /> Завершить урок
-          </Button>
+          {lesson.completed ? (
+            <Button variant="outline" disabled>
+              <CheckCircle className="h-4 w-4 mr-2" /> Урок пройден
+            </Button>
+          ) : (
+            <Button variant="default" onClick={() => navigate(-1)}>
+              <CheckCircle className="h-4 w-4 mr-2" /> Завершить урок
+            </Button>
+          )}
         </div>
       </div>
     </div>
