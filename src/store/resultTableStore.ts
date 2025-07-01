@@ -96,23 +96,15 @@ export default class ResultTableStore {
     runInAction(() => {
       this.resultsArray = value;
     });
-
-    const uniqueTestIds = Array.from(new Set(value.map((res) => res.test_id)));
-    const uniqueUserIds = Array.from(new Set(value.map((res) => res.user_id)));
-
-    await Promise.all([
-      ...uniqueTestIds.map((id) => this.fetchAndStoreTestName(id)),
-      ...uniqueUserIds.map((id) => userStore.getUserById(id)),
-    ]);
+    // Данные test и user уже есть во вложенных объектах, дополнительные запросы не нужны
   };
 
   getFormattedUserResults(): IUserTestResultRow[] {
-    console.log(this.resultsArray)
     return this.resultsArray.map((res) => ({
       key: res.id,
-      test_name: this.testNamesMap.get(res.test_id) ?? "—",
-      name: userStore.getUserField(res.user_id, "name") ?? "",
-      email: userStore.getUserField(res.user_id, "email") ?? "",
+      test_name: res.test?.title ?? "—",
+      name: res.user?.name ?? "",
+      email: res.user?.email ?? "",
       percentage: res.result?.percentage ?? 0,
       end_date: res.completed_at ? new Date(res.completed_at).toLocaleString() : "",
       test_time: this.formatTime(res.result?.total_time_seconds ?? 0),

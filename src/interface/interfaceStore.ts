@@ -266,6 +266,8 @@ export interface ITestResultCreateResponse {
   completed_at: string;
   created_at: string;
   updated_at: string;
+  test?: InterfaceTests;
+  user?: IUsers;
 }
 
 /** * ERROR HANDLER BY RESULT */

@@ -170,7 +170,7 @@ const GeneralSettingsTestPage = observer(() => {
                 }));
                 break;
             case '2': // App logo
-                setImageUrl('http://172.16.0.79/navuchai/navuchai_logo.png');
+                setImageUrl('https://img.sellwingroup.com/navuchai/navuchai_logo.png');
                 setImageId(31);
                 setFormData(prev => ({
                     ...prev,
@@ -178,7 +178,7 @@ const GeneralSettingsTestPage = observer(() => {
                 }));
                 break;
             case '3': // Hide logo
-                setImageUrl('http://172.16.0.79/navuchai/6419cb2d2000478fa1db2da77634d625.png');
+                setImageUrl('https://img.sellwingroup.com/navuchai/6419cb2d2000478fa1db2da77634d625.png');
                 setImageId(32);
                 setFormData(prev => ({
                     ...prev,

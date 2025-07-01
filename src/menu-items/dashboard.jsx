@@ -38,6 +38,16 @@ const dashboard = {
       allowedRoles: ['admin', 'user', 'guest', 'moderator']
     },
     {
+      id: '5',
+      title: 'Курсы',
+      type: 'item',
+      url: '/courses',
+      icon: icons.LibraryBooksIcon,
+      breadcrumbs: true,
+      code: 'anyCode',
+      allowedRoles: ['admin', 'user', 'guest', 'moderator']
+    },
+    {
       id: '2',
       title: 'Участники',
       type: 'item',
@@ -73,16 +83,6 @@ const dashboard = {
       type: 'item',
       url: '/settings',
       icon: icons.SettingsIcon,
-      breadcrumbs: true,
-      code: 'anyCode',
-      allowedRoles: ['admin', 'user', 'guest', 'moderator']
-    },
-    {
-      id: '5',
-      title: 'Курсы',
-      type: 'item',
-      url: '/courses',
-      icon: icons.LibraryBooksIcon,
       breadcrumbs: true,
       code: 'anyCode',
       allowedRoles: ['admin', 'user', 'guest', 'moderator']
