@@ -16,8 +16,6 @@ import { Context } from '../../../index';
 const AuthLogin = observer(() => {
   const { authStore } = useContext(Context);
   const { error } = authStore;
-  const [password, setPassword] = React.useState('');
-  const [email, setEmail] = React.useState('');
   const [alertOpen, setAlertOpen] = React.useState(false);
   const [alertMessage, setAlertMessage] = React.useState('');
   const [alertSeverity, setAlertSeverity] = React.useState('success');
@@ -41,28 +39,28 @@ const AuthLogin = observer(() => {
     event.preventDefault();
   };
 
-  const handleChangePassword = (value) => {
-    setPassword(value);
-  };
-
-  const handleChangeEmail = (value) => {
-    setEmail(value);
-  };
-
-  const onPressEnter = (value) => {
-    if (value === 'Enter' && email.length > 0 && password.length > 0) {
-      authStore.loginUser(email, password);
-    }
-  };
-
   const navigate = useNavigate();
 
   return (
     <>
-      <Formik>
-        {({ errors, handleBlur, isSubmitting, touched }) => {
+      <Formik
+        initialValues={{ email: '', password: '' }}
+        onSubmit={async (values, { setSubmitting }) => {
+          const loginData = {
+            grant_type: 'password',
+            username: values.email,
+            password: values.password,
+          };
+          const result = await authStore.loginUser(loginData);
+          if (result) {
+            navigate('/main-page');
+          }
+          setSubmitting(false);
+        }}
+      >
+        {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => {
           return (
-            <form noValidate>
+            <form noValidate onSubmit={handleSubmit}>
               <Grid container spacing={3}>
                 <Grid item xs={12}>
                   <Stack spacing={1}>
@@ -70,10 +68,10 @@ const AuthLogin = observer(() => {
                     <OutlinedInput
                       id="email-login"
                       type="email"
-                      value={email}
+                      value={values.email}
                       name="email"
                       onBlur={handleBlur}
-                      onChange={(e) => handleChangeEmail(e.target.value)}
+                      onChange={handleChange}
                       placeholder="Введите логин"
                       fullWidth
                       error={Boolean(touched.email && errors.email)} />
@@ -92,11 +90,10 @@ const AuthLogin = observer(() => {
                       error={Boolean(touched.password && errors.password)}
                       id="-password-login"
                       type={showPassword ? 'text' : 'password'}
-                      value={password}
+                      value={values.password}
                       name="password"
                       onBlur={handleBlur}
-                      onChange={(e) => handleChangePassword(e.target.value)}
-                      onKeyPress={(e) => onPressEnter(e.code)}
+                      onChange={handleChange}
                       endAdornment={
                         <InputAdornment position="end">
                           <IconButton
@@ -149,22 +146,7 @@ const AuthLogin = observer(() => {
                 <Grid item xs={12}>
                   <AnimateButton>
                     <Button
-                      onClick={
-                        async () => {
-
-                          const loginData = {
-                            grant_type: 'password',
-                            username: email,
-                            password: password,
-                          };
-                          console.log(loginData);
-                          const result = await authStore.loginUser(loginData);
-                          console.log(result);
-                          if (result) {
-                            navigate('/main-page');
-                          }
-                        }
-                      }
+                      type="submit"
                       disableElevation
                       disabled={isSubmitting}
                       fullWidth
