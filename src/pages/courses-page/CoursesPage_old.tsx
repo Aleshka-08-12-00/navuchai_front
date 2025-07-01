@@ -47,7 +47,8 @@ import {
   getCourseTests,
   getModuleProgress,
   getModuleTests,
-  completeLesson
+  getLesson,
+
 } from 'api';
 import JoditEditor from 'jodit-react';
 import MainCard from '../../components/MainCard';
@@ -498,7 +499,7 @@ const CoursesPage = () => {
 
   const handleLessonComplete = async (lessonId: number, courseId: number) => {
     try {
-      await completeLesson(lessonId);
+      await getLesson(lessonId);
       if (courseId === selectedCourseId) {
         await loadCourses();
       }
