@@ -302,7 +302,8 @@ const CoursesPage = () => {
                 </Button>
               </CardContent>
             </Card>
-          ))}
+          );
+        })}
         </div>
         <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={handleMenuClose}>
           <MenuItem
