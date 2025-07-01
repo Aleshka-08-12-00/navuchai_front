@@ -8,14 +8,25 @@ const BASE_URL = import.meta.env.VITE_REACT_APP_API_URL;
 // Типы для параметров
 type Params = { [key: string]: string | number };
 
+// Тип для динамических параметров в endpoint
+type DynamicParams = string | number | Array<string | number> | null;
+
 axios.defaults.withCredentials = false;
 
 // Конструктор URL
-const buildUrl = (endpointKey: string, params: Params = {}, dynamicParams: string | number | null = null): string => {
+const buildUrl = (
+  endpointKey: string,
+  params: Params = {},
+  dynamicParams: DynamicParams = null,
+): string => {
   let endpoint = endpoints[endpointKey as keyof typeof endpoints];
   // Обработка динамических endpoint
   if (typeof endpoint === 'function') {
-    endpoint = endpoint(dynamicParams);
+    if (Array.isArray(dynamicParams)) {
+      endpoint = endpoint(...dynamicParams);
+    } else {
+      endpoint = endpoint(dynamicParams);
+    }
   }
   const url = new URL(`${BASE_URL}/${endpoint}`);
 
@@ -97,7 +108,7 @@ const refreshToken = async () => {
 const fetchData = async (
   endpointKey: string,
   params: Params = {},
-  dynamicParams: string | number | null = null,
+  dynamicParams: DynamicParams = null,
   axiosConfig: Record<string, any> = {}
 ): Promise<any> => {
   const url = buildUrl(endpointKey, params, dynamicParams);
@@ -126,7 +137,11 @@ const fetchData = async (
 };
 
 // Универсальная функция для выполнения POST-запроса
-const postData = async (endpointKey: string, data: any, dynamicParams: string | number | null = null): Promise<any> => {
+const postData = async (
+  endpointKey: string,
+  data: any,
+  dynamicParams: DynamicParams = null,
+): Promise<any> => {
   const url = buildUrl(endpointKey, {}, dynamicParams);
 
   // Определяем, является ли data экземпляром FormData
@@ -157,7 +172,11 @@ const postData = async (endpointKey: string, data: any, dynamicParams: string | 
   }
 };
 
-const putData = async (endpointKey: string, data: any, dynamicParams: string | number | null = null): Promise<any> => {
+const putData = async (
+  endpointKey: string,
+  data: any,
+  dynamicParams: DynamicParams = null,
+): Promise<any> => {
   const url = buildUrl(endpointKey, {}, dynamicParams);
   try {
     const response: AxiosResponse = await axios.put(url, data, {
@@ -180,7 +199,11 @@ const putData = async (endpointKey: string, data: any, dynamicParams: string | n
   }
 };
 
-const deleteData = async (endpointKey: string, params: Params = {}, dynamicParams: string | number | null = null): Promise<any> => {
+const deleteData = async (
+  endpointKey: string,
+  params: Params = {},
+  dynamicParams: DynamicParams = null,
+): Promise<any> => {
   const url = buildUrl(endpointKey, params, dynamicParams);
   try {
     const response: AxiosResponse = await axios.delete(url, {
@@ -222,7 +245,8 @@ export const putLesson = (id: number, d: any) => putData('lessonById', d, id);
 export const deleteLesson = (id: number) => deleteData('lessonById', {}, id);
 
 export const enrollCourse = (courseId: number) => postData('enrollCourse', {}, courseId);
-export const enrollCourseAdmin = (courseId: number, userId: number) => postData('enrollCourseAdmin', {}, `${courseId}/enroll/${userId}`);
+export const enrollCourseAdmin = (courseId: number, userId: number) =>
+  postData('enrollCourseAdmin', {}, [courseId, userId]);
 export const getUserCourses = (userId: number) => fetchData('userCourses', {}, userId);
 export const getCourseProgress = (courseId: number) => fetchData('courseProgress', {}, courseId);
 export const getCourseTests = (courseId: number) => fetchData('courseTests', {}, courseId);
