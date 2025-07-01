@@ -32,7 +32,7 @@ const GeneralSettingsTestPage = observer(() => {
 
     const { id } = useParams<{ id: string }>();
 
-    const { settingsNewTestStore } = React.useContext(Context);
+    const { settingsNewTestStore, authStore } = React.useContext(Context);
     const {
         getTestCategories,
         testCategories,
@@ -62,7 +62,7 @@ const GeneralSettingsTestPage = observer(() => {
         title: '',
         description: '',
         category_id: 0,
-        creator_id: 2,
+        creator_id: authStore?.userId ?? 2,
         access_timestamp: "2025-05-15 10:01:22",
         status: 'CREATED',
         status_id: 2,
@@ -237,8 +237,18 @@ const GeneralSettingsTestPage = observer(() => {
     };
 
     React.useEffect(() => {
+        // Если userId еще не получен, пробуем получить его через authMe
+        if (!authStore.userId) {
+            authStore.authMe().then(user => {
+                if (user && user.id) {
+                    setFormData(prev => ({ ...prev, creator_id: user.id }));
+                }
+            });
+        } else {
+            setFormData(prev => ({ ...prev, creator_id: authStore.userId! }));
+        }
         getTestCategories();
-        getLocales()
+        getLocales();
     }, []);
 
     React.useEffect(() => {
