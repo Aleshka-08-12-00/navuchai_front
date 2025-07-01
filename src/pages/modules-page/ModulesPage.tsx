@@ -10,7 +10,7 @@ import {
   getCourse,
   getModuleProgress,
   getCourseProgress,
-  completeLesson
+  
 } from 'api';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
@@ -297,14 +297,11 @@ const ModulesPage = () => {
                       <Button
                         size="sm"
                         className="bg-green-600 hover:bg-green-700 text-white"
-                        onClick={async () => {
-                          try {
-                            await completeLesson(lesson.id);
-                          } catch (e) {
-                            console.error(e);
-                          }
-                          navigate(`/courses/${courseId}/modules/${m.id}/lessons/${lesson.id}`);
-                        }}
+                        onClick={() =>
+                          navigate(
+                            `/courses/${courseId}/modules/${m.id}/lessons/${lesson.id}`
+                          )
+                        }
                       >
                         <Play className="h-4 w-4 mr-1" /> {completed ? 'Повторить' : 'Начать'}
                       </Button>
