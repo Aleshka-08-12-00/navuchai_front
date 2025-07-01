@@ -56,7 +56,7 @@ const LessonViewPage = () => {
           size="sm"
           className="mb-4 hover:bg-white/50"
           onClick={() =>
-            navigate(`/courses/${courseId}/modules/${moduleId}/lessons`)
+            navigate(`/courses/${courseId}/modules/`)
           }
         >
           <ArrowLeft className="h-4 w-4 mr-2" /> К урокам
