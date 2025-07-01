@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
-import { getLessons } from '../../api';
+import { getLessons, completeLesson } from '../../api';
 import VideoPlayer from '../../components/VideoPlayer';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
@@ -19,6 +19,17 @@ const LessonViewPage = () => {
   const navigate = useNavigate();
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [lessons, setLessons] = useState<Lesson[]>([]);
+
+  useEffect(() => {
+    if (!lessonId) return;
+    (async () => {
+      try {
+        await completeLesson(Number(lessonId));
+      } catch (e) {
+        console.error(e);
+      }
+    })();
+  }, [lessonId]);
 
   useEffect(() => {
     if (!moduleId) return;
