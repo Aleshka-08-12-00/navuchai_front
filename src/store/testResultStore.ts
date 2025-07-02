@@ -91,10 +91,6 @@ export default class TestResultStore {
         console.log("Результат теста:", data);
       });
 
-      if (window.AndroidBridge?.notifyTestPassed) {
-        window.AndroidBridge.notifyTestPassed();
-      }
-
       return data;
     } catch (error: any) {
       runInAction(() => {

@@ -280,7 +280,7 @@ const MainPage = observer(() => {
         minHeight: '100vh',
         // p: 3
       }}>
-        <Box sx={{ maxWidth: 1400, mx: 'auto', px: { xs: 1, sm: 2, md: 0 } }}>
+        <Box sx={{ mx: 'auto', px: { xs: 1, sm: 2, md: 0 } }}>
           {/* Header Section */}
           <Card sx={{
             mb: 3,
@@ -289,7 +289,9 @@ const MainPage = observer(() => {
             borderRadius: 3,
             boxShadow: '0 8px 32px rgba(0,0,0,0.1)'
           }}>
-            <CardContent sx={{ p: { xs: 2, sm: 4 } }}>
+            <CardContent 
+            // sx={{ p: { xs: 2, sm: 4 } }}
+            >
               <Box sx={{
                 display: 'flex',
                 alignItems: { xs: 'stretch', sm: 'center' },
@@ -299,7 +301,7 @@ const MainPage = observer(() => {
                 gap: 2
               }}>
                 <Box>
-                  <Typography variant="h4" sx={{ fontWeight: 700, mb: 1, fontSize: { xs: 22, sm: 28 } }}>
+                  <Typography variant="h3" sx={{ fontWeight: 700, mb: 1 }}>
                     Мои тесты
                   </Typography>
                   <Chip
@@ -330,7 +332,7 @@ const MainPage = observer(() => {
                       }}
                       variant="contained"
                       startIcon={<AutoFixHighIcon />}
-                      size="large"
+                      size="small"
                       disabled
                     >
                       Генерация тестов
@@ -350,7 +352,7 @@ const MainPage = observer(() => {
                         width: { xs: '100%', sm: 'auto' },
                         fontSize: { xs: 13, sm: 16 }
                       }}
-                      size="large"
+                      size="small"
                       startIcon={<AddBoxIcon />}
                       onClick={() => navigate(`/main-page/new-test`)}
                     >

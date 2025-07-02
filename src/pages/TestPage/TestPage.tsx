@@ -199,15 +199,20 @@ const TestPage = observer(() => {
   };
 
   if (showResultCard && resultData) {
-  return (
-    <TestResultCard
-      open={showResultCard}
-      resultTestData={resultData}
-      onClose={() => setShowResultCard(false)}
-      goodbyeMessage={test?.goodbye_message}
-    />
-  );
-}
+    return (
+      <TestResultCard
+        open={showResultCard}
+        resultTestData={resultData}
+        onClose={() => {
+          setShowResultCard(false);
+          if (window.AndroidBridge?.notifyTestPassed) {
+            window.AndroidBridge.notifyTestPassed();
+          }
+        }}
+        goodbyeMessage={test?.goodbye_message}
+      />
+    );
+  }
 
   if (!start) {
     return (
@@ -311,7 +316,12 @@ const TestPage = observer(() => {
       <TestResultCard
         open={showResultCard}
         resultTestData={resultData}
-        onClose={() => setShowResultCard(false)}
+        onClose={() => {
+          setShowResultCard(false);
+          if (window.AndroidBridge?.notifyTestPassed) {
+            window.AndroidBridge.notifyTestPassed();
+          }
+        }}
         goodbyeMessage={test?.goodbye_message}
       />
     )}

@@ -13,16 +13,17 @@ import {
   Chip,
   Box,
   Stack,
-  Button as MuiButton,
   IconButton,
   TextField,
   Menu,
   MenuItem,
-  LinearProgress
+  LinearProgress,
+  Button as MuiButton
 } from '@mui/material';
+
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
+import AddBoxIcon from '@mui/icons-material/AddBox';
 
 interface Course {
   id: number;
@@ -140,8 +141,8 @@ const CoursesPage = () => {
 
   return (
     <div className="min-h-screen">
-      <div className="container mx-auto">
-        <Box sx={{ maxWidth: 1400, mx: 'auto' }}>
+      <div className="mx-auto" >
+        <Box sx={{ mx: 'auto' }}>
           <MuiCard sx={{ mb: 3, background: '#667eea', color: 'white', borderRadius: 3, boxShadow: '0 8px 32px rgba(0,0,0,0.1)' }}>
             <MuiCardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
@@ -161,6 +162,27 @@ const CoursesPage = () => {
                     <MuiButton
                       variant="contained"
                       sx={{
+                        textTransform: "none",
+                        background: 'linear-gradient(45deg, #4caf50, #45a049)',
+                        fontWeight: 600,
+                        boxShadow: '0 4px 15px rgba(76, 175, 80, 0.3)',
+                        '&:hover': {
+                          background: 'linear-gradient(45deg, #45a049, #4caf50)',
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 6px 20px rgba(76, 175, 80, 0.4)',
+                        },
+                        width: { xs: '100%', sm: 'auto' },
+                        fontSize: { xs: 13, sm: 16 }
+                      }}
+                      size="small"
+                      startIcon={<AddBoxIcon />}
+                      onClick={handleAddCourse}
+                    >
+                    Новый курс
+                    </MuiButton>
+                    {/* <MuiButton
+                      variant="contained"
+                      sx={{
                         textTransform: 'none',
                         background: 'linear-gradient(45deg, #4caf50, #45a049)',
                         fontWeight: 600,
@@ -175,7 +197,7 @@ const CoursesPage = () => {
                       onClick={handleAddCourse}
                     >
                       Новый курс
-                    </MuiButton>
+                    </MuiButton> */}
                   </Stack>
                 )}
               </Box>

@@ -35,7 +35,6 @@ const TestSurveyCard: React.FC<QuestionProps> = ({ question, onNext }) => {
   return (
     <Box
       sx={{
-        backgroundColor: "#f4f7fa",
         minHeight: "100vh",
         display: "flex",
         justifyContent: "center",

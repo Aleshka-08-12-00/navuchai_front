@@ -87,7 +87,6 @@ const TestStartPage: React.FC<TestStartPageProps> = observer(({ setStart, start,
           justifyContent: 'center',
           alignItems: 'center',
           height: '100vh',
-          backgroundColor: '#f9f9f9',
           padding: '20px',
         }}
       >

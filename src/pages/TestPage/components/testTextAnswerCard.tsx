@@ -33,7 +33,6 @@ const TestTextAnswerCard = ({
   return (
     <Box
       sx={{
-        backgroundColor: "#f4f7fa",
         minHeight: "100vh",
         display: "flex",
         justifyContent: "center",
