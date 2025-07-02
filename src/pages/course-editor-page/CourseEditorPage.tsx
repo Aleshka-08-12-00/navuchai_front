@@ -31,6 +31,8 @@ const CourseEditorPage = () => {
           title: c.title,
           description: c.description || '',
           accessType: 'public',
+          image: typeof c.image === 'string' ? c.image : c.image?.path || '',
+          imageId: c.img_id || null,
           modules: modulesWithLessons.map((m: any) => ({
             id: m.id,
             title: m.title,

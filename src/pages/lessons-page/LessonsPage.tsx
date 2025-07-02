@@ -103,7 +103,8 @@ const LessonsPage = () => {
               </CardHeader>
               <CardContent>
                 <Button
-                  className="w-full bg-green-600 hover:bg-green-700 text-white"
+                  className="w-full"
+                  variant={lesson.completed ? 'outline' : 'default'}
                   onClick={() =>
                     navigate(
                       `/courses/${courseId}/modules/${moduleId}/lessons/${lesson.id}`

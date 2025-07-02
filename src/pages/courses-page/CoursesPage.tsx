@@ -55,7 +55,8 @@ const CoursesPage = () => {
       const { courses: data, current } = await getCourses();
       const formatted = data.map((c: any) => ({
         ...c,
-        image: typeof c.image === 'string' ? c.image : c.image?.path || null
+        image: typeof c.image === 'string' ? c.image : c.image?.path || null,
+        students: Array.isArray(c.students) ? c.students.length : c.students ?? c.students_count ?? 0
       }));
       setCourses(formatted);
       const last = current?.course ? formatted.find((c: any) => c.id === current.course.id) || null : null;

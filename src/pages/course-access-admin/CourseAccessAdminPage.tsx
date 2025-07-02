@@ -19,7 +19,7 @@ import { Search as SearchIcon } from '@mui/icons-material';
 import MainCard from '../../components/MainCard';
 import { Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { getCourses, enrollCourseAdmin, getUserCourses } from 'api';
+import { getCourses, enrollCourseAdmin, unenrollCourseAdmin, getUserCourses } from 'api';
 import { Context } from '../..';
 import { observer } from 'mobx-react-lite';
 
@@ -118,10 +118,14 @@ const CourseAccessAdminPage = observer(() => {
     setSelectedUser(null);
   };
 
-  const handleGrantCourse = async (courseIdParam: number) => {
+  const handleGrantCourse = async (courseIdParam: number, hasCourse: boolean) => {
     if (!selectedUser) return;
     try {
-      await enrollCourseAdmin(courseIdParam, selectedUser.id);
+      if (hasCourse) {
+        await unenrollCourseAdmin(courseIdParam, selectedUser.id);
+      } else {
+        await enrollCourseAdmin(courseIdParam, selectedUser.id);
+      }
       const ucs = await getUserCourses(selectedUser.id);
       setUserCourses((prev) =>
         prev.map((uc) =>
@@ -210,19 +214,19 @@ const CourseAccessAdminPage = observer(() => {
       </MainCard>
       <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={handleCloseMenu}>
         {courses.map((c) => {
-          const hasCourse = selectedUser && userCourses.find((uc) => uc.user.id === selectedUser.id)?.courses.some((sc) => sc.id === c.id);
+          const hasCourse =
+            selectedUser && userCourses.find((uc) => uc.user.id === selectedUser.id)?.courses.some((sc) => sc.id === c.id);
           return (
             <MenuItem
               key={c.id}
-              onClick={() => handleGrantCourse(c.id)}
-              disabled={hasCourse}
+              onClick={() => handleGrantCourse(c.id, !!hasCourse)}
               selected={hasCourse}
               sx={{
                 fontWeight: hasCourse ? 600 : 'normal',
                 opacity: hasCourse ? 0.6 : 1
               }}
             >
-              {c.title}
+              {hasCourse ? `Удалить доступ: ${c.title}` : c.title}
             </MenuItem>
           );
         })}
