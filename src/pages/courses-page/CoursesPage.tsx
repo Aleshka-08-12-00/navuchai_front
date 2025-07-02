@@ -4,7 +4,7 @@ import { BookOpen, Clock, Users, Star, Play } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
-import { getCourses, deleteCourse, getModules, getLessons, getUserCourses, getCourseProgress } from '../../api';
+import { getCourses, deleteCourse, getModules, getLessons } from '../../api';
 import { Context } from '../..';
 import {
   Card as MuiCard,
@@ -52,38 +52,12 @@ const CoursesPage = () => {
   const loadCourses = async () => {
     try {
       const { courses: data, current } = await getCourses();
-      let userCourses: number[] = [];
-      if (authStore.userId) {
-        try {
-          const ucs = await getUserCourses(authStore.userId);
-          userCourses = ucs.map((u: any) => u.course_id);
-        } catch (e) {
-          console.error(e);
-        }
-      }
-      const formatted = await Promise.all(
-        data.map(async (c: any) => {
-          let progress = 0;
-          if (userCourses.includes(c.id)) {
-            try {
-              const p = await getCourseProgress(c.id);
-              progress = p.percent;
-            } catch (e) {
-              console.error(e);
-            }
-          }
-          return {
-            ...c,
-            image: typeof c.image === 'string' ? c.image : c.image?.path || null,
-            progress,
-            enrolled: userCourses.includes(c.id)
-          };
-        })
-      );
+      const formatted = data.map((c: any) => ({
+        ...c,
+        image: typeof c.image === 'string' ? c.image : c.image?.path || null
+      }));
       setCourses(formatted);
-      const last = current?.course
-        ? formatted.find((c: any) => c.id === current.course.id) || null
-        : null;
+      const last = current?.course ? formatted.find((c: any) => c.id === current.course.id) || null : null;
       setCurrentCourse(last);
     } catch (e) {
       console.error(e);
@@ -156,24 +130,20 @@ const CoursesPage = () => {
     }
   };
 
-  const filteredCourses = courses.filter((c) =>
-    c.title.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredCourses = courses.filter((c) => c.title.toLowerCase().includes(search.toLowerCase()));
   const sortedCourses = [...filteredCourses].sort((a, b) => {
     const aAccess = roleCode === 'admin' || a.enrolled;
     const bAccess = roleCode === 'admin' || b.enrolled;
     return aAccess === bAccess ? 0 : aAccess ? -1 : 1;
   });
-  const displayCourses = currentCourse
-    ? [currentCourse, ...sortedCourses.filter((c) => c.id !== currentCourse.id)]
-    : sortedCourses;
+  const displayCourses = currentCourse ? [currentCourse, ...sortedCourses.filter((c) => c.id !== currentCourse.id)] : sortedCourses;
 
   return (
     <div className="min-h-screen">
       <div className="container mx-auto">
         <Box sx={{ maxWidth: 1400, mx: 'auto' }}>
           <MuiCard sx={{ mb: 3, background: '#667eea', color: 'white', borderRadius: 3, boxShadow: '0 8px 32px rgba(0,0,0,0.1)' }}>
-            <MuiCardContent >
+            <MuiCardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                   <Box>
@@ -235,75 +205,75 @@ const CoursesPage = () => {
           {displayCourses.map((course, index) => {
             const hasAccess = roleCode === 'admin' || course.enrolled;
             return (
-            <Card
-              key={course.id}
-              className={`flex flex-col bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 animate-fade-in overflow-hidden ${hasAccess ? '' : 'opacity-60'}`}
-              style={{ animationDelay: `${index * 0.1}s` }}
-            >
-              <div className="relative">
-                <img
-                  src={typeof course.image === 'string' ? course.image : course.image?.path || 'https://via.placeholder.com/400x200'}
-                  alt={course.title}
-                  className="w-full h-48 object-cover"
-                />
-                {course.category && (
-                  <div className="absolute top-4 left-4">
-                    <Badge className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">{course.category}</Badge>
-                  </div>
-                )}
-                {currentCourse && course.id === currentCourse.id && (
-                  <div className="absolute top-4 right-4">
-                    <Badge className="bg-green-600 text-white">Продолжить</Badge>
-                  </div>
-                )}
-              </div>
-              <CardHeader className="relative">
-                {roleCode === 'admin' && (
-                  <IconButton size="small" className="absolute right-2 top-2" onClick={(e) => handleMenuOpen(e, course.id)}>
-                    <MoreVertIcon fontSize="small" />
-                  </IconButton>
-                )}
-                <CardTitle className="text-xl font-semibold text-gray-800 line-clamp-2">{course.title}</CardTitle>
-                <CardDescription className="text-gray-600 line-clamp-2">{course.description}</CardDescription>
-              </CardHeader>
-              <CardContent className="flex flex-col flex-grow">
-                <div className="flex items-center justify-between mb-4 text-sm text-gray-600">
-                  <div className="flex items-center">
-                    <Clock className="h-4 w-4 mr-1" />
-                    {course.duration || '-'}
-                  </div>
-                  <div className="flex items-center">
-                    <BookOpen className="h-4 w-4 mr-1" />
-                    {course.lessons ? `${course.lessons} уроков` : '-'}
-                  </div>
+              <Card
+                key={course.id}
+                className={`flex flex-col bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 animate-fade-in overflow-hidden ${hasAccess ? '' : 'opacity-60'}`}
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                <div className="relative">
+                  <img
+                    src={typeof course.image === 'string' ? course.image : course.image?.path || 'https://via.placeholder.com/400x200'}
+                    alt={course.title}
+                    className="w-full h-48 object-cover"
+                  />
+                  {course.category && (
+                    <div className="absolute top-4 left-4">
+                      <Badge className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">{course.category}</Badge>
+                    </div>
+                  )}
+                  {currentCourse && course.id === currentCourse.id && (
+                    <div className="absolute top-4 right-4">
+                      <Badge className="bg-green-600 text-white">Продолжить</Badge>
+                    </div>
+                  )}
                 </div>
-                <div className="flex items-center justify-between mb-4 text-sm">
-                  <div className="flex items-center text-gray-600">
-                    <Users className="h-4 w-4 mr-1" />
-                    {course.students ?? 0} студентов
+                <CardHeader className="relative">
+                  {roleCode === 'admin' && (
+                    <IconButton size="small" className="absolute right-2 top-2" onClick={(e) => handleMenuOpen(e, course.id)}>
+                      <MoreVertIcon fontSize="small" />
+                    </IconButton>
+                  )}
+                  <CardTitle className="text-xl font-semibold text-gray-800 line-clamp-2">{course.title}</CardTitle>
+                  <CardDescription className="text-gray-600 line-clamp-2">{course.description}</CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col flex-grow">
+                  <div className="flex items-center justify-between mb-4 text-sm text-gray-600">
+                    <div className="flex items-center">
+                      <Clock className="h-4 w-4 mr-1" />
+                      {course.duration || '-'}
+                    </div>
+                    <div className="flex items-center">
+                      <BookOpen className="h-4 w-4 mr-1" />
+                      {course.lessons ? `${course.lessons} уроков` : '-'}
+                    </div>
                   </div>
-                  <div className="flex items-center text-yellow-600">
-                    <Star className="h-4 w-4 mr-1 fill-current" />
-                    {course.rating ?? 0}
+                  <div className="flex items-center justify-between mb-4 text-sm">
+                    <div className="flex items-center text-gray-600">
+                      <Users className="h-4 w-4 mr-1" />
+                      {course.students ?? 0} студентов
+                    </div>
+                    <div className="flex items-center text-yellow-600">
+                      <Star className="h-4 w-4 mr-1 fill-current" />
+                      {course.rating ?? 0}
+                    </div>
                   </div>
-                </div>
-                {roleCode !== 'admin' && course.enrolled && (
-                  <div className="mb-4">
-                    <LinearProgress variant="determinate" value={course.progress ?? 0} />
-                    <div className="text-xs text-gray-600 mt-1">{course.progress ?? 0}% пройдено</div>
-                  </div>
-                )}
-                <Button
-                  className="mt-auto w-full bg-green-600 hover:bg-green-700 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-                  onClick={() => navigate(`/courses/${course.id}/modules`, { state: { course } })}
-                >
-                  <Play className="h-4 w-4 mr-2" />
-                  Начать курс
-                </Button>
-              </CardContent>
-            </Card>
-          );
-        })}
+                  {roleCode !== 'admin' && course.enrolled && (
+                    <div className="mb-4">
+                      <LinearProgress variant="determinate" value={course.progress ?? 0} />
+                      <div className="text-xs text-gray-600 mt-1">{course.progress ?? 0}% пройдено</div>
+                    </div>
+                  )}
+                  <Button
+                    className="mt-auto w-full bg-green-600 hover:bg-green-700 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                    onClick={() => navigate(`/courses/${course.id}/modules`, { state: { course } })}
+                  >
+                    <Play className="h-4 w-4 mr-2" />
+                    Начать курс
+                  </Button>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
         <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={handleMenuClose}>
           <MenuItem

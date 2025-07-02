@@ -1,29 +1,11 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate, useParams, useLocation, Link } from 'react-router-dom';
 import { ArrowLeft, Play } from 'lucide-react';
-import {
-  getModules,
-  getLessons,
-  postModule,
-  postLesson,
-  putLesson,
-  getCourse,
-  getModuleProgress,
-  getCourseProgress,
-  
-} from 'api';
+import { getModules, getLessons, postModule, postLesson, putLesson, getCourse, getModuleProgress } from 'api';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Context } from '../..';
-import {
-  Card as MuiCard,
-  CardContent as MuiCardContent,
-  Typography,
-  Box,
-  Stack,
-  Button as MuiButton,
-  LinearProgress
-} from '@mui/material';
+import { Card as MuiCard, CardContent as MuiCardContent, Typography, Box, Stack, Button as MuiButton, LinearProgress } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import LessonFormDialog, { LessonFormData } from '../../components/LessonFormDialog';
 
@@ -50,13 +32,13 @@ interface Course {
   title: string;
   description?: string;
   image?: { path?: string } | string | null;
+  progress?: number;
 }
 
 const ModulesPage = () => {
   const { courseId } = useParams();
   const [modules, setModules] = useState<Module[]>([]);
   const [course, setCourse] = useState<Course | null>(null);
-  const [courseProgress, setCourseProgress] = useState<number>(0);
   const location = useLocation();
   const navigate = useNavigate();
   const { authStore } = useContext(Context);
@@ -75,9 +57,7 @@ const ModulesPage = () => {
         modulesArray.map(async (mod: any) => {
           try {
             const lessonsData = await getLessons(mod.id);
-            const lessonsArrayRaw = Array.isArray(lessonsData)
-              ? lessonsData
-              : lessonsData.lessons || lessonsData.items || [];
+            const lessonsArrayRaw = Array.isArray(lessonsData) ? lessonsData : lessonsData.lessons || lessonsData.items || [];
             const lessonsArray = lessonsArrayRaw.map((l: any) => ({
               ...l,
               imageId: l.img_id || null,
@@ -89,8 +69,7 @@ const ModulesPage = () => {
               try {
                 const p = await getModuleProgress(mod.id);
                 progress = p?.percent ?? 0;
-                completedLessons =
-                  p?.lessons || p?.completedLessons || p?.completed_lessons || [];
+                completedLessons = p?.lessons || p?.completedLessons || p?.completed_lessons || [];
               } catch (e) {
                 console.error(e);
               }
@@ -103,16 +82,6 @@ const ModulesPage = () => {
         })
       );
       setModules(withLessons);
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-  const loadCourseProgress = async () => {
-    if (!courseId) return;
-    try {
-      const p = await getCourseProgress(Number(courseId));
-      setCourseProgress(p?.percent ?? 0);
     } catch (e) {
       console.error(e);
     }
@@ -136,7 +105,6 @@ const ModulesPage = () => {
       loadCourse();
     }
     loadModules();
-    loadCourseProgress();
   }, [courseId]);
 
   const handleAddModule = async () => {
@@ -145,7 +113,6 @@ const ModulesPage = () => {
     try {
       await postModule(Number(courseId), { title });
       await loadModules();
-      await loadCourseProgress();
     } catch (e) {
       console.error(e);
     }
@@ -182,12 +149,11 @@ const ModulesPage = () => {
       if (data.id) {
         await putLesson(data.id, payload);
       } else {
-      await postLesson(currentModuleId, payload);
+        await postLesson(currentModuleId, payload);
       }
       setOpenLessonDialog(false);
       setEditingLesson(undefined);
       await loadModules();
-      await loadCourseProgress();
     } catch (e) {
       console.error(e);
     }
@@ -243,9 +209,9 @@ const ModulesPage = () => {
                 </Box>
                 {roleCode !== 'admin' && (
                   <Box sx={{ mt: 2 }}>
-                    <LinearProgress variant="determinate" value={courseProgress} />
+                    <LinearProgress variant="determinate" value={course?.progress ?? 0} />
                     <Typography variant="body2" sx={{ mt: 0.5 }}>
-                      {courseProgress}% пройдено
+                      {course?.progress ?? 0}% пройдено
                     </Typography>
                   </Box>
                 )}
@@ -257,10 +223,7 @@ const ModulesPage = () => {
             {modules.map((m) => (
               <Card key={m.id} className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
                 <CardHeader>
-                  <CardTitle className="text-xl font-semibold text-gray-800">
-                    {m.title}
-                  </CardTitle>
-
+                  <CardTitle className="text-xl font-semibold text-gray-800">{m.title}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   {m.lessons.map((lesson) => {
@@ -278,30 +241,26 @@ const ModulesPage = () => {
                         })
                       : !!(lesson as any).completed;
                     return (
-                    <div
-                      key={lesson.id}
-                      className="flex items-center justify-between p-3 bg-white rounded-lg hover:bg-purple-50 transition-colors"
-                    >
-                      <span
-                        className="text-gray-800"
-                        onClick={() => roleCode === 'admin' && handleEditLesson(m.id, lesson)}
-                        style={{ cursor: roleCode === 'admin' ? 'pointer' : 'default' }}
+                      <div
+                        key={lesson.id}
+                        className="flex items-center justify-between p-3 bg-white rounded-lg hover:bg-purple-50 transition-colors"
                       >
-                        {lesson.title}
-                      </span>
-                      <Button
-                        size="sm"
-                        className="bg-green-600 hover:bg-green-700 text-white"
-                        onClick={() =>
-                          navigate(
-                            `/courses/${courseId}/modules/${m.id}/lessons/${lesson.id}`
-                          )
-                        }
-                      >
-                        <Play className="h-4 w-4 mr-1" /> {completed ? 'Повторить' : 'Начать'}
-                      </Button>
-                    </div>
-                  );
+                        <span
+                          className="text-gray-800"
+                          onClick={() => roleCode === 'admin' && handleEditLesson(m.id, lesson)}
+                          style={{ cursor: roleCode === 'admin' ? 'pointer' : 'default' }}
+                        >
+                          {lesson.title}
+                        </span>
+                        <Button
+                          size="sm"
+                          className="bg-green-600 hover:bg-green-700 text-white"
+                          onClick={() => navigate(`/courses/${courseId}/modules/${m.id}/lessons/${lesson.id}`)}
+                        >
+                          <Play className="h-4 w-4 mr-1" /> {completed ? 'Повторить' : 'Начать'}
+                        </Button>
+                      </div>
+                    );
                   })}
                   {roleCode === 'admin' && (
                     <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white" onClick={() => handleAddLesson(m.id)}>
