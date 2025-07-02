@@ -39,6 +39,7 @@ const ModulesPage = () => {
   const { courseId } = useParams();
   const [modules, setModules] = useState<Module[]>([]);
   const [course, setCourse] = useState<Course | null>(null);
+  const [accessDenied, setAccessDenied] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { authStore } = useContext(Context);
@@ -82,7 +83,10 @@ const ModulesPage = () => {
         })
       );
       setModules(withLessons);
-    } catch (e) {
+    } catch (e: any) {
+      if (e?.response?.status === 403) {
+        setAccessDenied(true);
+      }
       console.error(e);
     }
   };
@@ -92,8 +96,12 @@ const ModulesPage = () => {
     try {
       const c = await getCourse(Number(courseId));
       const image = typeof c.image === 'string' ? c.image : c.image?.path || null;
-      setCourse({ ...c, image });
-    } catch (e) {
+      const progress = typeof c.progress === 'object' ? c.progress?.percent ?? 0 : c.progress ?? c.percent ?? 0;
+      setCourse({ ...c, image, progress });
+    } catch (e: any) {
+      if (e?.response?.status === 403) {
+        setAccessDenied(true);
+      }
       console.error(e);
     }
   };
@@ -101,9 +109,8 @@ const ModulesPage = () => {
   useEffect(() => {
     if (location.state && (location.state as any).course) {
       setCourse((location.state as any).course);
-    } else {
-      loadCourse();
     }
+    loadCourse();
     loadModules();
   }, [courseId]);
 
@@ -219,7 +226,14 @@ const ModulesPage = () => {
             </MuiCard>
           </Box>
           <div className="space-y-4">
-            {modules.length === 0 && <Typography className="text-gray-600">Модули не найдены</Typography>}
+            {accessDenied && (
+              <Typography className="text-red-600">
+                Нет доступа к курсу, запросите доступ у администратора
+              </Typography>
+            )}
+            {modules.length === 0 && !accessDenied && (
+              <Typography className="text-gray-600">Модули не найдены</Typography>
+            )}
             {modules.map((m) => (
               <Card key={m.id} className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
                 <CardHeader>
