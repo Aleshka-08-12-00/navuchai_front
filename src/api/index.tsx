@@ -249,6 +249,9 @@ export const deleteLesson = (id: number) => deleteData('lessonById', {}, id);
 export const enrollCourse = (courseId: number) => postData('enrollCourse', {}, courseId);
 export const enrollCourseAdmin = (courseId: number, userId: number) =>
   postData('enrollCourseAdmin', {}, [courseId, userId]);
+export const unenrollCourse = (courseId: number) => deleteData('enrollCourse', {}, courseId);
+export const unenrollCourseAdmin = (courseId: number, userId: number) =>
+  deleteData('enrollCourseAdmin', {}, [courseId, userId]);
 export const getUserCourses = (userId: number) => fetchData('userCourses', {}, userId);
 export const getCourseProgress = (courseId: number) => fetchData('courseProgress', {}, courseId);
 export const getCourseTests = (courseId: number) => fetchData('courseTests', {}, courseId);

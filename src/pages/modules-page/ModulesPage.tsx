@@ -244,7 +244,7 @@ const ModulesPage = () => {
                         </span>
                         <Button
                           size="sm"
-                          className="bg-green-600 hover:bg-green-700 text-white"
+                          variant={completed ? 'outline' : 'default'}
                           onClick={() => navigate(`/courses/${courseId}/modules/${m.id}/lessons/${lesson.id}`)}
                         >
                           <Play className="h-4 w-4 mr-1" /> {completed ? 'Повторить' : 'Начать'}
