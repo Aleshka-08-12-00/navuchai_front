@@ -41,7 +41,7 @@ const dashboard = {
       id: '5',
       title: 'Курсы',
       type: 'item',
-      url: '/courses',
+      url: '/courses/',
       icon: icons.LibraryBooksIcon,
       breadcrumbs: true,
       code: 'anyCode',

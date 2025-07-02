@@ -87,27 +87,27 @@ const MainRoutes = {
           element: <CourseAccessAdminPage />
         },
         {
-          path: '/courses',
+          path: '/courses/',
           element: <CoursesPage />
         },
         {
-          path: '/courses/new',
+          path: '/courses/new/',
           element: <CourseEditorPage />
         },
         {
-          path: '/courses/:courseId/edit',
+          path: '/courses/:courseId/edit/',
           element: <CourseEditorPage />
         },
         {
-          path: '/courses/:courseId/modules',
+          path: '/courses/:courseId/modules/',
           element: <ModulesPage />
         },
         {
-          path: '/courses/:courseId/modules/:moduleId/lessons',
+          path: '/courses/:courseId/modules/:moduleId/lessons/',
           element: <LessonsPage />
         },
         {
-          path: '/courses/:courseId/modules/:moduleId/lessons/:lessonId',
+          path: '/courses/:courseId/modules/:moduleId/lessons/:lessonId/',
           element: <LessonViewPage />
         },
         {

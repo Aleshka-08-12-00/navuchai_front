@@ -105,13 +105,13 @@ const CourseEditorPage = () => {
           }
         }
       }
-      navigate('/courses');
+      navigate('/courses/');
     } catch (e) {
       console.error(e);
     }
   };
 
-  return <CourseFormDialog open onClose={() => navigate('/courses')} onSave={handleSave} course={initialData} />;
+  return <CourseFormDialog open onClose={() => navigate('/courses/')} onSave={handleSave} course={initialData} />;
 };
 
 export default CourseEditorPage;

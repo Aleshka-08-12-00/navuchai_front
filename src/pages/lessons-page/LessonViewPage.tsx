@@ -91,14 +91,14 @@ const LessonViewPage = () => {
           <Button
             variant="outline"
             disabled={!prevLesson}
-            onClick={() => prevLesson && navigate(`/courses/${courseId}/modules/${moduleId}/lessons/${prevLesson.id}`)}
+            onClick={() => prevLesson && navigate(`/courses/${courseId}/modules/${moduleId}/lessons/${prevLesson.id}/`)}
           >
             <ArrowLeft className="h-4 w-4 mr-2" /> Предыдущий
           </Button>
           <Button
             variant="outline"
             disabled={!nextLesson}
-            onClick={() => nextLesson && navigate(`/courses/${courseId}/modules/${moduleId}/lessons/${nextLesson.id}`)}
+            onClick={() => nextLesson && navigate(`/courses/${courseId}/modules/${moduleId}/lessons/${nextLesson.id}/`)}
           >
             Следующий <ArrowRight className="h-4 w-4 ml-2" />
           </Button>

@@ -79,7 +79,7 @@ const CoursesPage = () => {
   };
 
   const handleAddCourse = () => {
-    navigate('/courses/new');
+    navigate('/courses/new/');
   };
 
   const handleEditCourse = async (courseId: number) => {
@@ -93,7 +93,7 @@ const CoursesPage = () => {
           return { ...m, lessons: lessonsData };
         })
       );
-      navigate(`/courses/${courseId}/edit`, {
+      navigate(`/courses/${courseId}/edit/`, {
         state: {
           course: {
             title: course.title,
@@ -265,7 +265,7 @@ const CoursesPage = () => {
                   )}
                   <Button
                     className="mt-auto w-full bg-green-600 hover:bg-green-700 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-                    onClick={() => navigate(`/courses/${course.id}/modules`, { state: { course } })}
+                    onClick={() => navigate(`/courses/${course.id}/modules/`, { state: { course } })}
                   >
                     <Play className="h-4 w-4 mr-2" />
                     Начать курс

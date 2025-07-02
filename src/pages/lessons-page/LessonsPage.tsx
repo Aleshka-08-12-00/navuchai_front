@@ -106,7 +106,7 @@ const LessonsPage = () => {
                   className="w-full bg-green-600 hover:bg-green-700 text-white"
                   onClick={() =>
                     navigate(
-                      `/courses/${courseId}/modules/${moduleId}/lessons/${lesson.id}`
+                      `/courses/${courseId}/modules/${moduleId}/lessons/${lesson.id}/`
                     )
                   }
                 >

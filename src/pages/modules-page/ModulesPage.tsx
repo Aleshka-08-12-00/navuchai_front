@@ -170,7 +170,7 @@ const ModulesPage = () => {
                 )}
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <Link to="/courses">
+                    <Link to="/courses/">
                       <Button variant="ghost" size="sm" className="hover:bg-white/50">
                         <ArrowLeft className="h-4 w-4 mr-2" /> Назад
                       </Button>
@@ -245,7 +245,7 @@ const ModulesPage = () => {
                         <Button
                           size="sm"
                           className="bg-green-600 hover:bg-green-700 text-white"
-                          onClick={() => navigate(`/courses/${courseId}/modules/${m.id}/lessons/${lesson.id}`)}
+                          onClick={() => navigate(`/courses/${courseId}/modules/${m.id}/lessons/${lesson.id}/`)}
                         >
                           <Play className="h-4 w-4 mr-1" /> {completed ? 'Повторить' : 'Начать'}
                         </Button>
