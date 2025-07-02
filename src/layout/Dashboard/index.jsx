@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 
 // material-ui
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -20,6 +20,7 @@ import Breadcrumbs from 'components/@extended/Breadcrumbs';
 export default function DashboardLayout() {
   const { menuMasterLoading } = useGetMenuMaster();
   const downXL = useMediaQuery((theme) => theme.breakpoints.down('xl'));
+  const location = useLocation();
 
   useEffect(() => {
     handlerDrawerOpen(!downXL);
@@ -28,13 +29,16 @@ export default function DashboardLayout() {
 
   if (menuMasterLoading) return <Loader />;
 
+  // Скрываем Drawer и Breadcrumbs на /start_test/
+  const hideDrawer = location.pathname.startsWith('/start_test/');
+
   return (
     <Box sx={{ display: 'flex', width: '100%' }}>
-      <Header />
-      <Drawer />
-      <Box component="main" sx={{ width: 'calc(100% - 260px)', flexGrow: 1, p: { xs: 2, sm: 3 } }}>
+      {!hideDrawer && <Header />}
+      {!hideDrawer && <Drawer />}
+      <Box component="main" sx={{ width: hideDrawer ? '100%' : 'calc(100% - 260px)', flexGrow: 1, p: { xs: 2, sm: 3 } }}>
         <Toolbar />
-        <Breadcrumbs navigation={navigation} title />
+        {!hideDrawer && <Breadcrumbs navigation={navigation} title />}
         <Outlet />
       </Box>
     </Box>

@@ -142,10 +142,10 @@ const CourseAccessAdminPage = observer(() => {
 
   return (
     <Box>
-      <Typography variant="h4" sx={{ mb: 2 }}>
+      <Typography variant="h5" sx={{ mb: 2 }}>
         Доступ к курсам
       </Typography>
-      <Button variant="contained" onClick={() => setOpen(true)}>
+      <Button variant="contained" onClick={() => setOpen(true)} sx={{ textTransform: 'none' }}>
         Выдать доступ
       </Button>
       <Dialog open={open} onClose={() => setOpen(false)}>

@@ -218,7 +218,7 @@ const AdminPage = observer(() => {
     return (
         <div>
             <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <MuiTypography variant="h4">Администрирование пользователей</MuiTypography>
+                <MuiTypography variant="h5">Администрирование пользователей</MuiTypography>
                 <TextField
                     size="small"
                     variant="outlined"

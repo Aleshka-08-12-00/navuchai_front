@@ -1,4 +1,4 @@
-import { Box, Button, IconButton, Stack, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Alert, Snackbar } from "@mui/material";
+import { Box, Button, IconButton, Stack, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Alert, Snackbar, Card, CardContent, Chip } from "@mui/material";
 import { observer } from "mobx-react-lite";
 import { Grid } from "@mui/material";
 import AddBoxIcon from '@mui/icons-material/AddBox';
@@ -14,11 +14,11 @@ import PeopleIcon from '@mui/icons-material/People';
 
 // Функция для склонения слова "участник"
 function pluralizeParticipants(count: number) {
-    const mod10 = count % 10;
-    const mod100 = count % 100;
-    if (mod10 === 1 && mod100 !== 11) return 'участник';
-    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return 'участника';
-    return 'участников';
+  const mod10 = count % 10;
+  const mod100 = count % 100;
+  if (mod10 === 1 && mod100 !== 11) return 'участник';
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return 'участника';
+  return 'участников';
 }
 
 const RespondentsPage = observer(() => {
@@ -27,7 +27,7 @@ const RespondentsPage = observer(() => {
 
   const { respondentsStore } = React.useContext(Context);
 
-  const { 
+  const {
     respondentListsArray,
     getRespondentLists,
     deleteUserGroupsById,
@@ -79,75 +79,121 @@ const RespondentsPage = observer(() => {
 
   return (
     <>
-      <Box sx={{ flexGrow: 1 }}>
-        <Grid item xs={12} sx={{ mb: 2 }}>
-          <div style={{ display: 'flex', alignItems: 'center', margin: 'auto', justifyContent: 'space-between' }}>
-            <Typography variant="h5">Список участников ({respondentListsArray.length})</Typography>
-            <div >
-              <Button
-                variant="contained"
-                color="success"
-                style={{ textTransform: "none", backgroundColor: '#0bc279' }}
-                size="large"
-                onClick={() => navigate(`/respondents/new`)}
-                startIcon={<AddBoxIcon />}
-              >
-                Новый список
-              </Button>
-            </div>
-          </div>
-        </Grid>
-        <Grid container spacing={2}>
-          {respondentListsArray && respondentListsArray.map((item: IRespondentLists, index: number) => (
-            <Grid item xs={12} sm={6} md={6} lg={6} key={index}>
-              <MainCard contentSX={{ p: 2.25, pt: 3.3 }}>
-                <div onClick={() => navigate(`/respondents/${item.id}`)} style={{cursor: 'pointer'}}>
-                  <div style={{ display: 'flex', alignItems: 'center', margin: 'auto', justifyContent: 'space-between' }}>
-                    <Typography variant="h6" color="textSecondary" >
-                      создан: {moment(item.created_at).format('DD.MM.YYYY HH:mm')} 
-                    </Typography>
-                    <span>
-                      <IconButton 
-                        color='error'
-                        aria-label="delete" 
-                        onClick={(e) => handleDeleteClick(e, item.id)}
-                      >
-                        <DeleteOutlineIcon />
-                      </IconButton>
-                    </span>
-                  </div>
-                  <Stack sx={{ mt: 2, mb: 2 }}>
-                    <Typography variant="h4"  >
-                      {item.name}
-                    </Typography>
-                  </Stack>
-                  <Stack sx={{ mb: 2 }}>
-                    <Typography variant="h6" color="textSecondary" >
-                      ({item.description})
-                    </Typography>
-                  </Stack>
-                  <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mt: 2 }}>
-                    <Stack direction="row" alignItems="center" spacing={1}>
-                      <PeopleIcon color="action" fontSize="small"  />
-                      <Typography variant="h6" color="textSecondary">
-                        {item.members?.length ?? 0} {pluralizeParticipants(item.members?.length ?? 0)}
-                      </Typography>
-                    </Stack>
+      <Box sx={{ flexGrow: 1, background: '#edf7ff', minHeight: '100vh' }}>
+        <Box sx={{ mx: 'auto', px: { xs: 1, sm: 2, md: 0 } }}>
+          {/* Header Section */}
+          <Card sx={{
+            mb: 3,
+            background: ' #667eea',
+            color: 'white',
+            borderRadius: 3,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.1)'
+          }}>
+            <CardContent>
+              <Box sx={{
+                display: 'flex',
+                alignItems: { xs: 'stretch', sm: 'center' },
+                flexDirection: { xs: 'column', sm: 'row' },
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: 2
+              }}>
+                <Box>
+                  <Typography variant="h3" sx={{ fontWeight: 700, mb: 1 }}>
+                    Список участников
+                  </Typography>
+                  <Chip
+                    label={`${respondentListsArray.length} списков`}
+                    sx={{
+                      background: 'rgba(255,255,255,0.2)',
+                      color: 'white',
+                      fontWeight: 600,
+                      fontSize: { xs: 12, sm: 14 }
+                    }}
+                  />
+                </Box>
+                <Box>
+                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
                     <Button
-                      color='inherit'
-                      variant="outlined"
-                      startIcon={<SettingsIcon />} 
-                      onClick={(e) => { e.stopPropagation(); navigate(`/respondents/${item.id}`); }}
+                      variant="contained"
+                      sx={{
+                        textTransform: "none",
+                        background: 'linear-gradient(45deg, #4caf50, #45a049)',
+                        fontWeight: 600,
+                        boxShadow: '0 4px 15px rgba(76, 175, 80, 0.3)',
+                        '&:hover': {
+                          background: 'linear-gradient(45deg, #45a049, #4caf50)',
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 6px 20px rgba(76, 175, 80, 0.4)',
+                        },
+                        width: { xs: '100%', sm: 'auto' },
+                        fontSize: { xs: 13, sm: 16 }
+                      }}
                       size="small"
+                      startIcon={<AddBoxIcon />}
+                      onClick={() => navigate(`/respondents/new`)}
                     >
-                      Управление
+                      Новый список
                     </Button>
                   </Stack>
-                </div>
-              </MainCard>
-            </Grid>
-          ))}
-        </Grid>
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+
+          {/* Списки участников */}
+          <Grid container spacing={2}>
+            {respondentListsArray && respondentListsArray.map((item: IRespondentLists, index: number) => (
+              <Grid item xs={12} sm={6} md={6} lg={6} key={index}>
+                <MainCard contentSX={{ p: 2.25, pt: 3.3 }}>
+                  <div onClick={() => navigate(`/respondents/${item.id}`)} style={{ cursor: 'pointer' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', margin: 'auto', justifyContent: 'space-between' }}>
+                      <Typography variant="h6" color="textSecondary" >
+                        создан: {moment(item.created_at).format('DD.MM.YYYY HH:mm')}
+                      </Typography>
+                      <span>
+                        <IconButton
+                          color='error'
+                          aria-label="delete"
+                          onClick={(e) => handleDeleteClick(e, item.id)}
+                        >
+                          <DeleteOutlineIcon />
+                        </IconButton>
+                      </span>
+                    </div>
+                    <Stack sx={{ mt: 2, mb: 2 }}>
+                      <Typography variant="h4"  >
+                        {item.name}
+                      </Typography>
+                    </Stack>
+                    <Stack sx={{ mb: 2 }}>
+                      <Typography variant="h6" color="textSecondary" >
+                        ({item.description})
+                      </Typography>
+                    </Stack>
+                    <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mt: 2 }}>
+                      <Stack direction="row" alignItems="center" spacing={1}>
+                        <PeopleIcon color="action" fontSize="small" />
+                        <Typography variant="h6" color="textSecondary">
+                          {item.members?.length ?? 0} {pluralizeParticipants(item.members?.length ?? 0)}
+                        </Typography>
+                      </Stack>
+                      <Button
+                        color='inherit'
+                        variant="outlined"
+                        startIcon={<SettingsIcon />}
+                        onClick={(e) => { e.stopPropagation(); navigate(`/respondents/${item.id}`); }}
+                        size="small"
+                      >
+                        Управление
+                      </Button>
+                    </Stack>
+                  </div>
+                </MainCard>
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
       </Box>
 
       <Dialog
@@ -170,9 +216,9 @@ const RespondentsPage = observer(() => {
         </DialogActions>
       </Dialog>
 
-      <Snackbar 
-        open={alertOpen} 
-        autoHideDuration={6000} 
+      <Snackbar
+        open={alertOpen}
+        autoHideDuration={6000}
         onClose={handleCloseAlert}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >

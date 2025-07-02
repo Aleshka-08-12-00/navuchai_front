@@ -44,8 +44,6 @@ function QuestionsTestTable() {
       isTimeExceeded: item.is_time_exceeded,
     })) ?? [];
 
-  console.log('3333333333333333');
-  console.log(questions);
 
   // Утилита для нормализации ответа в массив строк (универсально для одиночных и множественных)
   function stripHtml(html: string): string {
@@ -187,7 +185,7 @@ function QuestionsTestTable() {
                       component="td"
                       sx={{
                         width: 8,
-                        background: `linear-gradient(180deg, ${statusColor} 60%, #fff 100%)`,
+                        background: statusColor,
                         borderRadius: 2,
                         position: 'absolute',
                         left: 0,
