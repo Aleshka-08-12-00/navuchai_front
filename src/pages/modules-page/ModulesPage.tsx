@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate, useParams, useLocation, Link } from 'react-router-dom';
 import { ArrowLeft, Play } from 'lucide-react';
-import { getModules, getLessons, postModule, postLesson, putLesson, getCourse, getModuleProgress } from 'api';
+import { getModules, postModule, postLesson, putLesson, getCourse } from 'api';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Context } from '../..';
@@ -54,34 +54,22 @@ const ModulesPage = () => {
     try {
       const m = await getModules(Number(courseId));
       const modulesArray = Array.isArray(m) ? m : m.modules || m.items || [];
-      const withLessons = await Promise.all(
-        modulesArray.map(async (mod: any) => {
-          try {
-            const lessonsData = await getLessons(mod.id);
-            const lessonsArrayRaw = Array.isArray(lessonsData) ? lessonsData : lessonsData.lessons || lessonsData.items || [];
-            const lessonsArray = lessonsArrayRaw.map((l: any) => ({
-              ...l,
-              imageId: l.img_id || null,
-              image: typeof l.image === 'string' ? l.image : l.image?.path
-            }));
-            let progress = 0;
-            let completedLessons: any[] = [];
-            if (roleCode !== 'admin') {
-              try {
-                const p = await getModuleProgress(mod.id);
-                progress = p?.percent ?? 0;
-                completedLessons = p?.lessons || p?.completedLessons || p?.completed_lessons || [];
-              } catch (e) {
-                console.error(e);
-              }
-            }
-            return { ...mod, lessons: lessonsArray, progress, completedLessons };
-          } catch (e) {
-            console.error(e);
-            return { ...mod, lessons: [], progress: 0, completedLessons: [] };
-          }
-        })
-      );
+      const withLessons = modulesArray.map((mod: any) => {
+        const lessonsRaw = Array.isArray(mod.lessons) ? mod.lessons : mod.lessons?.items || [];
+        const lessonsArray = lessonsRaw.map((l: any) => ({
+          ...l,
+          imageId: l.img_id || null,
+          image: typeof l.image === 'string' ? l.image : l.image?.path,
+          completed: l.completed ?? l.done ?? l.is_completed ?? false
+        }));
+        let progress = 0;
+        let completedLessons: any[] = [];
+        if (roleCode !== 'admin') {
+          completedLessons = lessonsArray.filter((l: any) => l.completed).map((l: any) => l.id);
+          progress = lessonsArray.length > 0 ? Math.round((completedLessons.length / lessonsArray.length) * 100) : 0;
+        }
+        return { ...mod, lessons: lessonsArray, progress, completedLessons };
+      });
       setModules(withLessons);
     } catch (e: any) {
       if (e?.response?.status === 403) {
@@ -241,19 +229,7 @@ const ModulesPage = () => {
                 </CardHeader>
                 <CardContent className="space-y-2">
                   {m.lessons.map((lesson) => {
-                    const completed = Array.isArray(m.completedLessons)
-                      ? m.completedLessons.some((cl: any) => {
-                          if (typeof cl === 'number') return cl === lesson.id;
-                          if (typeof cl === 'object' && cl) {
-                            if ('lesson_id' in cl) return cl.lesson_id === lesson.id;
-                            if ('id' in cl && ('completed' in cl || 'done' in cl)) {
-                              return cl.id === lesson.id && (cl.completed ?? cl.done ?? true);
-                            }
-                            if ('id' in cl) return cl.id === lesson.id;
-                          }
-                          return false;
-                        })
-                      : !!(lesson as any).completed;
+                    const completed = !!(lesson as any).completed;
                     return (
                       <div
                         key={lesson.id}
