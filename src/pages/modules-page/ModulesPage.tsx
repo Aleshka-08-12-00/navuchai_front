@@ -1,7 +1,14 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate, useParams, useLocation, Link } from 'react-router-dom';
 import { ArrowLeft, Play } from 'lucide-react';
-import { getModules, postModule, postLesson, putLesson, getCourse } from 'api';
+import {
+  getModules,
+  postModule,
+  postLesson,
+  putLesson,
+  getCourse,
+  getCourseTests,
+} from 'api';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Context } from '../..';
@@ -48,6 +55,7 @@ const ModulesPage = () => {
   const [openLessonDialog, setOpenLessonDialog] = useState(false);
   const [currentModuleId, setCurrentModuleId] = useState<number | null>(null);
   const [editingLesson, setEditingLesson] = useState<LessonFormData | undefined>(undefined);
+  const [courseTests, setCourseTests] = useState<any[]>([]);
 
   const loadModules = async () => {
     if (!courseId) return;
@@ -86,6 +94,16 @@ const ModulesPage = () => {
       const image = typeof c.image === 'string' ? c.image : c.image?.path || null;
       const progress = typeof c.progress === 'object' ? c.progress?.percent ?? 0 : c.progress ?? c.percent ?? 0;
       setCourse({ ...c, image, progress });
+      if (roleCode === 'admin' || progress === 100) {
+        try {
+          const tests = await getCourseTests(Number(courseId));
+          setCourseTests(tests);
+        } catch (err) {
+          console.error(err);
+        }
+      } else {
+        setCourseTests([]);
+      }
     } catch (e: any) {
       if (e?.response?.status === 403) {
         setAccessDenied(true);
@@ -208,6 +226,20 @@ const ModulesPage = () => {
                     <Typography variant="body2" sx={{ mt: 0.5 }}>
                       {course?.progress ?? 0}% пройдено
                     </Typography>
+                  </Box>
+                )}
+                {courseTests.length > 0 && (
+                  <Box sx={{ mt: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                    {courseTests.map((t) => (
+                      <MuiButton
+                        key={t.id}
+                        variant="contained"
+                        size="small"
+                        onClick={() => navigate(`/start_test/${t.id}`)}
+                      >
+                        Пройти тест: {t.title}
+                      </MuiButton>
+                    ))}
                   </Box>
                 )}
               </MuiCardContent>
