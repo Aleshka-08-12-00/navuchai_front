@@ -104,6 +104,10 @@ const endpoints = {
   userCourses: (userId: string | number) => `api/courses/users/${userId}/courses/`,
   courseProgress: (courseId: string | number) => `api/courses/${courseId}/progress/`,
   courseTests: (courseId: string | number) => `api/courses/${courseId}/tests/`,
+  courseTestById: (
+    courseId: string | number,
+    testId: string | number,
+  ) => `api/courses/${courseId}/tests/${testId}/`,
 
   moduleProgress: (moduleId: string | number) => `api/modules/${moduleId}/progress/`,
   moduleTests: (moduleId: string | number) => `api/modules/${moduleId}/tests/`,

@@ -4,7 +4,16 @@ import { BookOpen, Clock, Users, Star, Play } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
-import { getCourses, deleteCourse, getModules, getLessons } from '../../api';
+import {
+  getCourses,
+  deleteCourse,
+  getModules,
+  getLessons,
+  getTests,
+  getCourseTests,
+  postCourseTest,
+  deleteCourseTest,
+} from '../../api';
 import { Context } from '../..';
 import {
   Card as MuiCard,
@@ -17,6 +26,13 @@ import {
   TextField,
   Menu,
   MenuItem,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  FormControl,
+  InputLabel,
+  Select,
   LinearProgress,
   Button as MuiButton
 } from '@mui/material';
@@ -49,6 +65,10 @@ const CoursesPage = () => {
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
   const [menuCourseId, setMenuCourseId] = useState<number | null>(null);
   const [search, setSearch] = useState('');
+  const [testDialogOpen, setTestDialogOpen] = useState(false);
+  const [tests, setTests] = useState<any[]>([]);
+  const [courseTests, setCourseTests] = useState<any[]>([]);
+  const [selectedTestId, setSelectedTestId] = useState<number | ''>('');
 
   const loadCourses = async () => {
     try {
@@ -127,6 +147,43 @@ const CoursesPage = () => {
     try {
       await deleteCourse(id);
       await loadCourses();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleOpenTestDialog = async (courseId: number) => {
+    handleMenuClose();
+    setMenuCourseId(courseId);
+    try {
+      const allTests = await getTests();
+      setTests(allTests);
+      const ct = await getCourseTests(courseId);
+      setCourseTests(ct);
+    } catch (e) {
+      console.error(e);
+    }
+    setTestDialogOpen(true);
+  };
+
+  const handleAddCourseTest = async () => {
+    if (!menuCourseId || !selectedTestId) return;
+    try {
+      await postCourseTest(menuCourseId, { test_id: selectedTestId });
+      const ct = await getCourseTests(menuCourseId);
+      setCourseTests(ct);
+      setSelectedTestId('');
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleRemoveCourseTest = async (testId: number) => {
+    if (!menuCourseId) return;
+    try {
+      await deleteCourseTest(menuCourseId, testId);
+      const ct = await getCourseTests(menuCourseId);
+      setCourseTests(ct);
     } catch (e) {
       console.error(e);
     }
@@ -309,6 +366,13 @@ const CoursesPage = () => {
           </MenuItem>
           <MenuItem
             onClick={() => {
+              if (menuCourseId) handleOpenTestDialog(menuCourseId);
+            }}
+          >
+            Привязать тест
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
               if (menuCourseId) handleDeleteCourse(menuCourseId);
               handleMenuClose();
             }}
@@ -316,6 +380,45 @@ const CoursesPage = () => {
             Удалить
           </MenuItem>
         </Menu>
+        <Dialog open={testDialogOpen} onClose={() => setTestDialogOpen(false)}>
+          <DialogTitle>Привязать тест</DialogTitle>
+          <DialogContent>
+            <FormControl fullWidth sx={{ mt: 2 }}>
+              <InputLabel id="test-select-label">Тест</InputLabel>
+              <Select
+                labelId="test-select-label"
+                value={selectedTestId}
+                label="Тест"
+                onChange={(e) => setSelectedTestId(Number(e.target.value))}
+              >
+                {tests.map((t) => (
+                  <MenuItem key={t.id} value={t.id}>
+                    {t.title}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <Box sx={{ mt: 2 }}>
+              {courseTests.map((t) => (
+                <Box
+                  key={t.id}
+                  sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}
+                >
+                  <Typography>{t.title}</Typography>
+                  <MuiButton size="small" color="error" onClick={() => handleRemoveCourseTest(t.id)}>
+                    Удалить
+                  </MuiButton>
+                </Box>
+              ))}
+            </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setTestDialogOpen(false)}>Закрыть</Button>
+            <Button variant="contained" onClick={handleAddCourseTest} disabled={!selectedTestId}>
+              Добавить
+            </Button>
+          </DialogActions>
+        </Dialog>
       </div>
     </div>
   );

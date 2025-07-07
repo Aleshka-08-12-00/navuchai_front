@@ -256,6 +256,11 @@ export const getUserCourses = (userId: number) => fetchData('userCourses', {}, u
 export const getCourseProgress = (courseId: number) => fetchData('courseProgress', {}, courseId);
 export const getCourseTests = (courseId: number) => fetchData('courseTests', {}, courseId);
 export const postCourseTest = (courseId: number, d: any) => postData('courseTests', d, courseId);
+export const getCourseTest = (courseId: number, testId: number) =>
+  fetchData('courseTestById', {}, [courseId, testId]);
+export const deleteCourseTest = (courseId: number, testId: number) =>
+  deleteData('courseTestById', {}, [courseId, testId]);
+export const getTests = () => fetchData('getTests');
 export const getModuleProgress = (moduleId: number) => fetchData('moduleProgress', {}, moduleId);
 export const getModuleTests = (moduleId: number) => fetchData('moduleTests', {}, moduleId);
 export const postModuleTest = (moduleId: number, d: any) => postData('moduleTests', d, moduleId);
