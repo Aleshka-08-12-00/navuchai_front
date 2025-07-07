@@ -169,7 +169,10 @@ const CoursesPage = () => {
   const handleAddCourseTest = async () => {
     if (!menuCourseId || !selectedTestId) return;
     try {
-      await postCourseTest(menuCourseId, { test_id: selectedTestId });
+      await postCourseTest(menuCourseId, {
+        test_id: selectedTestId,
+        required: true,
+      });
       const ct = await getCourseTests(menuCourseId);
       setCourseTests(ct);
       setSelectedTestId('');
