@@ -4,7 +4,15 @@ import { ArrowLeft, Play } from 'lucide-react';
 import { getLessons, postLesson } from 'api';
 import { Button } from '../../components/ui/button';
 import { Context } from '../..';
-import { Card as MuiCard, CardContent as MuiCardContent, Typography, Box, Stack, Button as MuiButton } from '@mui/material';
+import {
+  Card as MuiCard,
+  CardContent as MuiCardContent,
+  Typography,
+  Box,
+  Stack,
+  Button as MuiButton
+} from '@mui/material';
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import AddIcon from '@mui/icons-material/Add';
 
 interface Lesson {
@@ -88,27 +96,30 @@ const LessonsPage = () => {
             </MuiCardContent>
           </MuiCard>
         </Box>
-        <ul className="space-y-4">
+        <div className="space-y-4">
           {lessons.map((lesson) => (
-            <li key={lesson.id} className="flex items-center gap-4 p-4 bg-white/80 backdrop-blur-sm rounded shadow">
-              {lesson.image && <img src={lesson.image} alt={lesson.title} className="w-28 h-20 object-cover rounded" />}
-              <span
-                className="flex-grow text-gray-800 font-semibold"
-                onClick={() => navigate(`/courses/${courseId}/modules/${moduleId}/lessons/${lesson.id}`)}
-              >
-                {lesson.title}
-              </span>
-              <Button
-                size="sm"
-                className="bg-green-600 hover:bg-green-700 text-white"
-                onClick={() => navigate(`/courses/${courseId}/modules/${moduleId}/lessons/${lesson.id}`)}
-              >
-                <Play className="h-4 w-4 mr-2" />
-                {lesson.completed ? 'Повторить' : 'Начать'}
-              </Button>
-            </li>
+            <Card key={lesson.id} className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+              <CardHeader>
+                {lesson.image && (
+                  <img src={lesson.image} alt={lesson.title} className="w-full h-48 object-cover rounded-t" />
+                )}
+                <CardTitle className="text-xl font-semibold text-gray-800">
+                  {lesson.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Button
+                  className="w-full bg-green-600 hover:bg-green-700 text-white"
+                  onClick={() =>
+                    navigate(`/courses/${courseId}/modules/${moduleId}/lessons/${lesson.id}`)
+                  }
+                >
+                  <Play className="h-4 w-4 mr-2" /> {lesson.completed ? 'Повторить' : 'Начать'}
+                </Button>
+              </CardContent>
+            </Card>
           ))}
-        </ul>
+        </div>
       </div>
     </div>
   );
