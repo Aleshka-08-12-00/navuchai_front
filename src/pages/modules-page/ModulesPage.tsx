@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate, useParams, useLocation, Link } from 'react-router-dom';
 import { ArrowLeft, Play } from 'lucide-react';
-import { getModules, postModule, postLesson, putLesson, getCourse, putModule, deleteModule, deleteLesson } from 'api';
+import { getModules, postModule, postLesson, putLesson, getCourse, putModule, deleteModule, deleteLesson, getCourseTests } from 'api';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Context } from '../..';
@@ -58,6 +58,7 @@ const ModulesPage = () => {
   const [openLessonDialog, setOpenLessonDialog] = useState(false);
   const [currentModuleId, setCurrentModuleId] = useState<number | null>(null);
   const [editingLesson, setEditingLesson] = useState<LessonFormData | undefined>(undefined);
+  const [tests, setTests] = useState<any[]>([]);
 
   const loadModules = async () => {
     if (!courseId) return;
@@ -89,17 +90,28 @@ const ModulesPage = () => {
     }
   };
 
-  const loadCourse = async () => {
+const loadCourse = async () => {
+  if (!courseId) return;
+  try {
+    const c = await getCourse(Number(courseId));
+    const image = typeof c.image === 'string' ? c.image : c.image?.path || null;
+    const progress = typeof c.progress === 'object' ? (c.progress?.percent ?? 0) : (c.progress ?? c.percent ?? 0);
+    setCourse({ ...c, image, progress });
+  } catch (e: any) {
+    if (e?.response?.status === 403) {
+      setAccessDenied(true);
+    }
+    console.error(e);
+  }
+};
+
+  const loadCourseTests = async () => {
     if (!courseId) return;
     try {
-      const c = await getCourse(Number(courseId));
-      const image = typeof c.image === 'string' ? c.image : c.image?.path || null;
-      const progress = typeof c.progress === 'object' ? (c.progress?.percent ?? 0) : (c.progress ?? c.percent ?? 0);
-      setCourse({ ...c, image, progress });
-    } catch (e: any) {
-      if (e?.response?.status === 403) {
-        setAccessDenied(true);
-      }
+      const t = await getCourseTests(Number(courseId));
+      const testsArray = Array.isArray(t) ? t : t.tests || t.items || [];
+      setTests(testsArray);
+    } catch (e) {
       console.error(e);
     }
   };
@@ -110,6 +122,7 @@ const ModulesPage = () => {
     }
     loadCourse();
     loadModules();
+    loadCourseTests();
   }, [courseId]);
 
   const handleAddModule = async () => {
@@ -320,6 +333,16 @@ const ModulesPage = () => {
                 </CardContent>
               </Card>
             ))}
+            {tests.length > 0 && (
+              <div className="flex justify-center mt-6">
+                <Button
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                  onClick={() => navigate(`/start_test/${tests[0].id}`)}
+                >
+                  Пройти тест
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </div>
