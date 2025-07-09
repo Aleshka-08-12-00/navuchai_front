@@ -1,12 +1,23 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate, useParams, useLocation, Link } from 'react-router-dom';
 import { ArrowLeft, Play } from 'lucide-react';
-import { getModules, postModule, postLesson, putLesson, getCourse } from 'api';
+import { getModules, postModule, postLesson, putLesson, getCourse, putModule, deleteModule, deleteLesson } from 'api';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Context } from '../..';
-import { Card as MuiCard, CardContent as MuiCardContent, Typography, Box, Stack, Button as MuiButton, LinearProgress } from '@mui/material';
+import {
+  Card as MuiCard,
+  CardContent as MuiCardContent,
+  Typography,
+  Box,
+  Stack,
+  Button as MuiButton,
+  LinearProgress,
+  IconButton
+} from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import LessonFormDialog, { LessonFormData } from '../../components/LessonFormDialog';
 
 interface Lesson {
@@ -83,7 +94,7 @@ const ModulesPage = () => {
     try {
       const c = await getCourse(Number(courseId));
       const image = typeof c.image === 'string' ? c.image : c.image?.path || null;
-      const progress = typeof c.progress === 'object' ? c.progress?.percent ?? 0 : c.progress ?? c.percent ?? 0;
+      const progress = typeof c.progress === 'object' ? (c.progress?.percent ?? 0) : (c.progress ?? c.percent ?? 0);
       setCourse({ ...c, image, progress });
     } catch (e: any) {
       if (e?.response?.status === 403) {
@@ -112,6 +123,27 @@ const ModulesPage = () => {
     }
   };
 
+  const handleEditModule = async (module: Module) => {
+    const title = window.prompt('Название модуля', module.title);
+    if (!title) return;
+    try {
+      await putModule(module.id, { title });
+      await loadModules();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleDeleteModule = async (id: number) => {
+    if (!window.confirm('Удалить модуль?')) return;
+    try {
+      await deleteModule(id);
+      await loadModules();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const handleAddLesson = (moduleId: number) => {
     setCurrentModuleId(moduleId);
     setEditingLesson(undefined);
@@ -133,11 +165,11 @@ const ModulesPage = () => {
   const saveLesson = async (data: LessonFormData) => {
     if (!currentModuleId) return;
     try {
-    const payload = {
-      title: data.title,
-      content: data.content,
-      imgId: data.imageId
-    };
+      const payload = {
+        title: data.title,
+        content: data.content,
+        imgId: data.imageId
+      };
       if (data.id) {
         await putLesson(data.id, payload);
       } else {
@@ -145,6 +177,16 @@ const ModulesPage = () => {
       }
       setOpenLessonDialog(false);
       setEditingLesson(undefined);
+      await loadModules();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleDeleteLesson = async (id: number) => {
+    if (!window.confirm('Удалить урок?')) return;
+    try {
+      await deleteLesson(id);
       await loadModules();
     } catch (e) {
       console.error(e);
@@ -199,6 +241,11 @@ const ModulesPage = () => {
                     </Stack>
                   )}
                 </Box>
+                {course?.description && (
+                  <Typography variant="subtitle1" sx={{ mt: 1 }}>
+                    {course.description}
+                  </Typography>
+                )}
                 {roleCode !== 'admin' && (
                   <Box sx={{ mt: 2 }}>
                     <LinearProgress variant="determinate" value={course?.progress ?? 0} />
@@ -211,18 +258,22 @@ const ModulesPage = () => {
             </MuiCard>
           </Box>
           <div className="space-y-4">
-            {accessDenied && (
-              <Typography className="text-red-600">
-                Нет доступа к курсу, запросите доступ у администратора
-              </Typography>
-            )}
-            {modules.length === 0 && !accessDenied && (
-              <Typography className="text-gray-600">Модули не найдены</Typography>
-            )}
+            {accessDenied && <Typography className="text-red-600">Нет доступа к курсу, запросите доступ у администратора</Typography>}
+            {modules.length === 0 && !accessDenied && <Typography className="text-gray-600">Модули не найдены</Typography>}
             {modules.map((m) => (
               <Card key={m.id} className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-                <CardHeader>
+                <CardHeader className="flex items-center justify-between">
                   <CardTitle className="text-xl font-semibold text-gray-800">{m.title}</CardTitle>
+                  {roleCode === 'admin' && (
+                    <div>
+                      <IconButton size="small" onClick={() => handleEditModule(m)}>
+                        <EditIcon style={{ width: 18, height: 18 }} />
+                      </IconButton>
+                      <IconButton size="small" color="error" onClick={() => handleDeleteModule(m.id)}>
+                        <DeleteIcon style={{ width: 18, height: 18 }} />
+                      </IconButton>
+                    </div>
+                  )}
                 </CardHeader>
                 <CardContent className="space-y-2">
                   {m.lessons.map((lesson) => {
@@ -239,13 +290,25 @@ const ModulesPage = () => {
                         >
                           {lesson.title}
                         </span>
-                        <Button
-                          size="sm"
-                          className="bg-green-600 hover:bg-green-700 text-white"
-                          onClick={() => navigate(`/courses/${courseId}/modules/${m.id}/lessons/${lesson.id}`)}
-                        >
-                          <Play className="h-4 w-4 mr-1" /> {completed ? 'Повторить' : 'Начать'}
-                        </Button>
+                        <div className="flex items-center space-x-2">
+                          <Button
+                            size="sm"
+                            className="bg-green-600 hover:bg-green-700 text-white"
+                            onClick={() => navigate(`/courses/${courseId}/modules/${m.id}/lessons/${lesson.id}`)}
+                          >
+                            <Play className="h-4 w-4 mr-1" /> {completed ? 'Повторить' : 'Начать'}
+                          </Button>
+                          {roleCode === 'admin' && (
+                            <>
+                              <IconButton size="small" onClick={() => handleEditLesson(m.id, lesson)}>
+                                <EditIcon style={{ width: 16, height: 16 }} />
+                              </IconButton>
+                              <IconButton size="small" color="error" onClick={() => handleDeleteLesson(lesson.id)}>
+                                <DeleteIcon style={{ width: 16, height: 16 }} />
+                              </IconButton>
+                            </>
+                          )}
+                        </div>
                       </div>
                     );
                   })}
