@@ -106,7 +106,6 @@ const CoursesPage = () => {
   const [editingLessonId, setEditingLessonId] = useState<number | null>(null);
   const [lessonTitle, setLessonTitle] = useState('');
   const [lessonContent, setLessonContent] = useState('');
-  const [lessonVideo, setLessonVideo] = useState('');
   const editor = useRef(null);
 
   const handleCreateTestForCourse = (courseId: number) => {
@@ -295,18 +294,17 @@ const CoursesPage = () => {
       const formData: CourseFormData = {
         title: course.title,
         description: course.description || '',
-        accessType: 'public',
-        modules: modulesWithLessons.map((m) => ({
-          id: m.id,
-          title: m.title,
-          description: m.description || '',
-          lessons: m.lessons?.map((l) => ({ id: l.id, title: l.title, content: l.content || '', video: l.video || '' })) || []
-        }))
-      };
+          modules: modulesWithLessons.map((m) => ({
+            id: m.id,
+            title: m.title,
+            description: m.description || '',
+            lessons: m.lessons?.map((l) => ({ id: l.id, title: l.title, content: l.content || '' })) || []
+          }))
+        };
       setCourseFormData(formData);
     } catch (e) {
       console.error(e);
-      setCourseFormData({ title: course.title, description: course.description || '', accessType: 'public', modules: [] });
+      setCourseFormData({ title: course.title, description: course.description || '', modules: [] });
     }
     setOpenCourseDialog(true);
   };
@@ -330,13 +328,13 @@ const CoursesPage = () => {
           modId = m?.id;
         }
         if (!modId) continue;
-        for (const les of mod.lessons) {
-          if (les.id) {
-            await putLesson(les.id, { title: les.title, content: les.content, video: les.video });
-          } else {
-            await postLesson(modId, { title: les.title, content: les.content, video: les.video });
+          for (const les of mod.lessons) {
+            if (les.id) {
+              await putLesson(les.id, { title: les.title, content: les.content });
+            } else {
+              await postLesson(modId, { title: les.title, content: les.content });
+            }
           }
-        }
       }
       setOpenCourseDialog(false);
       setEditingCourseId(null);
@@ -416,7 +414,6 @@ const CoursesPage = () => {
     setEditingLessonId(null);
     setLessonTitle('');
     setLessonContent('');
-    setLessonVideo('');
     setOpenLessonDialog(true);
   };
 
@@ -426,7 +423,6 @@ const CoursesPage = () => {
     setEditingLessonId(lesson.id);
     setLessonTitle(lesson.title);
     setLessonContent(lesson.content || '');
-    setLessonVideo(lesson.video || '');
     setOpenLessonDialog(true);
   };
 
@@ -435,20 +431,18 @@ const CoursesPage = () => {
     setEditingLessonId(null);
     setLessonTitle('');
     setLessonContent('');
-    setLessonVideo('');
   };
 
   const saveLesson = async () => {
     if (!lessonModuleId) return;
     try {
-      const payload = { title: lessonTitle, content: lessonContent, video: lessonVideo };
+    const payload = { title: lessonTitle, content: lessonContent };
       if (editingLessonId) {
         await putLesson(editingLessonId, payload);
       } else {
         await postLesson(lessonModuleId, payload);
       }
-      setOpenLessonDialog(false);
-      setLessonVideo('');
+        setOpenLessonDialog(false);
       const lessonsData = await getLessons(lessonModuleId);
       setCourses((prev) =>
         prev.map((c) =>

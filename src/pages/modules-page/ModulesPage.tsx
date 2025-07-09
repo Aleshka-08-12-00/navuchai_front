@@ -13,7 +13,6 @@ interface Lesson {
   id: number;
   title: string;
   content?: string;
-  video?: string;
   image?: string;
   imageId?: number;
   completed?: boolean;
@@ -125,7 +124,6 @@ const ModulesPage = () => {
       id: lesson.id,
       title: lesson.title,
       content: (lesson as any).content || '',
-      video: (lesson as any).video || '',
       image: (lesson as any).image,
       imageId: (lesson as any).img_id || lesson.imageId
     });
@@ -135,12 +133,11 @@ const ModulesPage = () => {
   const saveLesson = async (data: LessonFormData) => {
     if (!currentModuleId) return;
     try {
-      const payload = {
-        title: data.title,
-        content: data.content,
-        video: data.video,
-        imgId: data.imageId
-      };
+    const payload = {
+      title: data.title,
+      content: data.content,
+      imgId: data.imageId
+    };
       if (data.id) {
         await putLesson(data.id, payload);
       } else {

@@ -8,11 +8,7 @@ import {
   TextField,
   Stack,
   Typography,
-  IconButton,
-  Select,
-  MenuItem,
-  InputLabel,
-  FormControl
+  IconButton
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -24,9 +20,6 @@ interface LessonForm {
   id?: number;
   title: string;
   content?: string;
-  video?: string;
-  image?: string;
-  imageId?: number;
 }
 
 interface ModuleForm {
@@ -38,8 +31,6 @@ interface ModuleForm {
 export interface CourseFormData {
   title: string;
   description?: string;
-  accessType: 'public' | 'group' | 'user';
-  accessId?: string;
   imageId?: number;
   image?: string;
   modules: ModuleForm[];
@@ -52,14 +43,12 @@ interface CourseFormDialogProps {
   course?: CourseFormData;
 }
 
-const emptyLesson = (): LessonForm => ({ title: '', content: '', video: '' });
+const emptyLesson = (): LessonForm => ({ title: '', content: '' });
 const emptyModule = (): ModuleForm => ({ title: '', lessons: [] });
 
 const CourseFormDialog: React.FC<CourseFormDialogProps> = ({ open, onClose, onSave, course }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [accessType, setAccessType] = useState<'public' | 'group' | 'user'>('public');
-  const [accessId, setAccessId] = useState('');
   const [modules, setModules] = useState<ModuleForm[]>([emptyModule()]);
   const [courseImage, setCourseImage] = useState<string>('');
   const [courseImageFile, setCourseImageFile] = useState<File | null>(null);
@@ -73,8 +62,6 @@ const CourseFormDialog: React.FC<CourseFormDialogProps> = ({ open, onClose, onSa
     if (course) {
       setTitle(course.title);
       setDescription(course.description || '');
-      setAccessType(course.accessType);
-      setAccessId(course.accessId || '');
       setModules(
         course.modules.length
           ? course.modules.map((m) => ({ id: m.id, title: m.title, lessons: m.lessons || [] }))
@@ -92,8 +79,6 @@ const CourseFormDialog: React.FC<CourseFormDialogProps> = ({ open, onClose, onSa
     } else if (open) {
       setTitle('');
       setDescription('');
-      setAccessType('public');
-      setAccessId('');
       setModules([emptyModule()]);
       setCourseImage('');
       setCourseImageId(null);
@@ -159,8 +144,6 @@ const CourseFormDialog: React.FC<CourseFormDialogProps> = ({ open, onClose, onSa
     onSave({
       title,
       description,
-      accessType,
-      accessId,
       image: courseImage,
       imageId: courseImageId ?? undefined,
       modules
@@ -212,26 +195,6 @@ const CourseFormDialog: React.FC<CourseFormDialogProps> = ({ open, onClose, onSa
               )}
               {courseImage && <img src={courseImage} alt="course" style={{ height: 40 }} />}
             </Stack>
-            <FormControl>
-              <InputLabel id="access-label">Права доступа</InputLabel>
-              <Select
-                labelId="access-label"
-                value={accessType}
-                label="Права доступа"
-                onChange={(e) => setAccessType(e.target.value as any)}
-              >
-                <MenuItem value="public">Общий</MenuItem>
-                <MenuItem value="group">Для группы</MenuItem>
-                <MenuItem value="user">Для пользователя</MenuItem>
-              </Select>
-            </FormControl>
-            {(accessType === 'group' || accessType === 'user') && (
-              <TextField
-                label={accessType === 'group' ? 'ID группы' : 'ID пользователя'}
-                value={accessId}
-                onChange={(e) => setAccessId(e.target.value)}
-              />
-            )}
             <Typography variant="h6">Модули и уроки</Typography>
             {modules.map((mod, modIndex) => (
               <Stack key={modIndex} spacing={1} sx={{ border: '1px solid #ccc', p: 2, borderRadius: 1 }}>

@@ -99,7 +99,6 @@ const CoursesPage = () => {
           course: {
             title: course.title,
             description: course.description || '',
-            accessType: 'public',
             modules: modulesWithLessons.map((m: any) => ({
               id: m.id,
               title: m.title,
@@ -109,7 +108,6 @@ const CoursesPage = () => {
                   id: l.id,
                   title: l.title,
                   content: l.content || '',
-                  video: l.video || '',
                   image: l.image || ''
                 })) || []
             }))
