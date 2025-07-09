@@ -30,7 +30,6 @@ const CourseEditorPage = () => {
         const formData: CourseFormData = {
           title: c.title,
           description: c.description || '',
-          accessType: 'public',
           modules: modulesWithLessons.map((m: any) => ({
             id: m.id,
             title: m.title,
@@ -39,7 +38,6 @@ const CourseEditorPage = () => {
                 id: l.id,
                 title: l.title,
                 content: l.content || '',
-                video: l.video || '',
                 image: l.image || '',
                 imageId: l.img_id || null
               })) || []
@@ -59,14 +57,12 @@ const CourseEditorPage = () => {
       if (editingId) {
         await putCourse(editingId, { title: data.title, description: data.description, img_id: data.imageId });
       } else {
-        const res = await postCourse({
-          title: data.title,
-          description: data.description,
-          accessType: data.accessType,
-          accessId: data.accessId,
-          img_id: data.imageId,
-          image: data.image
-        });
+          const res = await postCourse({
+            title: data.title,
+            description: data.description,
+            img_id: data.imageId,
+            image: data.image
+          });
         id = res?.id;
       }
       if (id) {
@@ -89,12 +85,11 @@ const CourseEditorPage = () => {
           if (modId) {
             const validLessons = (mod.lessons || []).filter((l) => l.title.trim());
             for (const les of validLessons) {
-              const payload = {
-                title: les.title,
-                content: les.content,
-                video: les.video,
-                imgId: les.imageId
-              };
+                const payload = {
+                  title: les.title,
+                  content: les.content,
+                  imgId: les.imageId
+                };
               if (les.id) {
                 await putLesson(les.id, payload);
               } else {
