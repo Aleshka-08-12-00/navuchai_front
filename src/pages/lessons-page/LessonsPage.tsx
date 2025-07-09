@@ -96,7 +96,7 @@ const LessonsPage = () => {
             </MuiCardContent>
           </MuiCard>
         </Box>
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4">
           {lessons.map((lesson) => (
             <Card key={lesson.id} className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
               <CardHeader>
