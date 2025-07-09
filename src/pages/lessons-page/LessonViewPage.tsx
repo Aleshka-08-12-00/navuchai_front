@@ -103,30 +103,6 @@ const LessonViewPage = () => {
             Следующий <ArrowRight className="h-4 w-4 ml-2" />
           </Button>
         </div>
-        <div className="mt-6 text-right">
-          {lesson.completed ? (
-            <Button variant="outline" disabled>
-              <CheckCircle className="h-4 w-4 mr-2" /> Урок пройден
-            </Button>
-          ) : (
-            <Button
-              variant="default"
-              onClick={async () => {
-                try {
-                  await completeLesson(lesson.id);
-                  setLesson((prev) =>
-                    prev ? { ...prev, completed: true } : prev
-                  );
-                } catch (e) {
-                  console.error(e);
-                }
-                navigate(-1);
-              }}
-            >
-              <CheckCircle className="h-4 w-4 mr-2" /> Завершить урок
-            </Button>
-          )}
-        </div>
       </div>
     </div>
   );

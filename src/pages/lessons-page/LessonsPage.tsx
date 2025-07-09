@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Play } from 'lucide-react';
-import { getLessons, postLesson } from 'api';
+import { getLessons, postLesson, putLesson, deleteLesson } from 'api';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Context } from '../..';
@@ -11,9 +11,13 @@ import {
   Typography,
   Box,
   Stack,
-  Button as MuiButton
+  Button as MuiButton,
+  IconButton
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import LessonFormDialog, { LessonFormData } from '../../components/LessonFormDialog';
 
 interface Lesson {
   id: number;
@@ -28,6 +32,8 @@ const LessonsPage = () => {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const { authStore } = useContext(Context);
   const { roleCode } = authStore;
+  const [openLessonDialog, setOpenLessonDialog] = useState(false);
+  const [editingLesson, setEditingLesson] = useState<LessonFormData | undefined>(undefined);
 
   const loadLessons = async () => {
     if (!moduleId) return;
@@ -49,6 +55,38 @@ const LessonsPage = () => {
     if (!title) return;
     try {
       await postLesson(Number(moduleId), { title });
+      await loadLessons();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleEditLesson = (lesson: Lesson) => {
+    setEditingLesson({ id: lesson.id, title: lesson.title, content: (lesson as any).content || '' });
+    setOpenLessonDialog(true);
+  };
+
+  const handleDeleteLesson = async (lessonId: number) => {
+    if (!window.confirm('Удалить урок?')) return;
+    try {
+      await deleteLesson(lessonId);
+      await loadLessons();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const saveLesson = async (data: LessonFormData) => {
+    if (!moduleId) return;
+    try {
+      const payload = { title: data.title, content: data.content };
+      if (data.id) {
+        await putLesson(data.id, payload);
+      } else {
+        await postLesson(Number(moduleId), payload);
+      }
+      setOpenLessonDialog(false);
+      setEditingLesson(undefined);
       await loadLessons();
     } catch (e) {
       console.error(e);
@@ -97,9 +135,18 @@ const LessonsPage = () => {
         <div className="space-y-4">
           {lessons.map((lesson) => (
             <Card key={lesson.id} className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-              <CardHeader>
-                {lesson.image && <img src={lesson.image} alt={lesson.title} className="w-full h-48 object-cover rounded-t" />}
+              <CardHeader className="flex justify-between items-center">
                 <CardTitle className="text-xl font-semibold text-gray-800">{lesson.title}</CardTitle>
+                {roleCode === 'admin' && (
+                  <div className="flex gap-1">
+                    <IconButton size="small" onClick={() => handleEditLesson(lesson)}>
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton size="small" color="error" onClick={() => handleDeleteLesson(lesson.id)}>
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </div>
+                )}
               </CardHeader>
               <CardContent>
                 <Button
@@ -118,6 +165,13 @@ const LessonsPage = () => {
           ))}
         </div>
       </div>
+
+      <LessonFormDialog
+        open={openLessonDialog}
+        onClose={() => setOpenLessonDialog(false)}
+        onSave={saveLesson}
+        lesson={editingLesson}
+      />
     </div>
   );
 };

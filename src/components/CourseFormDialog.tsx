@@ -24,9 +24,6 @@ interface LessonForm {
   id?: number;
   title: string;
   content?: string;
-  video?: string;
-  image?: string;
-  imageId?: number;
 }
 
 interface ModuleForm {
@@ -52,7 +49,7 @@ interface CourseFormDialogProps {
   course?: CourseFormData;
 }
 
-const emptyLesson = (): LessonForm => ({ title: '', content: '', video: '' });
+const emptyLesson = (): LessonForm => ({ title: '', content: '' });
 const emptyModule = (): ModuleForm => ({ title: '', lessons: [] });
 
 const CourseFormDialog: React.FC<CourseFormDialogProps> = ({ open, onClose, onSave, course }) => {
