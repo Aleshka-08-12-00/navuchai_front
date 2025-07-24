@@ -17,6 +17,7 @@ import AdminPage from 'pages/admin-page/AdminPage';
 import CourseAccessAdminPage from 'pages/course-access-admin/CourseAccessAdminPage';
 import AnalyticsPage from 'pages/analytics-page/AnalyticsPage';
 import FaqPage from 'pages/faq-page/FaqPage';
+import FaqAccessPage from 'pages/faq-page/FaqAccessPage';
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -86,6 +87,10 @@ const MainRoutes = {
         {
           path: '/admin/course-access',
           element: <CourseAccessAdminPage />
+        },
+        {
+          path: '/admin/faq-access',
+          element: <FaqAccessPage />
         },
         {
           path: '/courses',

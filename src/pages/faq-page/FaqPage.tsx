@@ -18,7 +18,10 @@ import {
   List,
   ListItem,
   ListItemText,
-  Stack
+  Stack,
+  FormControl,
+  InputLabel,
+  Select
 } from '@mui/material';
 import JoditEditor from 'jodit-react';
 import AddIcon from '@mui/icons-material/Add';
@@ -30,14 +33,16 @@ import { observer } from 'mobx-react-lite';
 import { IFaqCategory } from '../../interface/interfaceStore';
 
 const FaqPage = observer(() => {
-  const { faqStore, authStore } = useContext(Context);
+  const { faqStore, authStore, respondentsStore } = useContext(Context);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
 
   const questionEditor = useRef(null);
   const answerEditor = useRef(null);
+  const editorConfig = { height: 400 };
 
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
   const [categoryTitle, setCategoryTitle] = useState('');
+  const [categoryGroup, setCategoryGroup] = useState<string>('');
   const [editingCategory, setEditingCategory] = useState<IFaqCategory | null>(null);
 
   const [questionDialogOpen, setQuestionDialogOpen] = useState(false);
@@ -52,7 +57,8 @@ const FaqPage = observer(() => {
 
   useEffect(() => {
     faqStore.fetchCategories();
-  }, [faqStore]);
+    respondentsStore.getRespondentLists();
+  }, [faqStore, respondentsStore]);
 
   useEffect(() => {
     if (faqStore.categories.length > 0 && selectedCategory === null) {
@@ -69,17 +75,26 @@ const FaqPage = observer(() => {
   const handleOpenCategoryDialog = (cat?: IFaqCategory) => {
     setEditingCategory(cat || null);
     setCategoryTitle(cat?.title || '');
+    setCategoryGroup(cat?.user_group_id ? String(cat.user_group_id) : '');
     setCategoryDialogOpen(true);
   };
 
   const handleSaveCategory = async () => {
     if (editingCategory) {
-      await faqStore.updateCategory(editingCategory.id, { title: categoryTitle });
+      await faqStore.updateCategory(editingCategory.id, {
+        title: categoryTitle,
+        user_group_id: categoryGroup ? Number(categoryGroup) : null
+      });
     } else {
-      await faqStore.createCategory({ title: categoryTitle, user_group_id: null, express: false });
+      await faqStore.createCategory({
+        title: categoryTitle,
+        user_group_id: categoryGroup ? Number(categoryGroup) : null,
+        express: false
+      });
     }
     setCategoryDialogOpen(false);
     setCategoryTitle('');
+    setCategoryGroup('');
     setEditingCategory(null);
   };
 
@@ -165,10 +180,14 @@ const FaqPage = observer(() => {
               </Stack>
               {faqStore.faqs.map((f) => (
                 <Card key={f.id} sx={{ mb: 2 }}>
-                  <CardHeader title={f.question} subheader={f.username} />
+                  <CardHeader
+                    title={<div dangerouslySetInnerHTML={{ __html: f.question || '' }} />}
+                    subheader={f.username}
+                    titleTypographyProps={{ component: 'div' }}
+                  />
                   <CardContent>
                     {f.answer ? (
-                      <Typography>{f.answer}</Typography>
+                      <div dangerouslySetInnerHTML={{ __html: f.answer }} />
                     ) : (
                       <Typography color="text.secondary">Нет ответа</Typography>
                     )}
@@ -201,6 +220,20 @@ const FaqPage = observer(() => {
             value={categoryTitle}
             onChange={(e) => setCategoryTitle(e.target.value)}
           />
+          <FormControl fullWidth sx={{ mt: 2 }}>
+            <InputLabel id="group-label">Группа</InputLabel>
+            <Select
+              labelId="group-label"
+              label="Группа"
+              value={categoryGroup}
+              onChange={(e) => setCategoryGroup(e.target.value as string)}
+            >
+              <MenuItem value="">Все</MenuItem>
+              {respondentsStore.respondentListsArray.map((g) => (
+                <MenuItem key={g.id} value={g.id.toString()}>{g.name}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setCategoryDialogOpen(false)}>Отмена</Button>
@@ -217,6 +250,7 @@ const FaqPage = observer(() => {
             ref={questionEditor}
             value={questionText}
             onBlur={(newContent) => setQuestionText(newContent)}
+            config={editorConfig}
           />
         </DialogContent>
         <DialogActions>
@@ -234,6 +268,7 @@ const FaqPage = observer(() => {
             ref={answerEditor}
             value={answerText}
             onBlur={(newContent) => setAnswerText(newContent)}
+            config={editorConfig}
           />
         </DialogContent>
         <DialogActions>
