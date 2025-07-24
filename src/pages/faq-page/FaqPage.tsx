@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useRef } from 'react';
 import {
   Box,
   Card,
@@ -20,6 +20,7 @@ import {
   ListItemText,
   Stack
 } from '@mui/material';
+import JoditEditor from 'jodit-react';
 import AddIcon from '@mui/icons-material/Add';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import EditIcon from '@mui/icons-material/Edit';
@@ -31,6 +32,9 @@ import { IFaqCategory } from '../../interface/interfaceStore';
 const FaqPage = observer(() => {
   const { faqStore, authStore } = useContext(Context);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+
+  const questionEditor = useRef(null);
+  const answerEditor = useRef(null);
 
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
   const [categoryTitle, setCategoryTitle] = useState('');
@@ -49,6 +53,12 @@ const FaqPage = observer(() => {
   useEffect(() => {
     faqStore.fetchCategories();
   }, [faqStore]);
+
+  useEffect(() => {
+    if (faqStore.categories.length > 0 && selectedCategory === null) {
+      setSelectedCategory(faqStore.categories[0].id);
+    }
+  }, [faqStore.categories, selectedCategory]);
 
   useEffect(() => {
     if (selectedCategory !== null) {
@@ -200,17 +210,13 @@ const FaqPage = observer(() => {
         </DialogActions>
       </Dialog>
 
-      <Dialog open={questionDialogOpen} onClose={() => setQuestionDialogOpen(false)}>
+      <Dialog open={questionDialogOpen} onClose={() => setQuestionDialogOpen(false)} maxWidth="md" fullWidth>
         <DialogTitle>Задать вопрос</DialogTitle>
         <DialogContent>
-          <TextField
-            margin="dense"
-            label="Вопрос"
-            fullWidth
-            multiline
-            minRows={3}
+          <JoditEditor
+            ref={questionEditor}
             value={questionText}
-            onChange={(e) => setQuestionText(e.target.value)}
+            onBlur={(newContent) => setQuestionText(newContent)}
           />
         </DialogContent>
         <DialogActions>
@@ -221,17 +227,13 @@ const FaqPage = observer(() => {
         </DialogActions>
       </Dialog>
 
-      <Dialog open={answerDialogOpen} onClose={() => setAnswerDialogOpen(false)}>
+      <Dialog open={answerDialogOpen} onClose={() => setAnswerDialogOpen(false)} maxWidth="md" fullWidth>
         <DialogTitle>Ответить на вопрос</DialogTitle>
         <DialogContent>
-          <TextField
-            margin="dense"
-            label="Ответ"
-            fullWidth
-            multiline
-            minRows={3}
+          <JoditEditor
+            ref={answerEditor}
             value={answerText}
-            onChange={(e) => setAnswerText(e.target.value)}
+            onBlur={(newContent) => setAnswerText(newContent)}
           />
         </DialogContent>
         <DialogActions>
