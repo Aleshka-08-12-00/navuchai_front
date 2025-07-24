@@ -12,6 +12,7 @@ import {
   DialogActions,
   TextField,
   IconButton,
+  CardActions,
   Menu,
   MenuItem,
   List,
@@ -21,6 +22,7 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import EditIcon from '@mui/icons-material/Edit';
 import MainCard from '../../components/MainCard';
 import { Context } from '../..';
 import { observer } from 'mobx-react-lite';
@@ -36,6 +38,10 @@ const FaqPage = observer(() => {
 
   const [questionDialogOpen, setQuestionDialogOpen] = useState(false);
   const [questionText, setQuestionText] = useState('');
+
+  const [answerDialogOpen, setAnswerDialogOpen] = useState(false);
+  const [answerText, setAnswerText] = useState('');
+  const [editingFaqId, setEditingFaqId] = useState<number | null>(null);
 
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
   const [menuCategoryId, setMenuCategoryId] = useState<number | null>(null);
@@ -78,6 +84,24 @@ const FaqPage = observer(() => {
       await faqStore.createFaq({ category_id: selectedCategory, question: questionText });
       setQuestionText('');
       setQuestionDialogOpen(false);
+    }
+  };
+
+  const handleOpenAnswerDialog = (faqId: number, currentAnswer?: string | null) => {
+    setEditingFaqId(faqId);
+    setAnswerText(currentAnswer || '');
+    setAnswerDialogOpen(true);
+  };
+
+  const handleSaveAnswer = async () => {
+    if (editingFaqId !== null) {
+      await faqStore.answerFaq(editingFaqId, { answer: answerText });
+      if (selectedCategory !== null) {
+        await faqStore.fetchFaqs(selectedCategory, true);
+      }
+      setAnswerDialogOpen(false);
+      setAnswerText('');
+      setEditingFaqId(null);
     }
   };
 
@@ -139,6 +163,17 @@ const FaqPage = observer(() => {
                       <Typography color="text.secondary">Нет ответа</Typography>
                     )}
                   </CardContent>
+                  {authStore.roleCode === 'admin' && (
+                    <CardActions sx={{ justifyContent: 'flex-end' }}>
+                      <Button
+                        size="small"
+                        startIcon={<EditIcon />}
+                        onClick={() => handleOpenAnswerDialog(f.id, f.answer)}
+                      >
+                        {f.answer ? 'Изменить ответ' : 'Ответить'}
+                      </Button>
+                    </CardActions>
+                  )}
                 </Card>
               ))}
             </>
@@ -182,6 +217,27 @@ const FaqPage = observer(() => {
           <Button onClick={() => setQuestionDialogOpen(false)}>Отмена</Button>
           <Button onClick={handleAskQuestion} variant="contained" color="success">
             Отправить
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={answerDialogOpen} onClose={() => setAnswerDialogOpen(false)}>
+        <DialogTitle>Ответить на вопрос</DialogTitle>
+        <DialogContent>
+          <TextField
+            margin="dense"
+            label="Ответ"
+            fullWidth
+            multiline
+            minRows={3}
+            value={answerText}
+            onChange={(e) => setAnswerText(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setAnswerDialogOpen(false)}>Отмена</Button>
+          <Button onClick={handleSaveAnswer} variant="contained" color="success">
+            Сохранить
           </Button>
         </DialogActions>
       </Dialog>
