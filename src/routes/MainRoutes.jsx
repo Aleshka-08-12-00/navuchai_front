@@ -16,6 +16,7 @@ import CreateRespondentsPage from 'pages/respondents-page/create-respondents-lis
 import AdminPage from 'pages/admin-page/AdminPage';
 import CourseAccessAdminPage from 'pages/course-access-admin/CourseAccessAdminPage';
 import AnalyticsPage from 'pages/analytics-page/AnalyticsPage';
+import FaqPage from 'pages/faq-page/FaqPage';
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -113,6 +114,10 @@ const MainRoutes = {
         {
           path: '/analytics',
           element: <AnalyticsPage />
+        },
+        {
+          path: '/faq',
+          element: <FaqPage />
         }
       ]
     }

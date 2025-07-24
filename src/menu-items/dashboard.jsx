@@ -6,6 +6,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import QueryStatsIcon from '@mui/icons-material/QueryStats';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
 
 // icons
@@ -17,7 +18,8 @@ const icons = {
   SettingsIcon,
   LibraryBooksIcon,
   AdminPanelSettingsIcon,
-  QueryStatsIcon
+  QueryStatsIcon,
+  HelpOutlineIcon
 };
 
 // ==============================|| MENU ITEMS - DASHBOARD ||============================== //
@@ -76,6 +78,16 @@ const dashboard = {
       breadcrumbs: true,
       code: 'anyCode',
       allowedRoles: ['admin', 'moderator']
+    },
+    {
+      id: '9',
+      title: 'FAQ',
+      type: 'item',
+      url: '/faq',
+      icon: icons.HelpOutlineIcon,
+      breadcrumbs: true,
+      code: 'anyCode',
+      allowedRoles: ['admin', 'user', 'guest', 'moderator']
     },
     {
       id: '4',

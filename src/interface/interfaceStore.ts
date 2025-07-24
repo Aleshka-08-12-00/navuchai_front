@@ -375,3 +375,22 @@ export interface IQuestionTypes {
   updated_at: string;
 }
 
+export interface IFaqCategory {
+  id: number;
+  title: string;
+  user_group_id: number | null;
+  express?: boolean | null;
+}
+
+export interface IFaq {
+  id: number;
+  category_id: number;
+  username?: string | null;
+  question?: string | null;
+  date: string;
+  answer?: string | null;
+  hits: number;
+  active: boolean;
+  owner_id: number;
+}
+
