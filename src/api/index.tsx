@@ -258,5 +258,16 @@ export const getModuleTests = (moduleId: number) => fetchData('moduleTests', {},
 export const postModuleTest = (moduleId: number, d: any) => postData('moduleTests', d, moduleId);
 export const completeLesson = (lessonId: number) => postData('lessonComplete', {}, lessonId);
 
+export const getFaqCategories = () => fetchData('faqCategories');
+export const postFaqCategory = (data: any) => postData('faqCategories', data);
+export const putFaqCategory = (id: number, d: any) => putData('faqCategoryById', d, id);
+export const deleteFaqCategory = (id: number) => deleteData('faqCategoryById', {}, id);
+
+export const getFaqs = (categoryId?: number) =>
+  fetchData('faq', categoryId ? { category_id: categoryId } : {});
+export const postFaq = (data: any) => postData('faq', data);
+export const getFaq = (id: number) => fetchData('faqById', {}, id);
+export const putFaqAnswer = (id: number, d: any) => putData('faqAnswer', d, id);
+
 export const getTestImportTemplate = () => fetchData('getTestImportTemplate');
 export const postTestImportExcel = (formData: FormData) => postData('postTestImportExcel', formData);

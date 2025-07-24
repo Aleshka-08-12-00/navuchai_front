@@ -110,6 +110,13 @@ const endpoints = {
 
   lessonComplete: (lessonId: string | number) => `api/lessons/${lessonId}/complete/`,
 
+  /* FAQ */
+  faq: 'api/faq/',
+  faqById: (id: string | number) => `api/faq/${id}/`,
+  faqAnswer: (id: string | number) => `api/faq/${id}/answer/`,
+  faqCategories: 'api/faq-categories/',
+  faqCategoryById: (id: string | number) => `api/faq-categories/${id}/`,
+
   // Импорт/экспорт вопросов через Excel
   getTestImportTemplate: 'api/test-import/template/',
   postTestImportExcel: 'api/test-import/excel/',
