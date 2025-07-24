@@ -119,6 +119,16 @@ const dashboard = {
       code: 'anyCode',
       allowedRoles: ['admin']
     },
+    {
+      id: '10',
+      title: 'Доступ к FAQ',
+      type: 'item',
+      url: '/admin/faq-access',
+      icon: icons.HelpOutlineIcon,
+      breadcrumbs: true,
+      code: 'anyCode',
+      allowedRoles: ['admin']
+    },
 
   ]
 };
